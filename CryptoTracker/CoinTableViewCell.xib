@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="CoinCell" rowHeight="67" id="KGk-i7-Jjw" customClass="CoinTableViewCell" customModule="CryptoTracker" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="67"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="67"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BTC" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tpY-Eg-ePE">
+                        <rect key="frame" x="86.5" y="8" width="38.5" height="24"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="748" text="$69.6B" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EDW-jE-pUC">
+                        <rect key="frame" x="213" y="12" width="50.5" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="4.74%" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JcK-pZ-mIi">
+                        <rect key="frame" x="327" y="38.5" width="37" height="16"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$4212.15" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YhW-y4-WZR">
+                        <rect key="frame" x="305" y="12" width="59" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalCompressionResistancePriority="749" image="bitcoin" translatesAutoresizingMaskIntoConstraints="NO" id="WHB-X7-5yz">
+                        <rect key="frame" x="16" y="8" width="50.5" height="50.5"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="WHB-X7-5yz" secondAttribute="height" multiplier="1:1" id="Hmi-eB-ntH"/>
+                            <constraint firstAttribute="height" constant="50.5" id="kyo-jA-VK8"/>
+                        </constraints>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailingMargin" secondItem="EDW-jE-pUC" secondAttribute="trailing" constant="103.5" id="8zn-uA-wkU"/>
+                    <constraint firstItem="EDW-jE-pUC" firstAttribute="baseline" secondItem="tpY-Eg-ePE" secondAttribute="baseline" id="BVl-2O-2dr"/>
+                    <constraint firstItem="tpY-Eg-ePE" firstAttribute="top" secondItem="EDW-jE-pUC" secondAttribute="top" constant="-4" id="CmQ-j3-j8x"/>
+                    <constraint firstItem="YhW-y4-WZR" firstAttribute="trailing" secondItem="JcK-pZ-mIi" secondAttribute="trailing" id="Ev1-Xr-0VQ"/>
+                    <constraint firstItem="tpY-Eg-ePE" firstAttribute="top" secondItem="WHB-X7-5yz" secondAttribute="top" id="Kjr-Rn-b7y"/>
+                    <constraint firstItem="EDW-jE-pUC" firstAttribute="top" secondItem="YhW-y4-WZR" secondAttribute="top" id="SQC-y1-V26"/>
+                    <constraint firstItem="JcK-pZ-mIi" firstAttribute="bottom" secondItem="WHB-X7-5yz" secondAttribute="bottom" constant="-4" id="ipa-LA-iqY"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="YhW-y4-WZR" secondAttribute="trailing" constant="3" id="khD-14-RkK"/>
+                    <constraint firstItem="tpY-Eg-ePE" firstAttribute="leading" secondItem="WHB-X7-5yz" secondAttribute="trailing" constant="20" id="mGA-by-1O2"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="WHB-X7-5yz" secondAttribute="bottom" id="oZM-8X-jcb"/>
+                    <constraint firstItem="EDW-jE-pUC" firstAttribute="baseline" secondItem="YhW-y4-WZR" secondAttribute="baseline" id="oul-am-AaQ"/>
+                    <constraint firstItem="WHB-X7-5yz" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" constant="8" id="qFG-xt-E3x"/>
+                    <constraint firstItem="WHB-X7-5yz" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" id="xpc-8S-zos"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="capLabel" destination="EDW-jE-pUC" id="ox2-HV-tCa"/>
+                <outlet property="percentLabel" destination="JcK-pZ-mIi" id="OSX-Bw-k5v"/>
+                <outlet property="priceLabel" destination="YhW-y4-WZR" id="v8G-2C-4Vi"/>
+                <outlet property="tickerLabel" destination="tpY-Eg-ePE" id="L9Q-vw-29j"/>
+            </connections>
+            <point key="canvasLocation" x="28.5" y="63.5"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="bitcoin" width="50" height="50"/>
+    </resources>
+</document>

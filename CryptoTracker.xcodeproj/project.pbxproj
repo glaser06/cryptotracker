@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2049DEEBD4874426E8365CBD /* Pods_CryptoTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 339AE9C7E58F7F8FCEEF3F37 /* Pods_CryptoTracker.framework */; };
+		27734612B5AE337D2D2604F7 /* Pods_CryptoTrackerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F773CDE7038C1272430352C4 /* Pods_CryptoTrackerUITests.framework */; };
 		6D0ED8C31F4CE0A700D5146D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8C21F4CE0A700D5146D /* AppDelegate.swift */; };
 		6D0ED8C51F4CE0A700D5146D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8C41F4CE0A700D5146D /* ViewController.swift */; };
 		6D0ED8C81F4CE0A700D5146D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6D0ED8C61F4CE0A700D5146D /* Main.storyboard */; };
@@ -14,6 +16,42 @@
 		6D0ED8CD1F4CE0A700D5146D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6D0ED8CB1F4CE0A700D5146D /* LaunchScreen.storyboard */; };
 		6D0ED8D81F4CE0A700D5146D /* CryptoTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8D71F4CE0A700D5146D /* CryptoTrackerTests.swift */; };
 		6D0ED8E31F4CE0A700D5146D /* CryptoTrackerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8E21F4CE0A700D5146D /* CryptoTrackerUITests.swift */; };
+		6D0ED8FB1F4DF94700D5146D /* ListCoinsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8F51F4DF94700D5146D /* ListCoinsInteractor.swift */; };
+		6D0ED8FC1F4DF94700D5146D /* ListCoinsModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8F61F4DF94700D5146D /* ListCoinsModels.swift */; };
+		6D0ED8FD1F4DF94700D5146D /* ListCoinsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8F71F4DF94700D5146D /* ListCoinsPresenter.swift */; };
+		6D0ED8FE1F4DF94700D5146D /* ListCoinsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8F81F4DF94700D5146D /* ListCoinsRouter.swift */; };
+		6D0ED8FF1F4DF94700D5146D /* ListCoinsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8F91F4DF94700D5146D /* ListCoinsViewController.swift */; };
+		6D0ED9001F4DF94700D5146D /* ListCoinsWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED8FA1F4DF94700D5146D /* ListCoinsWorker.swift */; };
+		6D0ED9031F4E058600D5146D /* CoinTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED9011F4E058600D5146D /* CoinTableViewCell.swift */; };
+		6D0ED9041F4E058600D5146D /* CoinTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6D0ED9021F4E058600D5146D /* CoinTableViewCell.xib */; };
+		6D0ED9071F4E3EF800D5146D /* CoinMarketCapAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED9061F4E3EF800D5146D /* CoinMarketCapAPI.swift */; };
+		6D0ED9091F4E3F0A00D5146D /* MarketWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0ED9081F4E3F0A00D5146D /* MarketWorker.swift */; };
+		6D62036B1F5053F400054A44 /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D62036A1F5053F400054A44 /* Portfolio.swift */; };
+		6D6203731F509EFD00054A44 /* ShowPortfolioInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D62036D1F509EFD00054A44 /* ShowPortfolioInteractor.swift */; };
+		6D6203741F509EFD00054A44 /* ShowPortfolioModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D62036E1F509EFD00054A44 /* ShowPortfolioModels.swift */; };
+		6D6203751F509EFD00054A44 /* ShowPortfolioPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D62036F1F509EFD00054A44 /* ShowPortfolioPresenter.swift */; };
+		6D6203761F509EFD00054A44 /* ShowPortfolioRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203701F509EFD00054A44 /* ShowPortfolioRouter.swift */; };
+		6D6203771F509EFD00054A44 /* ShowPortfolioViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203711F509EFD00054A44 /* ShowPortfolioViewController.swift */; };
+		6D6203781F509EFD00054A44 /* ShowPortfolioWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203721F509EFD00054A44 /* ShowPortfolioWorker.swift */; };
+		6D62037A1F50A9EB00054A44 /* PortfolioWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203791F50A9EB00054A44 /* PortfolioWorker.swift */; };
+		6D62037D1F50AA7500054A44 /* AssetTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D62037B1F50AA7500054A44 /* AssetTableViewCell.swift */; };
+		6D62037E1F50AA7500054A44 /* AssetTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6D62037C1F50AA7500054A44 /* AssetTableViewCell.xib */; };
+		6D6203871F51009300054A44 /* AddTransactionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203811F51009300054A44 /* AddTransactionInteractor.swift */; };
+		6D6203881F51009300054A44 /* AddTransactionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203821F51009300054A44 /* AddTransactionModels.swift */; };
+		6D6203891F51009300054A44 /* AddTransactionPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203831F51009300054A44 /* AddTransactionPresenter.swift */; };
+		6D62038A1F51009300054A44 /* AddTransactionRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203841F51009300054A44 /* AddTransactionRouter.swift */; };
+		6D62038B1F51009300054A44 /* AddTransactionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203851F51009300054A44 /* AddTransactionViewController.swift */; };
+		6D62038C1F51009300054A44 /* AddTransactionWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6203861F51009300054A44 /* AddTransactionWorker.swift */; };
+		6D6825ED1F5016DB00A25873 /* ShowCoinInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825E71F5016DB00A25873 /* ShowCoinInteractor.swift */; };
+		6D6825EE1F5016DB00A25873 /* ShowCoinModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825E81F5016DB00A25873 /* ShowCoinModels.swift */; };
+		6D6825EF1F5016DB00A25873 /* ShowCoinPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825E91F5016DB00A25873 /* ShowCoinPresenter.swift */; };
+		6D6825F01F5016DB00A25873 /* ShowCoinRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825EA1F5016DB00A25873 /* ShowCoinRouter.swift */; };
+		6D6825F11F5016DB00A25873 /* ShowCoinViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825EB1F5016DB00A25873 /* ShowCoinViewController.swift */; };
+		6D6825F21F5016DB00A25873 /* ShowCoinWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825EC1F5016DB00A25873 /* ShowCoinWorker.swift */; };
+		6D6825F41F5027A100A25873 /* Coin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825F31F5027A100A25873 /* Coin.swift */; };
+		6D6825F61F502BA200A25873 /* CoinWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825F51F502BA200A25873 /* CoinWorker.swift */; };
+		6D6825F81F502BBE00A25873 /* CryptowatchAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825F71F502BBE00A25873 /* CryptowatchAPI.swift */; };
+		F05A8115F1442C1314C6702C /* Pods_CryptoTrackerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F25356B257FDEA6DE14ED735 /* Pods_CryptoTrackerTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +72,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0FFF8BBB9BC5A5273D81ADBC /* Pods-CryptoTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTracker.release.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTracker/Pods-CryptoTracker.release.xcconfig"; sourceTree = "<group>"; };
+		1036A78CA0901881DD1B3F2B /* Pods-CryptoTrackerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTrackerTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTrackerTests/Pods-CryptoTrackerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		1A129572C15B6CCA62A13385 /* Pods-CryptoTrackerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTrackerUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTrackerUITests/Pods-CryptoTrackerUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		339AE9C7E58F7F8FCEEF3F37 /* Pods_CryptoTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CryptoTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D0ED8BF1F4CE0A700D5146D /* CryptoTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CryptoTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D0ED8C21F4CE0A700D5146D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6D0ED8C41F4CE0A700D5146D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -47,6 +89,46 @@
 		6D0ED8DE1F4CE0A700D5146D /* CryptoTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CryptoTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D0ED8E21F4CE0A700D5146D /* CryptoTrackerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoTrackerUITests.swift; sourceTree = "<group>"; };
 		6D0ED8E41F4CE0A700D5146D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6D0ED8F51F4DF94700D5146D /* ListCoinsInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCoinsInteractor.swift; sourceTree = "<group>"; };
+		6D0ED8F61F4DF94700D5146D /* ListCoinsModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCoinsModels.swift; sourceTree = "<group>"; };
+		6D0ED8F71F4DF94700D5146D /* ListCoinsPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCoinsPresenter.swift; sourceTree = "<group>"; };
+		6D0ED8F81F4DF94700D5146D /* ListCoinsRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCoinsRouter.swift; sourceTree = "<group>"; };
+		6D0ED8F91F4DF94700D5146D /* ListCoinsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCoinsViewController.swift; sourceTree = "<group>"; };
+		6D0ED8FA1F4DF94700D5146D /* ListCoinsWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCoinsWorker.swift; sourceTree = "<group>"; };
+		6D0ED9011F4E058600D5146D /* CoinTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoinTableViewCell.swift; sourceTree = "<group>"; };
+		6D0ED9021F4E058600D5146D /* CoinTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CoinTableViewCell.xib; sourceTree = "<group>"; };
+		6D0ED9061F4E3EF800D5146D /* CoinMarketCapAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoinMarketCapAPI.swift; sourceTree = "<group>"; };
+		6D0ED9081F4E3F0A00D5146D /* MarketWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketWorker.swift; sourceTree = "<group>"; };
+		6D62036A1F5053F400054A44 /* Portfolio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Portfolio.swift; sourceTree = "<group>"; };
+		6D62036D1F509EFD00054A44 /* ShowPortfolioInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowPortfolioInteractor.swift; sourceTree = "<group>"; };
+		6D62036E1F509EFD00054A44 /* ShowPortfolioModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowPortfolioModels.swift; sourceTree = "<group>"; };
+		6D62036F1F509EFD00054A44 /* ShowPortfolioPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowPortfolioPresenter.swift; sourceTree = "<group>"; };
+		6D6203701F509EFD00054A44 /* ShowPortfolioRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowPortfolioRouter.swift; sourceTree = "<group>"; };
+		6D6203711F509EFD00054A44 /* ShowPortfolioViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowPortfolioViewController.swift; sourceTree = "<group>"; };
+		6D6203721F509EFD00054A44 /* ShowPortfolioWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowPortfolioWorker.swift; sourceTree = "<group>"; };
+		6D6203791F50A9EB00054A44 /* PortfolioWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortfolioWorker.swift; sourceTree = "<group>"; };
+		6D62037B1F50AA7500054A44 /* AssetTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetTableViewCell.swift; sourceTree = "<group>"; };
+		6D62037C1F50AA7500054A44 /* AssetTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssetTableViewCell.xib; sourceTree = "<group>"; };
+		6D6203811F51009300054A44 /* AddTransactionInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTransactionInteractor.swift; sourceTree = "<group>"; };
+		6D6203821F51009300054A44 /* AddTransactionModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTransactionModels.swift; sourceTree = "<group>"; };
+		6D6203831F51009300054A44 /* AddTransactionPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTransactionPresenter.swift; sourceTree = "<group>"; };
+		6D6203841F51009300054A44 /* AddTransactionRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTransactionRouter.swift; sourceTree = "<group>"; };
+		6D6203851F51009300054A44 /* AddTransactionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTransactionViewController.swift; sourceTree = "<group>"; };
+		6D6203861F51009300054A44 /* AddTransactionWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTransactionWorker.swift; sourceTree = "<group>"; };
+		6D6825E71F5016DB00A25873 /* ShowCoinInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowCoinInteractor.swift; sourceTree = "<group>"; };
+		6D6825E81F5016DB00A25873 /* ShowCoinModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowCoinModels.swift; sourceTree = "<group>"; };
+		6D6825E91F5016DB00A25873 /* ShowCoinPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowCoinPresenter.swift; sourceTree = "<group>"; };
+		6D6825EA1F5016DB00A25873 /* ShowCoinRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowCoinRouter.swift; sourceTree = "<group>"; };
+		6D6825EB1F5016DB00A25873 /* ShowCoinViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowCoinViewController.swift; sourceTree = "<group>"; };
+		6D6825EC1F5016DB00A25873 /* ShowCoinWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowCoinWorker.swift; sourceTree = "<group>"; };
+		6D6825F31F5027A100A25873 /* Coin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Coin.swift; sourceTree = "<group>"; };
+		6D6825F51F502BA200A25873 /* CoinWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoinWorker.swift; sourceTree = "<group>"; };
+		6D6825F71F502BBE00A25873 /* CryptowatchAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptowatchAPI.swift; sourceTree = "<group>"; };
+		C2DFC567092D0555DF853086 /* Pods-CryptoTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTracker.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTracker/Pods-CryptoTracker.debug.xcconfig"; sourceTree = "<group>"; };
+		C8BCC6C313A66009E6096456 /* Pods-CryptoTrackerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTrackerTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTrackerTests/Pods-CryptoTrackerTests.release.xcconfig"; sourceTree = "<group>"; };
+		D000E416070A248539B5183C /* Pods-CryptoTrackerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTrackerUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTrackerUITests/Pods-CryptoTrackerUITests.release.xcconfig"; sourceTree = "<group>"; };
+		F25356B257FDEA6DE14ED735 /* Pods_CryptoTrackerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CryptoTrackerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F773CDE7038C1272430352C4 /* Pods_CryptoTrackerUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CryptoTrackerUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +136,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2049DEEBD4874426E8365CBD /* Pods_CryptoTracker.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,6 +144,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F05A8115F1442C1314C6702C /* Pods_CryptoTrackerTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,12 +152,36 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27734612B5AE337D2D2604F7 /* Pods_CryptoTrackerUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5733DFD26874979BE45C0C38 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				339AE9C7E58F7F8FCEEF3F37 /* Pods_CryptoTracker.framework */,
+				F25356B257FDEA6DE14ED735 /* Pods_CryptoTrackerTests.framework */,
+				F773CDE7038C1272430352C4 /* Pods_CryptoTrackerUITests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		57B56F9B15792E038E784BFB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C2DFC567092D0555DF853086 /* Pods-CryptoTracker.debug.xcconfig */,
+				0FFF8BBB9BC5A5273D81ADBC /* Pods-CryptoTracker.release.xcconfig */,
+				1036A78CA0901881DD1B3F2B /* Pods-CryptoTrackerTests.debug.xcconfig */,
+				C8BCC6C313A66009E6096456 /* Pods-CryptoTrackerTests.release.xcconfig */,
+				1A129572C15B6CCA62A13385 /* Pods-CryptoTrackerUITests.debug.xcconfig */,
+				D000E416070A248539B5183C /* Pods-CryptoTrackerUITests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		6D0ED8B61F4CE0A700D5146D = {
 			isa = PBXGroup;
 			children = (
@@ -81,6 +189,8 @@
 				6D0ED8D61F4CE0A700D5146D /* CryptoTrackerTests */,
 				6D0ED8E11F4CE0A700D5146D /* CryptoTrackerUITests */,
 				6D0ED8C01F4CE0A700D5146D /* Products */,
+				57B56F9B15792E038E784BFB /* Pods */,
+				5733DFD26874979BE45C0C38 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -97,6 +207,10 @@
 		6D0ED8C11F4CE0A700D5146D /* CryptoTracker */ = {
 			isa = PBXGroup;
 			children = (
+				6D0ED8F31F4DF60B00D5146D /* Models */,
+				6D0ED8F11F4DF60100D5146D /* Services */,
+				6D0ED8F21F4DF60600D5146D /* Workers */,
+				6D0ED8F01F4DF5FC00D5146D /* Scenes */,
 				6D0ED8C21F4CE0A700D5146D /* AppDelegate.swift */,
 				6D0ED8C41F4CE0A700D5146D /* ViewController.swift */,
 				6D0ED8C61F4CE0A700D5146D /* Main.storyboard */,
@@ -125,6 +239,117 @@
 			path = CryptoTrackerUITests;
 			sourceTree = "<group>";
 		};
+		6D0ED8F01F4DF5FC00D5146D /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				6D62036C1F509EEA00054A44 /* ShowPortfolio */,
+				6D6203801F51005600054A44 /* AddTransaction */,
+				6D6825E61F50166700A25873 /* ShowCoin */,
+				6D0ED8F41F4DF92100D5146D /* ListCoins */,
+			);
+			name = Scenes;
+			sourceTree = "<group>";
+		};
+		6D0ED8F11F4DF60100D5146D /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6D0ED9061F4E3EF800D5146D /* CoinMarketCapAPI.swift */,
+				6D6825F71F502BBE00A25873 /* CryptowatchAPI.swift */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
+		6D0ED8F21F4DF60600D5146D /* Workers */ = {
+			isa = PBXGroup;
+			children = (
+				6D6203791F50A9EB00054A44 /* PortfolioWorker.swift */,
+				6D0ED9081F4E3F0A00D5146D /* MarketWorker.swift */,
+				6D6825F51F502BA200A25873 /* CoinWorker.swift */,
+			);
+			name = Workers;
+			sourceTree = "<group>";
+		};
+		6D0ED8F31F4DF60B00D5146D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6D6825F31F5027A100A25873 /* Coin.swift */,
+				6D62036A1F5053F400054A44 /* Portfolio.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		6D0ED8F41F4DF92100D5146D /* ListCoins */ = {
+			isa = PBXGroup;
+			children = (
+				6D0ED9051F4E058900D5146D /* Cells */,
+				6D0ED8F91F4DF94700D5146D /* ListCoinsViewController.swift */,
+				6D0ED8F51F4DF94700D5146D /* ListCoinsInteractor.swift */,
+				6D0ED8F71F4DF94700D5146D /* ListCoinsPresenter.swift */,
+				6D0ED8F61F4DF94700D5146D /* ListCoinsModels.swift */,
+				6D0ED8F81F4DF94700D5146D /* ListCoinsRouter.swift */,
+				6D0ED8FA1F4DF94700D5146D /* ListCoinsWorker.swift */,
+			);
+			name = ListCoins;
+			sourceTree = "<group>";
+		};
+		6D0ED9051F4E058900D5146D /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				6D0ED9011F4E058600D5146D /* CoinTableViewCell.swift */,
+				6D0ED9021F4E058600D5146D /* CoinTableViewCell.xib */,
+			);
+			name = Cells;
+			sourceTree = "<group>";
+		};
+		6D62036C1F509EEA00054A44 /* ShowPortfolio */ = {
+			isa = PBXGroup;
+			children = (
+				6D62037F1F50AA7900054A44 /* Cells */,
+				6D6203711F509EFD00054A44 /* ShowPortfolioViewController.swift */,
+				6D62036D1F509EFD00054A44 /* ShowPortfolioInteractor.swift */,
+				6D62036F1F509EFD00054A44 /* ShowPortfolioPresenter.swift */,
+				6D62036E1F509EFD00054A44 /* ShowPortfolioModels.swift */,
+				6D6203701F509EFD00054A44 /* ShowPortfolioRouter.swift */,
+				6D6203721F509EFD00054A44 /* ShowPortfolioWorker.swift */,
+			);
+			name = ShowPortfolio;
+			sourceTree = "<group>";
+		};
+		6D62037F1F50AA7900054A44 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				6D62037B1F50AA7500054A44 /* AssetTableViewCell.swift */,
+				6D62037C1F50AA7500054A44 /* AssetTableViewCell.xib */,
+			);
+			name = Cells;
+			sourceTree = "<group>";
+		};
+		6D6203801F51005600054A44 /* AddTransaction */ = {
+			isa = PBXGroup;
+			children = (
+				6D6203851F51009300054A44 /* AddTransactionViewController.swift */,
+				6D6203811F51009300054A44 /* AddTransactionInteractor.swift */,
+				6D6203831F51009300054A44 /* AddTransactionPresenter.swift */,
+				6D6203821F51009300054A44 /* AddTransactionModels.swift */,
+				6D6203841F51009300054A44 /* AddTransactionRouter.swift */,
+				6D6203861F51009300054A44 /* AddTransactionWorker.swift */,
+			);
+			name = AddTransaction;
+			sourceTree = "<group>";
+		};
+		6D6825E61F50166700A25873 /* ShowCoin */ = {
+			isa = PBXGroup;
+			children = (
+				6D6825EB1F5016DB00A25873 /* ShowCoinViewController.swift */,
+				6D6825E71F5016DB00A25873 /* ShowCoinInteractor.swift */,
+				6D6825E91F5016DB00A25873 /* ShowCoinPresenter.swift */,
+				6D6825E81F5016DB00A25873 /* ShowCoinModels.swift */,
+				6D6825EA1F5016DB00A25873 /* ShowCoinRouter.swift */,
+				6D6825EC1F5016DB00A25873 /* ShowCoinWorker.swift */,
+			);
+			name = ShowCoin;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -132,9 +357,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6D0ED8E71F4CE0A700D5146D /* Build configuration list for PBXNativeTarget "CryptoTracker" */;
 			buildPhases = (
+				6343AFF76D471D0DD5FE15D7 /* [CP] Check Pods Manifest.lock */,
 				6D0ED8BB1F4CE0A700D5146D /* Sources */,
 				6D0ED8BC1F4CE0A700D5146D /* Frameworks */,
 				6D0ED8BD1F4CE0A700D5146D /* Resources */,
+				D22D72B5467100B58A4A8B87 /* [CP] Embed Pods Frameworks */,
+				7A82AE4FDFE92CBA8B2FEE14 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -149,9 +377,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6D0ED8EA1F4CE0A700D5146D /* Build configuration list for PBXNativeTarget "CryptoTrackerTests" */;
 			buildPhases = (
+				51FC6C449916BBFF610660D4 /* [CP] Check Pods Manifest.lock */,
 				6D0ED8CF1F4CE0A700D5146D /* Sources */,
 				6D0ED8D01F4CE0A700D5146D /* Frameworks */,
 				6D0ED8D11F4CE0A700D5146D /* Resources */,
+				1ED64DB2DBB2847EA973D0A5 /* [CP] Embed Pods Frameworks */,
+				F60D5CB3C0E3B03B233C913D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -167,9 +398,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6D0ED8ED1F4CE0A700D5146D /* Build configuration list for PBXNativeTarget "CryptoTrackerUITests" */;
 			buildPhases = (
+				ADDFB979DD6541544F187047 /* [CP] Check Pods Manifest.lock */,
 				6D0ED8DA1F4CE0A700D5146D /* Sources */,
 				6D0ED8DB1F4CE0A700D5146D /* Frameworks */,
 				6D0ED8DC1F4CE0A700D5146D /* Resources */,
+				1FF2C4D0D7CFA45765A264DD /* [CP] Embed Pods Frameworks */,
+				068D01EB1199FB0068C3B02A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -235,8 +469,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D62037E1F50AA7500054A44 /* AssetTableViewCell.xib in Resources */,
 				6D0ED8CD1F4CE0A700D5146D /* LaunchScreen.storyboard in Resources */,
 				6D0ED8CA1F4CE0A700D5146D /* Assets.xcassets in Resources */,
+				6D0ED9041F4E058600D5146D /* CoinTableViewCell.xib in Resources */,
 				6D0ED8C81F4CE0A700D5146D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -257,13 +493,202 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		068D01EB1199FB0068C3B02A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CryptoTrackerUITests/Pods-CryptoTrackerUITests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1ED64DB2DBB2847EA973D0A5 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CryptoTrackerTests/Pods-CryptoTrackerTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1FF2C4D0D7CFA45765A264DD /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CryptoTrackerUITests/Pods-CryptoTrackerUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		51FC6C449916BBFF610660D4 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-CryptoTrackerTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		6343AFF76D471D0DD5FE15D7 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-CryptoTracker-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		7A82AE4FDFE92CBA8B2FEE14 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CryptoTracker/Pods-CryptoTracker-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		ADDFB979DD6541544F187047 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-CryptoTrackerUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		D22D72B5467100B58A4A8B87 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-CryptoTracker/Pods-CryptoTracker-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/Hero/Hero.framework",
+				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hero.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CryptoTracker/Pods-CryptoTracker-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F60D5CB3C0E3B03B233C913D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CryptoTrackerTests/Pods-CryptoTrackerTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		6D0ED8BB1F4CE0A700D5146D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D6203741F509EFD00054A44 /* ShowPortfolioModels.swift in Sources */,
+				6D6203731F509EFD00054A44 /* ShowPortfolioInteractor.swift in Sources */,
+				6D6825F41F5027A100A25873 /* Coin.swift in Sources */,
+				6D62038B1F51009300054A44 /* AddTransactionViewController.swift in Sources */,
+				6D62038A1F51009300054A44 /* AddTransactionRouter.swift in Sources */,
+				6D6825F11F5016DB00A25873 /* ShowCoinViewController.swift in Sources */,
+				6D0ED8FC1F4DF94700D5146D /* ListCoinsModels.swift in Sources */,
+				6D62036B1F5053F400054A44 /* Portfolio.swift in Sources */,
+				6D6203751F509EFD00054A44 /* ShowPortfolioPresenter.swift in Sources */,
+				6D6203781F509EFD00054A44 /* ShowPortfolioWorker.swift in Sources */,
 				6D0ED8C51F4CE0A700D5146D /* ViewController.swift in Sources */,
+				6D6825F01F5016DB00A25873 /* ShowCoinRouter.swift in Sources */,
+				6D0ED9001F4DF94700D5146D /* ListCoinsWorker.swift in Sources */,
+				6D0ED8FD1F4DF94700D5146D /* ListCoinsPresenter.swift in Sources */,
+				6D6825EF1F5016DB00A25873 /* ShowCoinPresenter.swift in Sources */,
+				6D62037D1F50AA7500054A44 /* AssetTableViewCell.swift in Sources */,
+				6D62038C1F51009300054A44 /* AddTransactionWorker.swift in Sources */,
+				6D0ED8FE1F4DF94700D5146D /* ListCoinsRouter.swift in Sources */,
+				6D6825F61F502BA200A25873 /* CoinWorker.swift in Sources */,
+				6D0ED8FB1F4DF94700D5146D /* ListCoinsInteractor.swift in Sources */,
+				6D6203871F51009300054A44 /* AddTransactionInteractor.swift in Sources */,
+				6D0ED9071F4E3EF800D5146D /* CoinMarketCapAPI.swift in Sources */,
+				6D6825F21F5016DB00A25873 /* ShowCoinWorker.swift in Sources */,
+				6D6825F81F502BBE00A25873 /* CryptowatchAPI.swift in Sources */,
+				6D0ED9031F4E058600D5146D /* CoinTableViewCell.swift in Sources */,
+				6D6825ED1F5016DB00A25873 /* ShowCoinInteractor.swift in Sources */,
 				6D0ED8C31F4CE0A700D5146D /* AppDelegate.swift in Sources */,
+				6D6825EE1F5016DB00A25873 /* ShowCoinModels.swift in Sources */,
+				6D6203771F509EFD00054A44 /* ShowPortfolioViewController.swift in Sources */,
+				6D62037A1F50A9EB00054A44 /* PortfolioWorker.swift in Sources */,
+				6D6203761F509EFD00054A44 /* ShowPortfolioRouter.swift in Sources */,
+				6D0ED9091F4E3F0A00D5146D /* MarketWorker.swift in Sources */,
+				6D6203881F51009300054A44 /* AddTransactionModels.swift in Sources */,
+				6D0ED8FF1F4DF94700D5146D /* ListCoinsViewController.swift in Sources */,
+				6D6203891F51009300054A44 /* AddTransactionPresenter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,6 +838,7 @@
 		};
 		6D0ED8E81F4CE0A700D5146D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C2DFC567092D0555DF853086 /* Pods-CryptoTracker.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = C2R8DUWH2Y;
@@ -426,6 +852,7 @@
 		};
 		6D0ED8E91F4CE0A700D5146D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0FFF8BBB9BC5A5273D81ADBC /* Pods-CryptoTracker.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = C2R8DUWH2Y;
@@ -439,6 +866,7 @@
 		};
 		6D0ED8EB1F4CE0A700D5146D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1036A78CA0901881DD1B3F2B /* Pods-CryptoTrackerTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -454,6 +882,7 @@
 		};
 		6D0ED8EC1F4CE0A700D5146D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C8BCC6C313A66009E6096456 /* Pods-CryptoTrackerTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -469,6 +898,7 @@
 		};
 		6D0ED8EE1F4CE0A700D5146D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1A129572C15B6CCA62A13385 /* Pods-CryptoTrackerUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = C2R8DUWH2Y;
@@ -483,6 +913,7 @@
 		};
 		6D0ED8EF1F4CE0A700D5146D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D000E416070A248539B5183C /* Pods-CryptoTrackerUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = C2R8DUWH2Y;
@@ -514,6 +945,7 @@
 				6D0ED8E91F4CE0A700D5146D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6D0ED8EA1F4CE0A700D5146D /* Build configuration list for PBXNativeTarget "CryptoTrackerTests" */ = {
 			isa = XCConfigurationList;
@@ -522,6 +954,7 @@
 				6D0ED8EC1F4CE0A700D5146D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6D0ED8ED1F4CE0A700D5146D /* Build configuration list for PBXNativeTarget "CryptoTrackerUITests" */ = {
 			isa = XCConfigurationList;
@@ -530,6 +963,7 @@
 				6D0ED8EF1F4CE0A700D5146D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
