@@ -51,11 +51,11 @@ class Coin {
 
 struct Exchange {
     
-    var pairs: [Pair]
+    var pairs: [String: [String: Pair]] // key is base currency
     
     var name: String
     
-    init(pairs: [Pair]?, name: String?) {
+    init(pairs: [String: [String: Pair]]?, name: String?) {
         
         if let n = name {
             self.name = n
@@ -65,22 +65,25 @@ struct Exchange {
         if let p = pairs {
             self.pairs = p
         } else {
-            self.pairs = []
+            self.pairs = [:]
         }
         
         
     }
-    func quoteNames() -> [String] {
+    func quoteNames(base: String) -> [String] {
         var names: [String: String] = [:]
-        for pair in self.pairs {
-            names[pair.quote] = ""
-        }
+        
+        return Array(self.pairs[base]!.keys)
+//        
+//        for pair in self.pairs[base]! {
+//            names[pair.quote] = ""
+//        }
 //        for each in self.exchanges {
 //            for pair in each.value.pairs {
 //                names[pair.quote] = ""
 //            }
 //        }
-        return Array(names.keys)
+//        return Array(names.keys)
     }
     
 }

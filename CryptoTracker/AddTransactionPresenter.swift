@@ -26,7 +26,7 @@ class AddTransactionPresenter: AddTransactionPresentationLogic
     // MARK: Do something
     
     func presentTransaction(response: AddTransaction.LoadTransaction.Response) {
-        let vm = AddTransaction.LoadTransaction.ViewModel(isBuy: response.isBuy, currentPrice: "\(response.currentPrice)", coinName: response.coin.symbol, exchangeNames: response.coin.exchangeNames(), quoteNames: response.exchange.quoteNames(), exchangeName: response.exchangeName, quoteName: response.quoteName)
+        let vm = AddTransaction.LoadTransaction.ViewModel(isBuy: response.isBuy, currentPrice: "\(response.currentPrice)", coinName: response.coin.symbol, exchangeNames: response.coin.exchangeNames(), quoteNames: response.exchange.quoteNames(base: response.coin.symbol), exchangeName: response.exchangeName, quoteName: response.quoteName)
 //        let vm = AddTransaction.LoadTransaction.ViewModel(base: response.pair.base.symbol, quote: response.pair.quote.uppercased(), isBuy: , currentPrice: "\(response.currentPrice)", exchangeName: response.exchange.name.capitalized)
         
         viewController?.displayTransaction(viewModel: vm)

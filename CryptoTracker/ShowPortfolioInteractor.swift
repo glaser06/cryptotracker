@@ -36,7 +36,7 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
         
         portfolioWorker.updateAssetPrices()
         
-        let resp = ShowPortfolio.FetchPortfolio.Response(value: portfolioWorker.totalValue(), assets: portfolioWorker.portfolio.assets)
+        let resp = ShowPortfolio.FetchPortfolio.Response(value: portfolioWorker.totalValue(), assets: portfolioWorker.portfolio.assets, initialValue: portfolioWorker.portfolio.initialValue)
         presenter?.presentPortfolio(response: resp)
     }
     func fetchAllCoins() {

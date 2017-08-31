@@ -85,7 +85,7 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
     func setupTable() {
         
         let refresher = UIRefreshControl()
-        refresher.addTarget(self, action: #selector(fetchCoins(_:)), for: .valueChanged)
+        refresher.addTarget(self, action: #selector(forceRefresh(_:)), for: .valueChanged)
         coinTableView.refreshControl = refresher
         
         coinTableView.register(UINib(nibName: "CoinTableViewCell", bundle: nil), forCellReuseIdentifier: "CoinCell")
@@ -108,7 +108,14 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
     @IBAction func close() {
         self.navigationController?.dismiss(animated: true, completion: nil)
     }
-    
+    func forceRefresh(_ refresher: UIRefreshControl?) {
+        let req = ListCoins.FetchCoins.Request(completion: {
+            if let r = refresher {
+                r.endRefreshing()
+            }
+        })
+        interactor?.forceRefresh(request: req)
+    }
     func fetchCoins(_ refresher: UIRefreshControl?) {
         let req = ListCoins.FetchCoins.Request(completion: {
             if let r = refresher {

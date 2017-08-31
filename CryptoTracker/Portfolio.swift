@@ -22,11 +22,19 @@ class Portfolio {
 //        }
     }
     
+    
 }
 
 class Asset {
     
     var coin: Coin
+    
+    enum AssetType {
+        case Fiat
+        case Crypto
+        
+    }
+    var assetType: AssetType
     
     var amountHeld: Double = 0.0
     
@@ -34,8 +42,9 @@ class Asset {
     
     var currentPrice: Double = 0.0
     
-    init(coin: Coin) {
+    init(coin: Coin, type: AssetType) {
         self.coin = coin
+        self.assetType = type
     }
     
     func addTransaction(transaction: Transaction) {
@@ -64,7 +73,7 @@ class Transaction {
     
     var pair: Pair
     
-    
+    var notes: String = ""
     
     var amount: Double // of base currency
     

@@ -28,10 +28,15 @@ enum ShowPortfolio
         
         
         var assets: [Asset]
+        var initialValue: Double
     }
     struct ViewModel
     {
         var totalValue: String
+        
+        var overallGainValue: String
+        
+        var overallGainPercent: String
         
         struct DisplayableAsset {
             
@@ -48,6 +53,7 @@ enum ShowPortfolio
             var isUp: Bool
             
         }
+        
         
         var assets: [DisplayableAsset] = []
     }

@@ -38,7 +38,9 @@ class ListCoinsRouter: NSObject, ListCoinsRoutingLogic, ListCoinsDataPassing
     }
     func passDataToShowCoin(source: ListCoinsDataStore, destination: inout ShowCoinDataStore, index: Int)
     {
-        destination.coin = source.coins[index]
+//        destination.coin = source.coins[index]
+        let coin = source.coins[index]
+        destination.coin = MarketWorker.sharedInstance.coinCollection[coin.symbol.lowercased()]
         
     }
     func routeToAddTransaction(segue: UIStoryboardSegue) {
@@ -51,7 +53,7 @@ class ListCoinsRouter: NSObject, ListCoinsRoutingLogic, ListCoinsDataPassing
     func passDataToAddTransaction(source: ListCoinsDataStore, destination: inout AddTransactionDataStore, index: Int)
     {
         let coin = source.coins[index]
-        destination.coin = MarketWorker.sharedInstance.coinCollection[coin.name]
+        destination.coin = MarketWorker.sharedInstance.coinCollection[coin.symbol.lowercased()]
         destination.transactionType = .Buy
 //        destination.exchange = source.coin?.exchanges.first?.value
 //        destination.pair = source.coin?.exchanges.first?.value.pairs.first

@@ -16,6 +16,7 @@ import SwiftyJSON
 class MarketWorker
 {
     let marketService = CoinMarketCapAPI()
+    let exchangeService = CryptowatchAPI()
     
     let exchangeInfoGroup = DispatchGroup()
     
@@ -25,7 +26,7 @@ class MarketWorker
 //            self.coins = []
 //            let getExchangeInfoGroup = DispatchGroup()
             for data in json {
-                let symbol = data.1["symbol"].string!
+                let symbol = data.1["symbol"].string!.lowercased()
                 let cap = data.1["market_cap_usd"].string!
                 let price = Double(data.1["price_usd"].string!)!
                 let percent: Double
@@ -41,26 +42,25 @@ class MarketWorker
                 defaultPair.marketCap = Double(cap)
                 defaultPair.price = price
                 defaultPair.volume24 = Double(data.1["24h_volume_usd"].string!)
-                let defaultExchange = Exchange(pairs: [defaultPair], name: "CoinMarketCap")
+                
+                var tempDict: [String: [String:Pair]] = [:]
+                tempDict[coin.symbol] = [:]
+                tempDict[coin.symbol]!["usd"] = defaultPair
+                let defaultExchange = Exchange(pairs: tempDict, name: "CoinMarketCap")
                 coin.exchanges["CoinMarketCap"] = defaultExchange
-                //                coin.overallInfo = Coin.OverallStatistics(marketCap: Double(cap), price: price, percentChange24: percent, valueChange24: nil, percentChange7D: nil, valueChange7D: nil, supply: nil, volume24: Double(data.1["24h_volume_usd"].string!))
-                //                var usd = Coin(name: "USD", symbol: "USD")
-                //                var pair = Pair(base: coin, quote: "usd", pair: "\(symbol)usd")
-                ////                price: price, percentChange24: nil, valueChange24: nil, volume24: nil, lastPrice: nil, highPrice24: nil, lowPrice24: nil)
-                //                pair.price = price
-                //                var exchange = Exchange(pairs: [pair], name: "Bitfinex")
-                //                coin.exchanges["bitfinex"] = exchange
+                
                 let cw = CoinWorker()
-//                self.coins.append(coin)
-                MarketWorker.sharedInstance.coinCollection[coin.name] = coin
-                MarketWorker.sharedInstance.exchangeInfoGroup.enter()
-                cw.fetchExchanges(coin: coin, completion: { (newCoin) in
-//                    self.coins.append(newCoin)
-                    MarketWorker.sharedInstance.coinCollection[newCoin.name] = newCoin
-                    MarketWorker.sharedInstance.exchangeInfoGroup.leave()
-                }, error: {
-                    MarketWorker.sharedInstance.exchangeInfoGroup.leave()
-                })
+//                print(coin.symbol)
+                MarketWorker.sharedInstance.coinCollection[coin.symbol.lowercased()] = coin
+                
+//                MarketWorker.sharedInstance.exchangeInfoGroup.enter()
+//                cw.fetchExchanges(coin: coin, completion: { (newCoin) in
+////                    self.coins.append(newCoin)
+//                    MarketWorker.sharedInstance.coinCollection[newCoin.name] = newCoin
+//                    MarketWorker.sharedInstance.exchangeInfoGroup.leave()
+//                }, error: {
+//                    MarketWorker.sharedInstance.exchangeInfoGroup.leave()
+//                })
                 
                 
                 //                print(data.1["symbol"].string!)
@@ -71,6 +71,77 @@ class MarketWorker
 //                responseCoins.append(tempCoin)
                 
             }
+            self.exchangeInfoGroup.enter()
+            self.exchangeService.fetchAllExchangesAndPairs(completion: { (json) in
+                
+                let results = json["result"]
+                for market in results.dictionaryValue {
+                    let exchangeName: String = market.key.components(separatedBy: ":")[0]
+                    let pairName: String = market.key.components(separatedBy: ":")[1]
+                    let quoteName: String = pairName.substring(from:pairName.index(pairName.endIndex, offsetBy: -3))
+                    let baseName: String = pairName.components(separatedBy: quoteName)[0]
+//                    print(quoteName)
+//                    print(exchangeName)
+//                    print(pairName)
+                    
+                    if MarketWorker.sharedInstance.coinCollection[baseName] != nil {
+                        let p = Pair(base: MarketWorker.sharedInstance.coinCollection[baseName]!, quote: quoteName, pair: pairName)
+                        if MarketWorker.sharedInstance.exchanges[exchangeName] != nil {
+                            if MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName] == nil {
+                                MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName] = [:]
+//                                let p = Pair(base: MarketWorker.sharedInstance.coinCollection[baseName]!, quote: quoteName, pair: pairName)
+                                MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName] = p
+                                
+                                
+                            }
+                            
+                            //                            MarketWorker.sharedInstance.coinCollection[baseName]
+                            
+                            
+                            
+                        } else {
+                            MarketWorker.sharedInstance.exchanges[exchangeName] = Exchange(pairs: [:], name: exchangeName)
+                            if MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName] == nil {
+                                MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName] = [:]
+                                
+                                MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName] = p
+                                
+                                
+                            }
+                            
+                            
+//                            MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]!.lowPrice24 = market.value["price"]["low"].doubleValue
+//                            MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]!.highPrice24 = market.value["price"]["high"].doubleValue
+//                            MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]!.percentChange24 = market.value["price"]["change"]["percentage"].doubleValue
+//                            MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]!.price = market.value["price"]["last"].doubleValue
+//                            MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]!.volume24 = market.value["volume"].doubleValue
+                        }
+                        MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName] = p
+                        
+                        MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName]!.lowPrice24 = market.value["price"]["low"].doubleValue
+                        MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName]!.highPrice24 = market.value["price"]["high"].doubleValue
+                        MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName]!.percentChange24 = market.value["price"]["change"]["percentage"].doubleValue
+                        MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName]!.price = market.value["price"]["last"].doubleValue
+                        MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName]!.volume24 = market.value["volume"].doubleValue
+                        
+                        MarketWorker.sharedInstance.coinCollection[baseName]?.exchanges[exchangeName] = MarketWorker.sharedInstance.exchanges[exchangeName]
+                    }
+                    
+                    
+//                    MarketWorker.sharedInstance.exchanges[exchangeName] =
+                    
+                    
+                    
+                }
+                completion([])
+                self.exchangeInfoGroup.leave()
+                
+                
+                
+                
+                
+            })
+            
             
 //            MarketWorker.sharedInstance.exchangeInfoGroup.notify(queue: .main, execute: {
 //                
@@ -89,6 +160,7 @@ class MarketWorker
     static let sharedInstance: MarketWorker = MarketWorker()
     
     var coinCollection: [String: Coin] = [:]
+    var exchanges: [String: Exchange] = [:]
     
 //    static let exchanges
 }

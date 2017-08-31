@@ -22,13 +22,27 @@ class CryptowatchAPI {
             if let value = response.result.value {
                 let json = JSON(value)
                 
-                
+                print(json["allowance"]["remaining"])
                 completion(json)
                 //                print(json)
             }
             
         })
     }
+    
+    func fetchAllExchangesAndPairs(completion: @escaping (JSON) -> Void) {
+        
+        let reqUrl = "\(url)/markets/summaries"
+        Alamofire.request(reqUrl).responseJSON(completionHandler: { (response) in
+            if let value = response.result.value {
+                let json = JSON(value)
+                print(json["allowance"]["remaining"])
+                completion(json)
+            }
+        })
+        
+    }
+    
     
     func fetchPairSummary(pair: String, exchange: String, completion: @escaping (JSON) -> Void) {
         let reqUrl = "\(url)/markets/\(exchange)/\(pair)/summary"
@@ -37,7 +51,7 @@ class CryptowatchAPI {
             if let value = response.result.value {
                 let json = JSON(value)
                 
-                
+                print(json["allowance"]["remaining"])
                 completion(json)
                 //                print(json)
             }

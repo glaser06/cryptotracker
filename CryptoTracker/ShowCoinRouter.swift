@@ -39,7 +39,8 @@ class ShowCoinRouter: NSObject, ShowCoinRoutingLogic, ShowCoinDataPassing
         if source.exchange == nil || source.pair == nil {
             
             destination.exchange = source.coin?.exchanges.first?.value
-            destination.pair = source.coin?.exchanges.first?.value.pairs.first
+            destination.pair = destination.exchange!.pairs[source.coin!.symbol]!.first!.value
+//            destination.pair = source.coin?.exchanges.first?.value.pairs.first?.value.first?.value
         } else {
             
             destination.exchange = source.exchange

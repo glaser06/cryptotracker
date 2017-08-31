@@ -16,6 +16,7 @@ protocol ListCoinsBusinessLogic
 {
 
     func fetchCoins(request: ListCoins.FetchCoins.Request)
+    func forceRefresh(request: ListCoins.FetchCoins.Request)
     
 }
 
@@ -36,22 +37,26 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
     var coins: [Coin] = []
     var gotoTransaction: Bool?
     
-    func forceRefresh() {
-        marketWorker.retrieveCoins(completion: {(c) in})
-//        fetchCoins(request: <#T##ListCoins.FetchCoins.Request#>)
+    func forceRefresh(request: ListCoins.FetchCoins.Request) {
+        marketWorker.retrieveCoins(completion: {(c) in
+            self.fetchCoins(request: request)
+        })
+
     }
     
     func fetchCoins(request: ListCoins.FetchCoins.Request) {
         
         MarketWorker.sharedInstance.exchangeInfoGroup.notify(queue: .main, execute: {
             let coins: [Coin] = Array(MarketWorker.sharedInstance.coinCollection.values).sorted(by: { (coin1,coin2) in
-                return coin1.exchanges["CoinMarketCap"]!.pairs.first!.price! > coin2.exchanges["CoinMarketCap"]!.pairs.first!.price!
+                let pair1 = coin1.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.marketCap!
+                let pair2 = coin2.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.marketCap!
+                return pair1 > pair2
             })
 //            completion(exchanges)
             self.coins = coins
             var responseCoins: [ListCoins.FetchCoins.Response.Coin] = []
             for coin in self.coins {
-                let statPair = coin.exchanges["CoinMarketCap"]!.pairs.first!
+                let statPair = coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value
                 let tempCoin = ListCoins.FetchCoins.Response.Coin(symbol: coin.symbol, cap: String(describing: statPair.marketCap!), price: statPair.price!, percentage: statPair.percentChange24!)
                 responseCoins.append(tempCoin)
             }
@@ -92,7 +97,7 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
 ////                coin.exchanges["bitfinex"] = exchange
 ////                let cw = CoinWorker()
 //                self.coins.append(coin)
-////                MarketWorker.sharedInstance.coinCollection[coin.name] = coin
+////                MarketWorker.sharedInstance.coinCollection[coin.symbol] = coin
 ////                cw.fetchExchanges(coin: coin, completion: { (newCoin) in
 ////                    self.coins.append(newCoin)
 ////                    MarketWorker.sharedInstance.coinCollection[newCoin.name] = newCoin

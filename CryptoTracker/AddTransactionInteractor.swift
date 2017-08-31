@@ -71,18 +71,25 @@ class AddTransactionInteractor: AddTransactionBusinessLogic, AddTransactionDataS
 //                exchangeIndex = 1
             }
             
-            self.pair = self.exchange!.pairs.first!
+            self.pair = self.exchange!.pairs[self.coin!.symbol]!.first?.value
         }
         if request.exchangeName != nil {
             self.exchange = self.coin!.exchanges[request.exchangeName!]!
-            self.pair = self.exchange!.pairs.first!
+            self.pair = self.exchange!.pairs[self.coin!.symbol]!.first?.value
         }
         if request.quoteName != nil {
-            for pair in self.exchange!.pairs {
-                if pair.quote == request.quoteName! {
-                    self.pair = pair
+            
+            for pairs in self.exchange!.pairs[self.coin!.symbol]! {
+                if pairs.key == request.quoteName! {
+                    self.pair = pairs.value
                 }
             }
+//            for pairs in self.exchange!.pairs {
+//                for pair in pairs {
+//                    
+//                }
+//                
+//            }
             //            self.pair = self.exchange?.pairs.find
         }
         

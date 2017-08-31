@@ -27,16 +27,24 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
         let price = String(format: "%.2f", response.value)
         var tempAssets: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
         for each in response.assets {
-            let statsPair: Pair = each.coin.exchanges["CoinMarketCap"]!.pairs.first!
-            let totalValue = String(format: "%.2f", each.amountHeld * (statsPair.price)!)
-            let price = String(format: "%.2f", (statsPair.price!))
-            let percent = String(format: "%.2f", (statsPair.percentChange24!))
-            let isUp = statsPair.percentChange24! >= 0
-            let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp)
-            tempAssets.append(a)
+//            if each.assetType != .Fiat {
+                let statsPair: Pair = each.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value
+                let totalValue = String(format: "%.2f", each.amountHeld * (statsPair.price)!)
+                let price = String(format: "%.2f", (statsPair.price!))
+                let percent = String(format: "%.2f", (statsPair.percentChange24!))
+                let isUp = statsPair.percentChange24! >= 0
+                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp)
+                tempAssets.append(a)
+//            }
+            
+        }
+        let gainsValue = response.value - response.initialValue
+        var gainsPercent = gainsValue/response.initialValue
+        if response.initialValue == 0.0 {
+            gainsPercent = 0.0
         }
         
-        let vm = ShowPortfolio.FetchPortfolio.ViewModel(totalValue: "$\(price)", assets: tempAssets)
+        let vm = ShowPortfolio.FetchPortfolio.ViewModel(totalValue: "$\(price)", overallGainValue: "$\(gainsValue)", overallGainPercent: "\(gainsPercent)%", assets: tempAssets)
         viewController?.displayPortfolio(viewModel: vm)
     }
 }

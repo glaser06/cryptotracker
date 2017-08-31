@@ -107,6 +107,8 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     
     @IBOutlet weak var tableHeight: NSLayoutConstraint!
     
+    @IBOutlet weak var totalGainsLabel: UILabel!
+    
     @IBAction func reload() {
         fetchPortfolio()
     }
@@ -119,6 +121,9 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         self.assets = viewModel.assets
         let price = viewModel.totalValue
         self.totalValueLabel.text = price
+        
+        self.totalGainsLabel.text = "\(viewModel.overallGainValue)(\(viewModel.overallGainPercent))"
+        
         self.assetTableView.reloadData()
         
         self.tableHeight.constant = assetTableView.contentSize.height
@@ -144,6 +149,14 @@ extension ShowPortfolioViewController: UITableViewDataSource {
         cell.setCell(asset: self.assets[indexPath.row])
         
         return cell
+    }
+}
+extension ShowPortfolioViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let row = indexPath.row
+        
+        print(PortfolioWorker.sharedInstance.portfolio.assets[row].coin.name)
+        self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
     }
 }
 
