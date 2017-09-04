@@ -31,7 +31,7 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
 {
     var presenter: ListCoinsPresentationLogic?
     var worker: ListCoinsWorker?
-    var marketWorker: MarketWorker = MarketWorker()
+    var marketWorker: MarketWorker = MarketWorker.sharedInstance
     
     // MARK: Do something
     var coins: [Coin] = []

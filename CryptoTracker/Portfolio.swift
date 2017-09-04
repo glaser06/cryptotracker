@@ -7,12 +7,41 @@
 //
 
 import Foundation
+import Cereal
 
 class Portfolio {
     
-    var value: Double = 0.0
+    var value: Double {
+        get {
+            var val = 0.0
+            for asset in self.assets {
+                val += asset.amountHeld * asset.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
+            }
+            return val
+        }
+    }
     
-    var initialValue: Double = 0.0
+    var initialValue: Double {
+        get {
+            var initTotal = 0.0
+            for asset in self.assets {
+                for transaction in asset.transactions {
+                    
+                    if transaction.isInitialFunding {
+                        var coinPrice = 1.0
+                        if asset.assetType == .Crypto {
+                            coinPrice = transaction.price.usd!
+                            
+                        }
+                        
+                        initTotal += transaction.amount*coinPrice
+                    }
+                    
+                }
+            }
+            return initTotal
+        }
+    }
     
     var assets: [Asset] = []
     
@@ -21,15 +50,41 @@ class Portfolio {
 //            
 //        }
     }
+    init () {
+        
+    }
+    required init(decoder: CerealDecoder) throws {
+        self.assets = try decoder.decodeCereal(key: Keys.assets)!
+    }
     
     
+    
+}
+extension Portfolio: CerealType {
+    struct Keys {
+        //        static let notes = "name"
+        static let assets = "assets"
+//        static let amount = "amount"
+        //        static let isInitFund = "isInitFunding"
+//        static let assetType = "assetType"
+        //        static let exchange = "exchange"
+//        static let coinSymbol = "symbol"
+        //        static let quoteSymbol = "quote"
+        //        static let pairName = "pairName"
+    }
+    
+    func encodeWithCereal(_ encoder: inout CerealEncoder) throws {
+        try encoder.encode(self.assets, forKey: Keys.assets)
+    }
 }
 
 class Asset {
     
     var coin: Coin
     
-    enum AssetType {
+    
+    
+    enum AssetType: Int, CerealRepresentable {
         case Fiat
         case Crypto
         
@@ -40,7 +95,7 @@ class Asset {
     
     var transactions: [Transaction] = []
     
-    var currentPrice: Double = 0.0
+//    var currentPrice: Double = 0.0
     
     init(coin: Coin, type: AssetType) {
         self.coin = coin
@@ -55,19 +110,75 @@ class Asset {
             amountHeld -= transaction.amount
             
         }
+        self.transactions.append(transaction)
+        
+    }
+    required init(decoder: CerealDecoder) throws {
+        self.transactions = try decoder.decodeCereal(key: Keys.transactions)!
+        
+        self.amountHeld = try decoder.decode(key: Keys.amount)!
+        let coinName: String = try decoder.decode(key: Keys.coinSymbol)!
+        
+        self.assetType = try decoder.decode(key: Keys.assetType)!
+        if self.assetType == .Crypto {
+            self.coin = MarketWorker.sharedInstance.coinCollection[coinName]!
+        } else {
+            let newCoin = Coin(name: coinName, symbol: coinName)
+            var temp: [String: [String: Pair]] = [:]
+            temp[coinName] = [:]
+            var pair = Pair(base: newCoin, quote: coinName, pair: "\(coinName)\(coinName)")
+            pair.price = 1.0
+            pair.percentChange24 = 0.0
+            temp[pair.quote]![pair.quote] = pair
+            let exchange = Exchange(pairs: temp, name: "CoinMarketCap")
+            newCoin.exchanges["CoinMarketCap"] = exchange
+//            asset = Asset(coin: coin, type: .Fiat)
+            self.coin = newCoin
+        }
+        
+        
         
     }
     
 }
+extension Asset: CerealType {
+    struct Keys {
+//        static let notes = "name"
+        static let transactions = "transactions"
+        static let amount = "amount"
+//        static let isInitFund = "isInitFunding"
+        static let assetType = "assetType"
+//        static let exchange = "exchange"
+        static let coinSymbol = "symbol"
+//        static let quoteSymbol = "quote"
+//        static let pairName = "pairName"
+    }
+    func encodeWithCereal(_ encoder: inout CerealEncoder) throws {
+//        try encoder.encode(notes, forKey: Keys.notes)
+//        try encoder.encode
+        try encoder.encode(self.transactions, forKey: Keys.transactions)
+        try encoder.encode(amountHeld, forKey: Keys.amount)
+        print("here")
+//        try encoder.encode(isInitialFunding, forKey: Keys.isInitFund)
+        try encoder.encode(assetType, forKey: Keys.assetType)
+//        try encoder.encode(exchange, forKey: Keys.exchange)
+        try encoder.encode(coin.symbol, forKey: Keys.coinSymbol)
+//        try encoder.encode(pair.quote, forKey: Keys.quoteSymbol)
+//        try encoder.encode(pair.pairName, forKey: Keys.pairName)
+    }
+}
 
 class Transaction {
     
-    enum OrderType {
+    enum OrderType: Int, CerealRepresentable {
         case Buy
         case Sell
     }
+//    extension OrderType: CerealRepresentable { }
     
     var orderType: OrderType
+    
+    var isInitialFunding: Bool = false
     
     var datetime: NSDate = NSDate.init(timeIntervalSinceNow: TimeInterval(exactly: 0.0)!)
     
@@ -77,18 +188,85 @@ class Transaction {
     
     var amount: Double // of base currency
     
-    var price: Double // in quoted currency
+    struct Price {
+        var original: Double?
+        var usd: Double?
+        var btc: Double?
+    }
+    
+    var price: Price // in quoted currency
+    
+    var exchange: String?
     
     init(pair: Pair, price: Double, amount: Double, type: OrderType) {
         
         
         self.pair = pair
-        
-        self.price = price
+        let usd: Double = MarketWorker.sharedInstance.coinCollection[pair.base]!.USD
+        self.price = Price(original: price, usd: usd, btc: nil)
         
         self.amount = amount
         
         self.orderType = type
+    }
+    
+    
+    
+    required init(decoder: CerealDecoder) throws {
+        
+        let priceOriginal: Double = try decoder.decode(key: Keys.priceOriginal)!
+        let priceUSD: Double = try decoder.decode(key: Keys.priceUSD)!
+        self.price = Price(original: priceOriginal, usd: priceUSD, btc: nil)
+        self.notes = try decoder.decode(key: Keys.notes) ?? ""
+        self.amount = try decoder.decode(key: Keys.amount)!
+        self.orderType = try decoder.decode(key: Keys.orderType)!
+        //        let exchangeName = try decoder.decode(key: Keys.exchange) ?? "CoinMarketCap"
+        self.exchange = try decoder.decode(key: Keys.exchange) ?? "CoinMarketCap"
+        let base = try decoder.decode(key: Keys.baseSymbol) ?? ""
+        let quote = try decoder.decode(key: Keys.quoteSymbol) ?? ""
+        let pairName = try decoder.decode(key: Keys.pairName) ?? ""
+        let coin = MarketWorker.sharedInstance.coinCollection[base]!
+        let pair = Pair(base: coin, quote: quote, pair: pairName)
+        self.pair = pair
+        
+        self.isInitialFunding = try decoder.decode(key: Keys.isInitFund) ?? false
+        if isInitialFunding {
+            print("init fund")
+        }
+    }
+    
+    
+    
+}
+extension Transaction: CerealType {
+    
+    struct Keys {
+        static let notes = "name"
+        static let priceOriginal = "price"
+        static let priceUSD = "usd"
+        static let amount = "amount"
+        static let isInitFund = "isInitFunding"
+        static let orderType = "orderType"
+        static let exchange = "exchange"
+        static let baseSymbol = "base"
+        static let quoteSymbol = "quote"
+        static let pairName = "pairName"
+    }
+    func encodeWithCereal(_ encoder: inout CerealEncoder) throws {
+        try encoder.encode(notes, forKey: Keys.notes)
+        try encoder.encode(price.original!, forKey: Keys.priceOriginal)
+        try encoder.encode(price.usd!, forKey: Keys.priceUSD)
+        try encoder.encode(amount, forKey: Keys.amount)
+        try encoder.encode(isInitialFunding, forKey: Keys.isInitFund)
+        if isInitialFunding {
+            print("init fund")
+        }
+        try encoder.encode(orderType, forKey: Keys.orderType)
+        try encoder.encode(exchange, forKey: Keys.exchange)
+        try encoder.encode(pair.base, forKey: Keys.baseSymbol)
+        try encoder.encode(pair.quote, forKey: Keys.quoteSymbol)
+        try encoder.encode(pair.pairName, forKey: Keys.pairName)
+        
     }
     
     

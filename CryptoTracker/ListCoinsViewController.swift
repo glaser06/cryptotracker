@@ -75,6 +75,11 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
         super.viewDidLoad()
         setupTable()
         fetchCoins(nil)
+//        do {
+//            try MarketWorker.sharedInstance.unpackCoins()
+//        } catch {
+//            
+//        }
         
         
         

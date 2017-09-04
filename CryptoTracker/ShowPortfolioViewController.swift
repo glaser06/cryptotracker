@@ -81,6 +81,8 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         
         getAllCoins()
         
+        self.transactionButton.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
+        
         
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -102,6 +104,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     // MARK: Do something
     
     @IBOutlet weak var assetTableView: UITableView!
+    @IBOutlet weak var transactionButton: UIButton!
     
     @IBOutlet weak var totalValueLabel: UILabel!
     
@@ -154,7 +157,10 @@ extension ShowPortfolioViewController: UITableViewDataSource {
 extension ShowPortfolioViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = indexPath.row
-        
+        if PortfolioWorker.sharedInstance.portfolio.assets[row].assetType == .Fiat {
+            tableView.deselectRow(at: indexPath, animated: true)
+            return
+        }
         print(PortfolioWorker.sharedInstance.portfolio.assets[row].coin.name)
         self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
     }

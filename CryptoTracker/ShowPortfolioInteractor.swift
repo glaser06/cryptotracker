@@ -27,7 +27,7 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
 {
     var presenter: ShowPortfolioPresentationLogic?
     var portfolioWorker = PortfolioWorker.sharedInstance
-    var marketWorker = MarketWorker()
+    var marketWorker = MarketWorker.sharedInstance
     //var name: String = ""
     
     // MARK: Do something
@@ -36,7 +36,7 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
         
         portfolioWorker.updateAssetPrices()
         
-        let resp = ShowPortfolio.FetchPortfolio.Response(value: portfolioWorker.totalValue(), assets: portfolioWorker.portfolio.assets, initialValue: portfolioWorker.portfolio.initialValue)
+        let resp = ShowPortfolio.FetchPortfolio.Response(value: portfolioWorker.portfolio.value, assets: portfolioWorker.portfolio.assets, initialValue: portfolioWorker.portfolio.initialValue)
         presenter?.presentPortfolio(response: resp)
     }
     func fetchAllCoins() {

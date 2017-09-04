@@ -44,7 +44,7 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
             gainsPercent = 0.0
         }
         
-        let vm = ShowPortfolio.FetchPortfolio.ViewModel(totalValue: "$\(price)", overallGainValue: "$\(gainsValue)", overallGainPercent: "\(gainsPercent)%", assets: tempAssets)
+        let vm = ShowPortfolio.FetchPortfolio.ViewModel(totalValue: "$\(price)", overallGainValue: String(format: "$%.2f", gainsValue), overallGainPercent: String(format: "%.2f%", gainsPercent), assets: tempAssets)
         viewController?.displayPortfolio(viewModel: vm)
     }
 }

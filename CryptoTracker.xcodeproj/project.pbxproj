@@ -51,6 +51,12 @@
 		6D6825F41F5027A100A25873 /* Coin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825F31F5027A100A25873 /* Coin.swift */; };
 		6D6825F61F502BA200A25873 /* CoinWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825F51F502BA200A25873 /* CoinWorker.swift */; };
 		6D6825F81F502BBE00A25873 /* CryptowatchAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825F71F502BBE00A25873 /* CryptowatchAPI.swift */; };
+		E3F3238B1F5DC236000B1CE1 /* ShowAccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323851F5DC236000B1CE1 /* ShowAccountInteractor.swift */; };
+		E3F3238C1F5DC236000B1CE1 /* ShowAccountModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323861F5DC236000B1CE1 /* ShowAccountModels.swift */; };
+		E3F3238D1F5DC236000B1CE1 /* ShowAccountPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323871F5DC236000B1CE1 /* ShowAccountPresenter.swift */; };
+		E3F3238E1F5DC236000B1CE1 /* ShowAccountRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323881F5DC236000B1CE1 /* ShowAccountRouter.swift */; };
+		E3F3238F1F5DC236000B1CE1 /* ShowAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323891F5DC236000B1CE1 /* ShowAccountViewController.swift */; };
+		E3F323901F5DC236000B1CE1 /* ShowAccountWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F3238A1F5DC236000B1CE1 /* ShowAccountWorker.swift */; };
 		F05A8115F1442C1314C6702C /* Pods_CryptoTrackerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F25356B257FDEA6DE14ED735 /* Pods_CryptoTrackerTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -127,6 +133,12 @@
 		C2DFC567092D0555DF853086 /* Pods-CryptoTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTracker.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTracker/Pods-CryptoTracker.debug.xcconfig"; sourceTree = "<group>"; };
 		C8BCC6C313A66009E6096456 /* Pods-CryptoTrackerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTrackerTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTrackerTests/Pods-CryptoTrackerTests.release.xcconfig"; sourceTree = "<group>"; };
 		D000E416070A248539B5183C /* Pods-CryptoTrackerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTrackerUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTrackerUITests/Pods-CryptoTrackerUITests.release.xcconfig"; sourceTree = "<group>"; };
+		E3F323851F5DC236000B1CE1 /* ShowAccountInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountInteractor.swift; sourceTree = "<group>"; };
+		E3F323861F5DC236000B1CE1 /* ShowAccountModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountModels.swift; sourceTree = "<group>"; };
+		E3F323871F5DC236000B1CE1 /* ShowAccountPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountPresenter.swift; sourceTree = "<group>"; };
+		E3F323881F5DC236000B1CE1 /* ShowAccountRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountRouter.swift; sourceTree = "<group>"; };
+		E3F323891F5DC236000B1CE1 /* ShowAccountViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountViewController.swift; sourceTree = "<group>"; };
+		E3F3238A1F5DC236000B1CE1 /* ShowAccountWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountWorker.swift; sourceTree = "<group>"; };
 		F25356B257FDEA6DE14ED735 /* Pods_CryptoTrackerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CryptoTrackerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F773CDE7038C1272430352C4 /* Pods_CryptoTrackerUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CryptoTrackerUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -242,6 +254,7 @@
 		6D0ED8F01F4DF5FC00D5146D /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				E3F323841F5DC229000B1CE1 /* ShowAccount */,
 				6D62036C1F509EEA00054A44 /* ShowPortfolio */,
 				6D6203801F51005600054A44 /* AddTransaction */,
 				6D6825E61F50166700A25873 /* ShowCoin */,
@@ -348,6 +361,19 @@
 				6D6825EC1F5016DB00A25873 /* ShowCoinWorker.swift */,
 			);
 			name = ShowCoin;
+			sourceTree = "<group>";
+		};
+		E3F323841F5DC229000B1CE1 /* ShowAccount */ = {
+			isa = PBXGroup;
+			children = (
+				E3F323891F5DC236000B1CE1 /* ShowAccountViewController.swift */,
+				E3F323851F5DC236000B1CE1 /* ShowAccountInteractor.swift */,
+				E3F323871F5DC236000B1CE1 /* ShowAccountPresenter.swift */,
+				E3F323861F5DC236000B1CE1 /* ShowAccountModels.swift */,
+				E3F323881F5DC236000B1CE1 /* ShowAccountRouter.swift */,
+				E3F3238A1F5DC236000B1CE1 /* ShowAccountWorker.swift */,
+			);
+			name = ShowAccount;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -554,7 +580,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		6343AFF76D471D0DD5FE15D7 /* [CP] Check Pods Manifest.lock */ = {
@@ -572,7 +598,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		7A82AE4FDFE92CBA8B2FEE14 /* [CP] Copy Pods Resources */ = {
@@ -605,7 +631,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D22D72B5467100B58A4A8B87 /* [CP] Embed Pods Frameworks */ = {
@@ -616,6 +642,7 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-CryptoTracker/Pods-CryptoTracker-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/Cereal/Cereal.framework",
 				"${BUILT_PRODUCTS_DIR}/Hero/Hero.framework",
 				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
@@ -623,6 +650,7 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cereal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hero.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
@@ -661,6 +689,7 @@
 				6D62038A1F51009300054A44 /* AddTransactionRouter.swift in Sources */,
 				6D6825F11F5016DB00A25873 /* ShowCoinViewController.swift in Sources */,
 				6D0ED8FC1F4DF94700D5146D /* ListCoinsModels.swift in Sources */,
+				E3F3238F1F5DC236000B1CE1 /* ShowAccountViewController.swift in Sources */,
 				6D62036B1F5053F400054A44 /* Portfolio.swift in Sources */,
 				6D6203751F509EFD00054A44 /* ShowPortfolioPresenter.swift in Sources */,
 				6D6203781F509EFD00054A44 /* ShowPortfolioWorker.swift in Sources */,
@@ -675,6 +704,7 @@
 				6D6825F61F502BA200A25873 /* CoinWorker.swift in Sources */,
 				6D0ED8FB1F4DF94700D5146D /* ListCoinsInteractor.swift in Sources */,
 				6D6203871F51009300054A44 /* AddTransactionInteractor.swift in Sources */,
+				E3F3238D1F5DC236000B1CE1 /* ShowAccountPresenter.swift in Sources */,
 				6D0ED9071F4E3EF800D5146D /* CoinMarketCapAPI.swift in Sources */,
 				6D6825F21F5016DB00A25873 /* ShowCoinWorker.swift in Sources */,
 				6D6825F81F502BBE00A25873 /* CryptowatchAPI.swift in Sources */,
@@ -685,9 +715,13 @@
 				6D6203771F509EFD00054A44 /* ShowPortfolioViewController.swift in Sources */,
 				6D62037A1F50A9EB00054A44 /* PortfolioWorker.swift in Sources */,
 				6D6203761F509EFD00054A44 /* ShowPortfolioRouter.swift in Sources */,
+				E3F3238B1F5DC236000B1CE1 /* ShowAccountInteractor.swift in Sources */,
+				E3F3238C1F5DC236000B1CE1 /* ShowAccountModels.swift in Sources */,
 				6D0ED9091F4E3F0A00D5146D /* MarketWorker.swift in Sources */,
 				6D6203881F51009300054A44 /* AddTransactionModels.swift in Sources */,
 				6D0ED8FF1F4DF94700D5146D /* ListCoinsViewController.swift in Sources */,
+				E3F3238E1F5DC236000B1CE1 /* ShowAccountRouter.swift in Sources */,
+				E3F323901F5DC236000B1CE1 /* ShowAccountWorker.swift in Sources */,
 				6D6203891F51009300054A44 /* AddTransactionPresenter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

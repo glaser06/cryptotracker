@@ -12,6 +12,7 @@
 
 import UIKit
 import SwiftyJSON
+import Cereal
 
 class MarketWorker
 {
@@ -134,6 +135,11 @@ class MarketWorker
                     
                 }
                 completion([])
+                do  {
+                    try self.saveCoins()
+                } catch {
+                    
+                }
                 self.exchangeInfoGroup.leave()
                 
                 
@@ -158,6 +164,39 @@ class MarketWorker
     }
     
     static let sharedInstance: MarketWorker = MarketWorker()
+    
+    init() {
+        do {
+            try self.unpackCoins()
+        } catch {
+            
+        }
+        
+    }
+    func saveCoins() throws {
+        let coins = Array(MarketWorker.sharedInstance.coinCollection.values)
+        print(coins.count)
+        var encoder = CerealEncoder()
+        
+        let data = try CerealEncoder.data(withRoot: coins)
+//        let decoder = try CerealDecoder(data: data)
+        
+//        let coins1: [Coin] = try CerealDecoder.rootCerealItems(with: data)
+//        print(coins1.count)
+        UserDefaults.standard.set(data, forKey: "coins")
+        UserDefaults.standard.synchronize()
+    }
+    func unpackCoins() throws {
+        if let data = UserDefaults.standard.data(forKey: "coins") {
+//            let decoder = try CerealDecoder(data: data)
+            let coins: [Coin] = try CerealDecoder.rootCerealItems(with: data)
+//            let coins: [Coin] = try decoder.decodeIdentifyingCerealArray(key: "coins")?.CER_casted() ?? []
+            for coin in coins {
+                self.coinCollection[coin.symbol] = coin
+            }
+        }
+        
+    }
     
     var coinCollection: [String: Coin] = [:]
     var exchanges: [String: Exchange] = [:]

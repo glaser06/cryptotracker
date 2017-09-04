@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import Cereal
 
 class PortfolioWorker
 {
@@ -26,7 +27,7 @@ class PortfolioWorker
         
         let transaction = Transaction(pair: pair, price: price, amount: amount, type: type)
         let sellTransaction = Transaction(pair: pair, price: price, amount: price*amount, type: isBuy ? .Sell : .Buy)
-        let base = pair.base
+        let base = MarketWorker.sharedInstance.coinCollection[pair.base]!
         var found = false
         var quoteFound = false
         for each in self.portfolio.assets {
@@ -35,9 +36,11 @@ class PortfolioWorker
                 if transaction.orderType == .Sell {
                     if each.amountHeld - transaction.amount < 0 {
                         let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-transaction.amount) * -1, type: .Buy)
-                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-transaction.amount) * -1
+//                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-transaction.amount) * -1
                         tempTrans.notes = "Capital Injection"
+                        tempTrans.isInitialFunding = true
                         each.addTransaction(transaction: tempTrans)
+                        
                     }
                 }
                 
@@ -54,7 +57,8 @@ class PortfolioWorker
                     if each.amountHeld - sellTransaction.amount < 0 {
                         let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-sellTransaction.amount) * -1, type: .Buy)
                         tempTrans.notes = "Capital Injection"
-                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-sellTransaction.amount) * -1
+                        tempTrans.isInitialFunding = true
+//                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-sellTransaction.amount) * -1
                         each.addTransaction(transaction: tempTrans)
                     }
                 }
@@ -69,8 +73,9 @@ class PortfolioWorker
             if transaction.orderType == .Sell {
                 if asset.amountHeld - transaction.amount < 0 {
                     let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-transaction.amount) * -1, type: .Buy)
-                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-transaction.amount) * -1
+//                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-transaction.amount) * -1
                     tempTrans.notes = "Capital Injection"
+                    tempTrans.isInitialFunding = true
                     asset.addTransaction(transaction: tempTrans)
                 }
             }
@@ -102,7 +107,8 @@ class PortfolioWorker
                 if asset.amountHeld - sellTransaction.amount < 0 {
                     let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-sellTransaction.amount) * -1, type: .Buy)
                     tempTrans.notes = "Capital Injection"
-                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-sellTransaction.amount) * -1
+                    tempTrans.isInitialFunding = true
+//                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-sellTransaction.amount) * -1
                     asset.addTransaction(transaction: tempTrans)
                 }
             } else {
@@ -113,21 +119,58 @@ class PortfolioWorker
             self.portfolio.assets.append(asset)
             
         }
+        do {
+            try savePortfolio()
+        } catch {
+            print("not save")
+        }
+        
+        
+    }
+    
+    func savePortfolio() throws {
+        
+        let portfolio: Portfolio = PortfolioWorker.sharedInstance.portfolio
+        
+        
+        var encoder = CerealEncoder()
+//        try encoder.encode(portfolio, forKey: "portfolio")
+        try encoder.encode(portfolio, forKey: "portfolio")
+        let data = encoder.toData()
+//                let decoder = try CerealDecoder(data: data)
+        
+        let p: Portfolio = try CerealDecoder(data: data).decodeCereal(key: "portfolio")!
+        print(p.assets.count)
+        UserDefaults.standard.set(data, forKey: "portfolio")
+        UserDefaults.standard.synchronize()
+        
+    }
+    func unpackPortfolio(_ completion: ((Portfolio) -> Void)?) throws {
+        if let data = UserDefaults.standard.data(forKey: "portfolio") {
+            let p: Portfolio = try CerealDecoder(data: data).decodeCereal(key: "portfolio")!
+            if let c = completion {
+                c(p)
+            }
+            
+        }
         
     }
     
     func updateAssetPrices() {
-        for asset in self.portfolio.assets {
-            asset.currentPrice = 1.0
-        }
+//        for asset in self.portfolio.assets {
+//            asset.currentPrice = 1.0
+//        }
     }
     
-    func totalValue() -> Double {
-        var sum = 0.0
-        for asset in self.portfolio.assets {
-            sum += asset.amountHeld * asset.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
+    init() {
+        do {
+            try self.unpackPortfolio({ (p) in
+                self.portfolio = p
+            })
+        } catch {
+            
         }
-        return sum
+        
     }
     
 }
