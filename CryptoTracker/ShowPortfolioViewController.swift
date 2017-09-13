@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import Charts
 
 protocol ShowPortfolioDisplayLogic: class
 {
@@ -65,6 +66,9 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     }
     
     var assets: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
+    var assetsOnDisplay: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
+//    var allColors: [NSUIColor] = ChartColorTemplates.joyful() + ChartColorTemplates.liberty() + ChartColorTemplates.pastel() + ChartColorTemplates.vordiplom() + ChartColorTemplates.material() + ChartColorTemplates.colorful()
+    var colorsForAssets: [NSUIColor] = []
     
     // MARK: View lifecycle
     
@@ -78,15 +82,20 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         setupAssetTable()
         
         fetchPortfolio()
+        pieChartUpdate()
         
-        getAllCoins()
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.getAllCoins()
+        }
         
-        self.transactionButton.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
+        
+        self.menuView.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
         
         
     }
     override func viewWillAppear(_ animated: Bool) {
         fetchPortfolio()
+        pieChartUpdate()
     }
     
     func getAllCoins() {
@@ -98,7 +107,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         assetTableView.register(UINib(nibName: "AssetTableViewCell", bundle: nil), forCellReuseIdentifier: "AssetCell")
         
         assetTableView.rowHeight = UITableViewAutomaticDimension
-        assetTableView.estimatedRowHeight = 81
+        assetTableView.estimatedRowHeight = 85
     }
     
     // MARK: Do something
@@ -112,8 +121,23 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     
     @IBOutlet weak var totalGainsLabel: UILabel!
     
+    @IBOutlet weak var pieChartView: PieChartView!
+    
+    @IBOutlet var assetSwitches: [UIButton]!
+    @IBOutlet var selectorViews: [UIView]!
+    
+    @IBOutlet weak var menuView: UIView!
+    
+    var theBlue: UIColor {
+        return self.selectorViews[0].backgroundColor!
+    }
+    var selectedAssets: Int = 1
+    
     @IBAction func reload() {
+        
         fetchPortfolio()
+        pieChartUpdate()
+        
     }
     
     func fetchPortfolio() {
@@ -121,19 +145,181 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     }
     
     func displayPortfolio(viewModel: ShowPortfolio.FetchPortfolio.ViewModel) {
+        
+        
+        
         self.assets = viewModel.assets
+        self.pieChartUpdate()
+        let tempButton = UIButton()
+        tempButton.tag = self.selectedAssets
+        self.changeAssetsDisplayed(sender: tempButton)
+        
         let price = viewModel.totalValue
         self.totalValueLabel.text = price
         
         self.totalGainsLabel.text = "\(viewModel.overallGainValue)(\(viewModel.overallGainPercent))"
         
         self.assetTableView.reloadData()
+        pieChartUpdate()
         
         self.tableHeight.constant = assetTableView.contentSize.height
+        
+        
         self.view.setNeedsLayout()
         self.view.layoutIfNeeded()
         
+        
     }
+    func pieChartUpdate() {
+        let allColors: [NSUIColor] = ChartColorTemplates.joyful() + ChartColorTemplates.liberty() + ChartColorTemplates.pastel() + ChartColorTemplates.vordiplom() + ChartColorTemplates.material() + ChartColorTemplates.colorful()
+        
+        var entries: [PieChartDataEntry] = []
+        for (index,asset) in self.assets.enumerated() {
+            let entry = PieChartDataEntry(value: asset.total)
+            entries.append(entry)
+            self.colorsForAssets.append(allColors[index])
+        }
+//        let entry1 = PieChartDataEntry(value: 20, label: nil)
+//        let entry2 = PieChartDataEntry(value: 30, label: nil)
+//        let entry3 = PieChartDataEntry(value: 40, label: nil)
+        
+        
+        let dataSet = PieChartDataSet(values: entries, label: nil)
+        
+        let data = PieChartData(dataSet: dataSet)
+         
+        
+        
+        
+//        pieChartView.chartDescription?.text = "Share of Widgets by Type"
+        dataSet.drawValuesEnabled = false
+        dataSet.colors = allColors
+        dataSet.valueColors = [UIColor.black]
+        pieChartView.data = data
+        //All other additions to this function will go here
+        pieChartView.backgroundColor = UIColor.clear
+        pieChartView.holeColor = UIColor.clear
+        pieChartView.entryLabelColor = UIColor.clear
+//        pieChartView.centerText = "$76721"
+        pieChartView.holeRadiusPercent = 0.93
+        dataSet.selectionShift = 0.0
+        pieChartView.chartDescription = nil
+        pieChartView.legend.enabled = false
+        pieChartView.rotationEnabled = false
+//        pieChartView.isRotationEnabled = false
+        
+//        pieChartView.drawSliceTextEnabled = false
+//        pieChartView.drawSlicesUnderHoleEnabled = true
+//        pieChartView
+        
+        
+        //This must stay at end of function
+        pieChartView.notifyDataSetChanged()
+    }
+    
+    
+    
+    @IBAction func changeAssetsDisplayed(sender: UIButton) {
+        self.selectedAssets = sender.tag
+        let prevHeight = self.tableHeight.constant
+        switch sender.tag {
+        case 1:
+            self.assetsOnDisplay = []
+            for asset in self.assets {
+                if asset.total > 0 && !asset.fiat {
+                    self.assetsOnDisplay.append(asset)
+                }
+            }
+            
+        case 2:
+            self.assetsOnDisplay = []
+            for asset in self.assets {
+                if asset.fiat {
+                    self.assetsOnDisplay.append(asset)
+                }
+            }
+        case 3:
+            self.assetsOnDisplay = []
+            for asset in self.assets {
+                if asset.total < 0 {
+                    self.assetsOnDisplay.append(asset)
+                }
+            }
+        case 4:
+            self.assetsOnDisplay = []
+            for asset in self.assets {
+                if asset.total == 0 && !asset.fiat {
+                    self.assetsOnDisplay.append(asset)
+                }
+            }
+        default:
+            return
+        }
+        self.assetSwitches.map({ (button) in
+            if button.tag == sender.tag {
+                button.setTitleColor(self.theBlue, for: .normal)
+            } else {
+                button.setTitleColor(UIColor.lightGray, for: .normal)
+            }
+            
+            
+        })
+        self.selectorViews.map({ (view) in
+            if view.tag == sender.tag {
+                view.isHidden = false
+            } else {
+                view.isHidden = true
+            }
+            
+        })
+        
+        sender.setTitleColor(self.theBlue, for: .normal)
+        self.assetsOnDisplay.sort(by: { $0.0.total > $0.1.total })
+        self.assetTableView.reloadData()
+        if self.assetTableView.contentSize.height > prevHeight {
+            self.tableHeight.constant = assetTableView.contentSize.height
+            self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
+        }
+        
+        
+        
+        
+    }
+    
+    @IBAction func menu() {
+        
+
+//        self.tabBarController?.selectedIndex = 1
+        if self.navigationController?.navigationBar.layer.zPosition == -1 {
+            self.menuView.isHidden = true
+            self.navigationController?.navigationBar.layer.zPosition = 0
+            
+            
+        } else {
+            
+            self.menuView.isHidden = false
+            self.navigationController?.navigationBar.layer.zPosition = -1
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeMenu(_:)))
+            self.view.addGestureRecognizer(tapGesture)
+        }
+        
+        
+        
+    }
+    func closeMenu(_ sender: UITapGestureRecognizer) {
+        self.view.removeGestureRecognizer(sender)
+        if self.navigationController?.navigationBar.layer.zPosition == -1 {
+            self.menu()
+        }
+        
+        
+    }
+    @IBAction func switchToView(sender: UIButton) {
+        self.tabBarController?.selectedIndex = sender.tag - 1
+        self.menu()
+    }
+    
     
     
     
@@ -144,12 +330,21 @@ extension ShowPortfolioViewController: UITableViewDataSource {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.assets.count
+        return self.assetsOnDisplay.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "AssetCell") as! AssetTableViewCell
 //        cell.setCell(data: self.coinsOnDisplay[indexPath.row])
-        cell.setCell(asset: self.assets[indexPath.row])
+        let row = indexPath.row
+        let asset = self.assetsOnDisplay[row]
+        
+        for (index, each) in self.assets.enumerated() {
+            if each.coinName == asset.coinName {
+                let color = self.colorsForAssets[index]
+                cell.setCell(asset: self.assetsOnDisplay[indexPath.row], color: color)
+            }
+        }
+        
         
         return cell
     }
@@ -157,11 +352,12 @@ extension ShowPortfolioViewController: UITableViewDataSource {
 extension ShowPortfolioViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = indexPath.row
-        if PortfolioWorker.sharedInstance.portfolio.assets[row].assetType == .Fiat {
+        
+        if self.assetsOnDisplay[row].fiat  {
             tableView.deselectRow(at: indexPath, animated: true)
             return
         }
-        print(PortfolioWorker.sharedInstance.portfolio.assets[row].coin.name)
+//        print(PortfolioWorker.sharedInstance.portfolio.assets[row].coin.name)
         self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
     }
 }

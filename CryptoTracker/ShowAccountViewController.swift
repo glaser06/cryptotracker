@@ -74,10 +74,10 @@ class ShowAccountViewController: UIViewController, ShowAccountDisplayLogic
   
   // MARK: Do something
   
-  //@IBOutlet weak var nameTextField: UITextField!
+    @IBOutlet weak var menuView: UIView!
   
     @IBAction func back() {
-        self.dismiss(animated: true, completion: nil)
+        self.tabBarController?.selectedIndex = 0
     }
     @IBAction func clearPortfolio() {
         PortfolioWorker.sharedInstance.portfolio = Portfolio()
@@ -87,6 +87,37 @@ class ShowAccountViewController: UIViewController, ShowAccountDisplayLogic
             
         }
         
+    }
+    
+    @IBAction func menu() {
+        
+        
+        //        self.tabBarController?.selectedIndex = 1
+        if self.navigationController?.navigationBar.layer.zPosition == -1 {
+            self.menuView.isHidden = true
+            self.navigationController?.navigationBar.layer.zPosition = 0
+            
+            
+        } else {
+            
+            self.menuView.isHidden = false
+            self.navigationController?.navigationBar.layer.zPosition = -1
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeMenu(_:)))
+            self.view.addGestureRecognizer(tapGesture)
+        }
+        
+        
+        
+    }
+    func closeMenu(_ sender: UITapGestureRecognizer) {
+        self.view.removeGestureRecognizer(sender)
+        if self.navigationController?.navigationBar.layer.zPosition == -1 {
+            self.menu()
+        }
+    }
+    @IBAction func switchToView(sender: UIButton) {
+        self.tabBarController?.selectedIndex = sender.tag - 1
+        self.menu()
     }
     
   func doSomething()

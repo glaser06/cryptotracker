@@ -17,7 +17,7 @@ protocol ShowCoinBusinessLogic
 //    func doSomething(request: ShowCoin.Something.Request)
     func fetchCoin(request: ShowCoin.ShowCoin.Request)
     func fetchExchangesAndPair(request: ShowCoin.FetchExchangesAndPair.Request, completion: @escaping ()-> Void)
-    
+    func fetchHoldings(request: ShowCoin.FetchHoldings.Request)
 }
 
 protocol ShowCoinDataStore
@@ -36,11 +36,28 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
     var presenter: ShowCoinPresentationLogic?
 //    var worker: PortfolioWorker = PortfolioWorker.sharedInstance
     var coinWorker: CoinWorker = CoinWorker()
+    var portfolioWorker: PortfolioWorker = PortfolioWorker.sharedInstance
     var coin: Coin?
     var exchange: Exchange?
     var pair: Pair?
     
     // MARK: Do something
+    
+    func fetchHoldings(request: ShowCoin.FetchHoldings.Request) {
+        if let asset = portfolioWorker.portfolio.find(coin: self.coin!.symbol) {
+            let marketValue: Double = asset.marketValue
+//            let initValue: Double = portfolioWorker.portfolio.initialValue(of: self.coin!.symbol)!
+            let initValue: Double = asset.initialValue
+            let amount: Double = asset.amountHeld
+            let resp = ShowCoin.FetchHoldings.Response(marketValue: marketValue, initialValue: initValue, amount: amount, totalGain: marketValue-initValue, exists: true)
+            presenter?.presentHoldings(response: resp)
+            
+        } else {
+            let resp = ShowCoin.FetchHoldings.Response(marketValue: 0.0, initialValue: 0.0, amount: 0.0, totalGain: 0.0, exists: false)
+            presenter?.presentHoldings(response: resp)
+        }
+        
+    }
     
     func fetchCoin(request: ShowCoin.ShowCoin.Request) {
         
@@ -48,7 +65,9 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
         if request.exchange != nil && coin?.exchanges[request.exchange!] != nil {
             
             let exchange = coin!.exchanges[request.exchange!]!
+            
             self.exchange = exchange
+            
             if self.exchange?.pairs[self.coin!.symbol]?[request.quote!] != nil {
                 self.pair = self.exchange?.pairs[self.coin!.symbol]![request.quote!]
                 
@@ -58,7 +77,8 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
 
             }
             else {
-                self.pair = exchange.pairs.first!.value.first!.value
+                self.exchange = coin!.defaultExchange
+                self.pair = self.coin!.defaultPair
                 let resp = ShowCoin.ShowCoin.Response(price: self.pair!.price!, percent: self.pair!.percentChange24, volume: self.pair!.volume24, name: self.coin!.name, symbol: self.coin!.symbol, quote: self.pair!.quote)
                 self.presenter?.presentCoin(response: resp)
             }
@@ -89,7 +109,9 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
             
             
         } else {
-            let response = ShowCoin.ShowCoin.Response(price: self.coin!.exchanges["CoinMarketCap"]?.pairs.first?.value.first!.value.price, percent: self.coin!.exchanges["CoinMarketCap"]?.pairs.first?.value.first!.value.percentChange24!, volume: self.coin!.exchanges["CoinMarketCap"]?.pairs.first?.value.first!.value.volume24, name: self.coin!.name, symbol: self.coin!.symbol,quote: "usd")
+            self.exchange = coin!.exchanges["CoinMarketCap"]!
+            self.pair = self.coin!.defaultPair
+            let response = ShowCoin.ShowCoin.Response(price: self.pair!.price, percent: self.pair!.percentChange24!, volume: self.pair!.volume24, name: self.coin!.name, symbol: self.coin!.symbol,quote: "usd")
             self.presenter?.presentCoin(response: response)
         }
         
@@ -98,16 +120,18 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
     }
     func fetchExchangesAndPair(request: ShowCoin.FetchExchangesAndPair.Request, completion: @escaping  () -> Void) {
         MarketWorker.sharedInstance.exchangeInfoGroup.notify(queue: .main, execute: {
+            let quotes = self.coin!.allQuotes()
             if let coin = MarketWorker.sharedInstance.coinCollection[self.coin!.symbol] {
-                let exchange = coin.exchanges.first!
-                let quote = exchange.value.pairs[self.coin!.symbol]!.first!.key
-                let resp = ShowCoin.FetchExchangesAndPair.Response(exchangeName: exchange.key, quote: quote)
+                let exchange = coin.defaultExchange
+                
+                let quote = coin.defaultPair.quote
+                let resp = ShowCoin.FetchExchangesAndPair.Response(exchangeName: exchange.name, quote: quote, quotes: quotes)
                 self.presenter?.presentExchangesAndPair(response: resp)
                 completion()
             } else {
-                let exchange = self.coin!.exchanges.first!
-                let quote = exchange.value.pairs[self.coin!.symbol]!.first!.key
-                let resp = ShowCoin.FetchExchangesAndPair.Response(exchangeName: exchange.key, quote: quote)
+                let exchange = self.coin!.defaultExchange
+                let quote = self.coin!.defaultPair.quote
+                let resp = ShowCoin.FetchExchangesAndPair.Response(exchangeName: exchange.name, quote: quote, quotes: quotes)
                 self.presenter?.presentExchangesAndPair(response: resp)
                 completion()
             }

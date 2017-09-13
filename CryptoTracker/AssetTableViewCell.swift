@@ -22,18 +22,21 @@ class AssetTableViewCell: UITableViewCell {
     }
     
     @IBOutlet weak var totalValueLabel: UILabel!
-    @IBOutlet weak var amountLabel: UILabel!
+//    @IBOutlet weak var amountLabel: UILabel!
     @IBOutlet weak var percentLabel: UILabel!
     @IBOutlet weak var priceLabel: UILabel!
     @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var colorIndicator: UIView!
     
-    func setCell(asset: ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset) {
+    func setCell(asset: ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset, color: UIColor) {
         
         self.totalValueLabel.text = asset.totalValue
-        self.amountLabel.text = asset.amount
+//        self.amountLabel.text = asset.amount
         self.percentLabel.text = asset.change
         self.priceLabel.text = asset.price
-        self.nameLabel.text = asset.coinName
+        self.nameLabel.text = asset.coinName.uppercased()
+        
+        self.colorIndicator.backgroundColor = color
         
         if !asset.isUp {
             self.percentLabel.textColor = UIColor.red

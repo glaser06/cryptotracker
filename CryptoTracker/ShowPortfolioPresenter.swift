@@ -33,7 +33,7 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
                 let price = String(format: "%.2f", (statsPair.price!))
                 let percent = String(format: "%.2f", (statsPair.percentChange24!))
                 let isUp = statsPair.percentChange24! >= 0
-                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp)
+            let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp, total: each.amountHeld * (statsPair.price)!, fiat: each.assetType == .Fiat)
                 tempAssets.append(a)
 //            }
             

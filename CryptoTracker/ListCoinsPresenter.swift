@@ -15,6 +15,7 @@ import UIKit
 protocol ListCoinsPresentationLogic
 {
     func presentCoins(response: ListCoins.FetchCoins.Response)
+    
 }
 
 class ListCoinsPresenter: ListCoinsPresentationLogic
@@ -58,9 +59,9 @@ class ListCoinsPresenter: ListCoinsPresentationLogic
             index = price.index(price.startIndex, offsetBy: offset)
             price = price.substring(to: index)
             
-            let displayable = ListCoins.FetchCoins.ViewModel.DisplayableCoin(symbol: coin.symbol, cap: cap, percentage: "\(coin.percentage)%", price: "$\(price)")
+            let displayable = ListCoins.FetchCoins.ViewModel.DisplayableCoin(name: coin.name.capitalized, symbol: coin.symbol.uppercased(), cap: cap, percentage: "\(coin.percentage)%", price: "$\(price)")
             displayables.append(displayable)
         }
-        viewController?.displayCoins(viewModel: ListCoins.FetchCoins.ViewModel(coins: displayables, gotoTransaction: response.gotoTransaction))
+        viewController?.displayCoins(viewModel: ListCoins.FetchCoins.ViewModel(coins: displayables, gotoTransaction: response.gotoTransaction, doSwitch: response.doSwitch))
     }
 }

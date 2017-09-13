@@ -37,6 +37,7 @@ class ShowPortfolioRouter: NSObject, ShowPortfolioRoutingLogic, ShowPortfolioDat
     func passDataToAddTransaction(source: ShowPortfolioDataStore, destination: inout ListCoinsDataStore)
     {
         destination.gotoTransaction = true
+        destination.doSwitch = false
     }
     func routeToShowCoin(segue: UIStoryboardSegue) {
         let destinationVC = (segue.destination as! UINavigationController).viewControllers.first! as! ShowCoinViewController
@@ -44,8 +45,9 @@ class ShowPortfolioRouter: NSObject, ShowPortfolioRoutingLogic, ShowPortfolioDat
         passDataToShowCoin(source: dataStore!, destination: &destinationDS)
     }
     func passDataToShowCoin(source: ShowPortfolioDataStore, destination: inout ShowCoinDataStore) {
+        let assetCoin: String = viewController!.assetsOnDisplay[viewController!.assetTableView.indexPathForSelectedRow!.row].coinName
         let coin = PortfolioWorker.sharedInstance.portfolio.assets[viewController!.assetTableView.indexPathForSelectedRow!.row].coin
-        destination.coin = MarketWorker.sharedInstance.coinCollection[coin.symbol]
+        destination.coin = MarketWorker.sharedInstance.coinCollection[assetCoin]
     }
   
   //func routeToSomewhere(segue: UIStoryboardSegue?)

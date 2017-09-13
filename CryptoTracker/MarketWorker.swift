@@ -18,10 +18,12 @@ class MarketWorker
 {
     let marketService = CoinMarketCapAPI()
     let exchangeService = CryptowatchAPI()
+    let bigService = CryptocompareAPI()
     
     let exchangeInfoGroup = DispatchGroup()
     
-    func retrieveCoins(completion: @escaping ([Coin]) -> Void) {
+    func retrieveCoins(completion:  ( ([Coin]) -> Void)?) {
+        self.fetchAllExchangesAndPairs()
         marketService.getCoinInfo(completion: { (json) in
             var responseCoins: [ListCoins.FetchCoins.Response.Coin] = []
 //            self.coins = []
@@ -124,7 +126,7 @@ class MarketWorker
                         MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName]!.percentChange24 = market.value["price"]["change"]["percentage"].doubleValue
                         MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName]!.price = market.value["price"]["last"].doubleValue
                         MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs[baseName]![quoteName]!.volume24 = market.value["volume"].doubleValue
-                        
+//                        print(MarketWorker.sharedInstance.exchanges[exchangeName]!.pairs.count)
                         MarketWorker.sharedInstance.coinCollection[baseName]?.exchanges[exchangeName] = MarketWorker.sharedInstance.exchanges[exchangeName]
                     }
                     
@@ -134,7 +136,10 @@ class MarketWorker
                     
                     
                 }
-                completion([])
+                if let c  = completion {
+                    c([])
+                }
+
                 do  {
                     try self.saveCoins()
                 } catch {
@@ -163,19 +168,80 @@ class MarketWorker
         
     }
     
+    func fetchPrice(of pair: Pair, from exchange: Exchange) {
+        bigService.fetchPrice(for: pair.base, and: pair.quote, inExchange: exchange.name, { (json) in
+            
+        })
+    }
+    
+    func fetchAllExchangesAndPairs() {
+        self.exchangeInfoGroup.enter()
+        bigService.fetchAllExchangesAndPairs(completion:  {(json) in
+            var allCoins: [String] = []
+            for each in json.dictionaryValue {
+//                print(each.key)
+                let exchangeName = each.key.lowercased()
+                for symbol in each.value.dictionaryValue {
+                    allCoins.append(symbol.key)
+                    var coinName = symbol.key.lowercased()
+                    if self.coinMapper[coinName] != nil {
+                        coinName = self.coinMapper[coinName]!.lowercased()
+                    }
+                    for quote in symbol.value.arrayValue {
+                        
+                        if let coin = self.coinCollection[coinName] {
+                            if let exc = self.coinCollection[coinName]!.exchanges[exchangeName] {
+                                //                            self.coinCollection[symbol.key]!.exchanges[each.key]!.pairs
+                                
+                                self.coinCollection[coinName]!.exchanges[exchangeName]!.addPair(base: coinName, quote: quote.stringValue)
+                            } else {
+                                self.coinCollection[coinName]!.exchanges[exchangeName] = Exchange(pairs: nil, name: exchangeName)
+                                self.coinCollection[coinName]!.exchanges[exchangeName]!.addPair(base: coinName, quote: quote.stringValue)
+                            }
+                            
+                        }
+//                        else {
+//                            self.coinCollection[coinName] = Coin(name: coinName, symbol: coinName)
+//                            self.coinCollection[coinName]!.exchanges[exchangeName] = Exchange(pairs: nil, name: exchangeName)
+//                            self.coinCollection[coinName]!.exchanges[exchangeName]!.addPair(base: coinName, quote: quote.stringValue)
+//                        }
+                    }
+//                    print(self.coinCollection[coinName]!.exchanges[exchangeName]!.potentialPairs.count)
+                    
+                }
+            }
+            self.exchangeInfoGroup.leave()
+//            allCoins.index(of: "XMR")
+            
+        })
+    }
+    
+    @objc func updateCoin() {
+        print("updating")
+        self.retrieveCoins(completion: nil)
+    }
+    
     static let sharedInstance: MarketWorker = MarketWorker()
     
+    var refreshRate: TimeInterval = 300
+    
     init() {
+        
+        
         do {
+            
             try self.unpackCoins()
+            self.fetchAllExchangesAndPairs()
         } catch {
             
         }
         
+//        _ = Timer.scheduledTimer(timeInterval: self.refreshRate, target: self, selector: #selector(self.updateCoin), userInfo: nil, repeats: true)
+        
     }
     func saveCoins() throws {
         let coins = Array(MarketWorker.sharedInstance.coinCollection.values)
-        print(coins.count)
+//        print(coins.count)
         var encoder = CerealEncoder()
         
         let data = try CerealEncoder.data(withRoot: coins)
@@ -200,6 +266,11 @@ class MarketWorker
     
     var coinCollection: [String: Coin] = [:]
     var exchanges: [String: Exchange] = [:]
+    
+    let coinMapper: [String: String] = [
+        "iot": "miota",
+//        "XBT": "BTC",
+    ]
     
 //    static let exchanges
 }

@@ -25,6 +25,7 @@ enum ListCoins
         struct Response
         {
             struct Coin {
+                var name: String
                 var symbol: String
                 var cap: String
                 var price: Double
@@ -32,11 +33,13 @@ enum ListCoins
             }
             var coins: [Coin]
             var gotoTransaction: Bool
+            var doSwitch: Bool = true
             
         }
         struct ViewModel
         {
             struct DisplayableCoin {
+                var name: String
                 var symbol: String
                 var cap: String
                 var percentage: String
@@ -45,8 +48,9 @@ enum ListCoins
             
             var coins: [DisplayableCoin]
             var gotoTransaction: Bool
+            var doSwitch: Bool = true
             
         }
     }
-    
+        
 }

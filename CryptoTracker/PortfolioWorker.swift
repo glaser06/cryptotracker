@@ -19,14 +19,14 @@ class PortfolioWorker
     
     var portfolio: Portfolio = Portfolio()
     
-    func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool) {
+    func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool, exchange: String) {
         var type: Transaction.OrderType = .Buy
         if !isBuy {
             type = .Sell
         }
         
-        let transaction = Transaction(pair: pair, price: price, amount: amount, type: type)
-        let sellTransaction = Transaction(pair: pair, price: price, amount: price*amount, type: isBuy ? .Sell : .Buy)
+        let transaction = Transaction(pair: pair, price: price, amount: amount, type: type, exchange: exchange)
+        let sellTransaction = Transaction(pair: pair, price: price, amount: price*amount, type: isBuy ? .Sell : .Buy, exchange: exchange)
         let base = MarketWorker.sharedInstance.coinCollection[pair.base]!
         var found = false
         var quoteFound = false
@@ -35,7 +35,7 @@ class PortfolioWorker
 //                let asset = each
                 if transaction.orderType == .Sell {
                     if each.amountHeld - transaction.amount < 0 {
-                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-transaction.amount) * -1, type: .Buy)
+                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-transaction.amount) * -1, type: .Buy, exchange: exchange)
 //                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-transaction.amount) * -1
                         tempTrans.notes = "Capital Injection"
                         tempTrans.isInitialFunding = true
@@ -55,7 +55,7 @@ class PortfolioWorker
 //                let asset = each
                 if sellTransaction.orderType == .Sell {
                     if each.amountHeld - sellTransaction.amount < 0 {
-                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-sellTransaction.amount) * -1, type: .Buy)
+                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-sellTransaction.amount) * -1, type: .Buy, exchange: exchange)
                         tempTrans.notes = "Capital Injection"
                         tempTrans.isInitialFunding = true
 //                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-sellTransaction.amount) * -1
@@ -72,7 +72,7 @@ class PortfolioWorker
             
             if transaction.orderType == .Sell {
                 if asset.amountHeld - transaction.amount < 0 {
-                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-transaction.amount) * -1, type: .Buy)
+                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-transaction.amount) * -1, type: .Buy, exchange: exchange)
 //                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-transaction.amount) * -1
                     tempTrans.notes = "Capital Injection"
                     tempTrans.isInitialFunding = true
@@ -105,7 +105,7 @@ class PortfolioWorker
             }
             if sellTransaction.orderType == .Sell {
                 if asset.amountHeld - sellTransaction.amount < 0 {
-                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-sellTransaction.amount) * -1, type: .Buy)
+                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-sellTransaction.amount) * -1, type: .Buy, exchange: exchange)
                     tempTrans.notes = "Capital Injection"
                     tempTrans.isInitialFunding = true
 //                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-sellTransaction.amount) * -1

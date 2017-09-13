@@ -18,6 +18,8 @@ protocol ListCoinsBusinessLogic
     func fetchCoins(request: ListCoins.FetchCoins.Request)
     func forceRefresh(request: ListCoins.FetchCoins.Request)
     
+    
+    
 }
 
 protocol ListCoinsDataStore
@@ -25,6 +27,7 @@ protocol ListCoinsDataStore
     //var name: String { get set }
     var coins: [Coin] { get set }
     var gotoTransaction: Bool? { get set }
+    var doSwitch: Bool? { get set }
 }
 
 class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
@@ -36,6 +39,7 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
     // MARK: Do something
     var coins: [Coin] = []
     var gotoTransaction: Bool?
+    var doSwitch: Bool?
     
     func forceRefresh(request: ListCoins.FetchCoins.Request) {
         marketWorker.retrieveCoins(completion: {(c) in
@@ -57,10 +61,10 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
             var responseCoins: [ListCoins.FetchCoins.Response.Coin] = []
             for coin in self.coins {
                 let statPair = coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value
-                let tempCoin = ListCoins.FetchCoins.Response.Coin(symbol: coin.symbol, cap: String(describing: statPair.marketCap!), price: statPair.price!, percentage: statPair.percentChange24!)
+                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: String(describing: statPair.marketCap!), price: statPair.price!, percentage: statPair.percentChange24!)
                 responseCoins.append(tempCoin)
             }
-            self.presenter?.presentCoins(response: ListCoins.FetchCoins.Response(coins: responseCoins, gotoTransaction: self.gotoTransaction ?? false))
+            self.presenter?.presentCoins(response: ListCoins.FetchCoins.Response(coins: responseCoins, gotoTransaction: self.gotoTransaction ?? false, doSwitch: self.doSwitch ?? true))
             request.completion()
         })
         

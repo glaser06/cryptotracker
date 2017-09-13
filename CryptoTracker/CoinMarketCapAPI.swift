@@ -19,9 +19,7 @@ class CoinMarketCapAPI {
 
             if let value = response.result.value {
                 let json = JSON(value)
-                for coin in json.array! {
-//                    print(coin["symbol"])
-                }
+                
                 completion(json)
 //                print(json)
             }

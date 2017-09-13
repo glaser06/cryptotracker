@@ -69,12 +69,19 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
     
     var coinsOnDisplay: [ListCoins.FetchCoins.ViewModel.DisplayableCoin] = []
     var gotoTransaction: Bool = false
+    var doSwitch: Bool = true
+    var currentDisplayIndex: Int = 0
+    
+    var refresher: UIRefreshControl!
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         setupTable()
         fetchCoins(nil)
+        
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        navigationController?.navigationBar.shadowImage = UIImage()
 //        do {
 //            try MarketWorker.sharedInstance.unpackCoins()
 //        } catch {
@@ -92,6 +99,7 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(forceRefresh(_:)), for: .valueChanged)
         coinTableView.refreshControl = refresher
+        self.refresher = refresher
         
         coinTableView.register(UINib(nibName: "CoinTableViewCell", bundle: nil), forCellReuseIdentifier: "CoinCell")
         
@@ -103,6 +111,9 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
     // MARK: Do something
     
     @IBOutlet weak var coinTableView: UITableView!
+    @IBOutlet weak var menuView: UIView!
+    
+    
     
 //    func refreshCoins(_ refresher: UIRefreshControl) {
 //        self.fetchCoins(completion: {
@@ -111,7 +122,13 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
 //        
 //    }
     @IBAction func close() {
-        self.navigationController?.dismiss(animated: true, completion: nil)
+        
+        if self.doSwitch {
+            self.tabBarController?.selectedIndex = 0
+        } else {
+            self.navigationController?.dismiss(animated: true, completion: nil)
+        }
+        
     }
     func forceRefresh(_ refresher: UIRefreshControl?) {
         let req = ListCoins.FetchCoins.Request(completion: {
@@ -134,19 +151,80 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
     func displayCoins(viewModel: ListCoins.FetchCoins.ViewModel) {
         self.coinsOnDisplay = viewModel.coins
         self.gotoTransaction = viewModel.gotoTransaction
+        
+        self.refresher.endRefreshing()
+        
         self.coinTableView.reloadData()
+        self.doSwitch = viewModel.doSwitch
     }
+    
+    @IBAction func menu() {
+        
+        if !self.doSwitch {
+            self.navigationController?.dismiss(animated: true, completion: nil)
+            return
+        } 
+        //        self.tabBarController?.selectedIndex = 1
+        if self.navigationController?.navigationBar.layer.zPosition == -1 {
+            self.menuView.isHidden = true
+            self.navigationController?.navigationBar.layer.zPosition = 0
+            
+            
+        } else {
+            
+            self.menuView.isHidden = false
+            self.navigationController?.navigationBar.layer.zPosition = -1
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeMenu(_:)))
+            self.view.addGestureRecognizer(tapGesture)
+        }
+        
+        
+        
+    }
+    func closeMenu(_ sender: UITapGestureRecognizer) {
+        self.view.removeGestureRecognizer(sender)
+        if self.navigationController?.navigationBar.layer.zPosition == -1 {
+            self.menu()
+        }
+        
+    }
+    @IBAction func switchToView(sender: UIButton) {
+        self.tabBarController?.selectedIndex = sender.tag - 1
+        self.menu()
+    }
+    
 }
 extension ListCoinsViewController: UITableViewDataSource {
+    
+    
+    
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.coinsOnDisplay.count
     }
+    func changeAllCellDisplay () {
+        for cell in self.coinTableView.visibleCells {
+            let c = (cell as? CoinTableViewCell)
+            if c != nil && !c!.isSender {
+                
+                c!.changeDisplayNoLooping()
+                
+                
+            } else if c!.isSender {
+                c!.isSender = false
+            }
+        }
+        self.currentDisplayIndex += 1
+        if self.currentDisplayIndex >= 2 {
+            self.currentDisplayIndex = 0
+        }
+        
+    }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CoinCell") as! CoinTableViewCell
-        cell.setCell(data: self.coinsOnDisplay[indexPath.row])
+        cell.setCell(data: self.coinsOnDisplay[indexPath.row], change: changeAllCellDisplay, currentInfo: self.currentDisplayIndex)
         
         
         return cell

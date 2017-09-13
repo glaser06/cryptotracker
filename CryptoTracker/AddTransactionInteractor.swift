@@ -51,7 +51,7 @@ class AddTransactionInteractor: AddTransactionBusinessLogic, AddTransactionDataS
     
     func saveTransaction(request: AddTransaction.SaveTransaction.Request) {
         
-        portfolioWorker.addTransaction(pair: self.pair!, price: request.price, amount: request.amount, isBuy: request.isBuying)
+        portfolioWorker.addTransaction(pair: self.pair!, price: request.price, amount: request.amount, isBuy: request.isBuying, exchange: self.exchange!.name)
 //        print(portfolioWorker.portfolio.assets.count)
         presenter?.presentCompletedTransaction(response: AddTransaction.SaveTransaction.Response())
     }

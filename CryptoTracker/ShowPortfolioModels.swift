@@ -52,6 +52,10 @@ enum ShowPortfolio
             
             var isUp: Bool
             
+            var total: Double
+            
+            var fiat: Bool
+            
         }
         
         

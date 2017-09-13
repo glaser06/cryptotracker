@@ -16,6 +16,7 @@ protocol ShowCoinPresentationLogic
 {
     func presentCoin(response: ShowCoin.ShowCoin.Response)
     func presentExchangesAndPair(response: ShowCoin.FetchExchangesAndPair.Response)
+    func presentHoldings(response: ShowCoin.FetchHoldings.Response)
 }
 
 class ShowCoinPresenter: ShowCoinPresentationLogic
@@ -55,7 +56,7 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
         let didIncrease = (response.percent! >= 0)
         let formattedPrice: String
         if response.quote == "usd" {
-            formattedPrice = "$" + String(format: "%.2f", response.price!)
+            formattedPrice = "\(response.price!)"
         } else {
             formattedPrice = String(format: "%.5f", response.price!)
         }
@@ -64,8 +65,22 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
         viewController?.displayCoin(viewModel: vm)
     }
     func presentExchangesAndPair(response: ShowCoin.FetchExchangesAndPair.Response) {
-        let vm = ShowCoin.FetchExchangesAndPair.ViewModel(exchangeName: response.exchangeName.capitalized, quote: response.quote.uppercased())
+        let vm = ShowCoin.FetchExchangesAndPair.ViewModel(exchangeName: response.exchangeName.capitalized, quote: response.quote.uppercased(), quotes: response.quotes)
         viewController?.displayExchanges(viewModel: vm)
+    }
+    func presentHoldings(response: ShowCoin.FetchHoldings.Response) {
+        if !response.exists {
+            let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: "", initialValue: "", amount: "", totalGain: "", exists: false)
+            self.viewController?.displayHoldings(viewModel: vm)
+            return
+        }
+        let marketValue = String(format: "%.2f", response.marketValue)
+        let initValue = String(format: "%.2f", response.initialValue)
+        let amount = "\(response.amount)"
+        let gain = String(format: "$%.2f", response.totalGain)
+        let percentage = String(format: "%.2f", response.totalGain/response.initialValue) + "%"
+        let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: marketValue, initialValue: initValue, amount: amount, totalGain: "\(gain) (\(percentage))", exists: true)
+        self.viewController?.displayHoldings(viewModel: vm)
     }
 }
 

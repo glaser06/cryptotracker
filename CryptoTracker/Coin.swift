@@ -29,6 +29,25 @@ class Coin {
     func exchangeNames() -> [String] {
         return Array(self.exchanges.keys)
     }
+    func allQuotes() -> [String] {
+        var set = Set<String>()
+        for exchange in self.exchanges {
+            if exchange.value.potentialPairs[self.symbol] != nil {
+                _ = exchange.value.potentialPairs[self.symbol]!.map({ set.insert($0) })
+            }
+            
+        }
+        return Array(set)
+    }
+    
+    var defaultPair: Pair {
+        return self.exchanges[defaultExchangeName]!.pairs[symbol]![defaultFiat]!
+    }
+    var defaultExchange: Exchange {
+        return self.exchanges[defaultExchangeName]!
+    }
+    var defaultFiat = "usd"
+    var defaultExchangeName = "CoinMarketCap"
     
     required init(decoder: CerealDecoder) throws {
         
@@ -38,6 +57,19 @@ class Coin {
         }
         self.name = try decoder.decode(key: Keys.name)!
         self.symbol = try decoder.decode(key: Keys.symbol)!
+    }
+    func convert(amount: Double, to coin: String, in exchange: String) -> Double? {
+        if self.exchanges[exchange] == nil {
+            return nil
+        }
+        if self.exchanges[exchange]!.pairs[self.symbol]![coin] != nil {
+            return amount * self.exchanges[exchange]!.pairs[self.symbol]![coin]!.price!
+        } else {
+            return nil
+        }
+//        for each in self.exchanges[exchange]!.pairs[self.symbol] {
+//            
+//        }
     }
     var USD: Double {
         return self.exchanges["CoinMarketCap"]!.pairs[self.symbol]!["usd"]!.price!
@@ -62,6 +94,8 @@ extension Coin: CerealType {
 struct Exchange {
     
     var pairs: [String: [String: Pair]] // key is base currency
+    
+    var potentialPairs: [String: [String]] = [:]
     
     var name: String
     
@@ -95,6 +129,18 @@ struct Exchange {
 //        }
 //        return Array(names.keys)
     }
+    
+//    adds empty pair
+    mutating func addPair(base: String, quote: String) {
+        if self.potentialPairs[base] != nil {
+            potentialPairs[base]!.append(quote)
+        } else {
+            potentialPairs[base] = []
+            potentialPairs[base]!.append(quote)
+        }
+        
+    }
+    
     init(decoder: CerealDecoder) throws {
         self.name = try decoder.decode(key: Keys.name)!
         var newPairs: [Pair] = try decoder.decodeCereal(key: Keys.pairs)!

@@ -45,6 +45,29 @@ class Portfolio {
     
     var assets: [Asset] = []
     
+    func initialValue(of coin: String) -> Double? {
+        var initial = 0.0
+        if let c = self.find(coin: coin) {
+            for asset in self.assets {
+                for transaction in asset.transactions {
+                    
+                    if transaction.isInitialFunding && transaction.pair.base == coin {
+                        var coinPrice = 1.0
+                        if asset.assetType == .Crypto {
+                            coinPrice = transaction.price.usd!
+                            
+                        }
+                        initial += transaction.amount*coinPrice
+                    }
+                    
+                }
+            }
+            return initial
+        } else {
+            return nil
+        }
+    }
+    
     func updateValue() {
 //        for each in assets {
 //            
@@ -55,6 +78,15 @@ class Portfolio {
     }
     required init(decoder: CerealDecoder) throws {
         self.assets = try decoder.decodeCereal(key: Keys.assets)!
+    }
+    
+    func find(coin: String) -> Asset? {
+        for asset in assets {
+            if asset.coin.symbol == coin {
+                return asset
+            }
+        }
+        return nil
     }
     
     
@@ -101,6 +133,48 @@ class Asset {
         self.coin = coin
         self.assetType = type
     }
+    
+    var marketValue: Double {
+        return self.amountHeld * self.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
+    }
+    var initialValue: Double {
+        var initTotal = 0.0
+        var amount = 0.0
+//        for each in self.transactions {
+//            print(each.amount)
+//            print(each.price)
+//            print(each.orderType)
+//            
+//        }
+        for transaction in self.transactions {
+            
+            if transaction.orderType == .Buy {
+                amount += transaction.amount
+            } else {
+                amount -= transaction.amount
+            }
+            
+        }
+        var levels = 0.0
+        var prevAmount = 0.0
+        for transaction in self.transactions {
+            if transaction.orderType == .Buy {
+                
+                levels += transaction.amount
+                if amount < levels {
+                    initTotal += (amount - prevAmount) * transaction.price.usd!
+                    return initTotal
+                }
+                initTotal += transaction.amount * transaction.price.usd!
+                prevAmount = transaction.amount
+                
+            }
+            
+            
+        }
+        return initTotal
+    }
+    
     
     func addTransaction(transaction: Transaction) {
         switch transaction.orderType {
@@ -158,7 +232,7 @@ extension Asset: CerealType {
 //        try encoder.encode
         try encoder.encode(self.transactions, forKey: Keys.transactions)
         try encoder.encode(amountHeld, forKey: Keys.amount)
-        print("here")
+        
 //        try encoder.encode(isInitialFunding, forKey: Keys.isInitFund)
         try encoder.encode(assetType, forKey: Keys.assetType)
 //        try encoder.encode(exchange, forKey: Keys.exchange)
@@ -196,11 +270,11 @@ class Transaction {
     
     var price: Price // in quoted currency
     
-    var exchange: String?
+    var exchange: String = ""
     
-    init(pair: Pair, price: Double, amount: Double, type: OrderType) {
+    init(pair: Pair, price: Double, amount: Double, type: OrderType, exchange: String) {
         
-        
+        self.exchange = exchange
         self.pair = pair
         let usd: Double = MarketWorker.sharedInstance.coinCollection[pair.base]!.USD
         self.price = Price(original: price, usd: usd, btc: nil)
@@ -209,6 +283,8 @@ class Transaction {
         
         self.orderType = type
     }
+    
+    
     
     
     
@@ -230,9 +306,7 @@ class Transaction {
         self.pair = pair
         
         self.isInitialFunding = try decoder.decode(key: Keys.isInitFund) ?? false
-        if isInitialFunding {
-            print("init fund")
-        }
+        
     }
     
     
@@ -258,9 +332,7 @@ extension Transaction: CerealType {
         try encoder.encode(price.usd!, forKey: Keys.priceUSD)
         try encoder.encode(amount, forKey: Keys.amount)
         try encoder.encode(isInitialFunding, forKey: Keys.isInitFund)
-        if isInitialFunding {
-            print("init fund")
-        }
+        
         try encoder.encode(orderType, forKey: Keys.orderType)
         try encoder.encode(exchange, forKey: Keys.exchange)
         try encoder.encode(pair.base, forKey: Keys.baseSymbol)
