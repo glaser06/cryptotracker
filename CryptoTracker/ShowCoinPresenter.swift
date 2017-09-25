@@ -17,6 +17,8 @@ protocol ShowCoinPresentationLogic
     func presentCoin(response: ShowCoin.ShowCoin.Response)
     func presentExchangesAndPair(response: ShowCoin.FetchExchangesAndPair.Response)
     func presentHoldings(response: ShowCoin.FetchHoldings.Response)
+    
+    func presentCharts(response: ShowCoin.FetchChart.Response)
 }
 
 class ShowCoinPresenter: ShowCoinPresentationLogic
@@ -27,28 +29,44 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
     
     func presentCoin(response: ShowCoin.ShowCoin.Response) {
         
-        var cap = String(describing: response.volume!)
+        var cap = String(describing: Int(response.volume!))
         
         let length = cap.characters.count
-        var index = cap.index(cap.startIndex, offsetBy: 3)
-        cap = cap.substring(to: index)
-        if length > 11 {
-            let decimalPlace = length - 11
-            if decimalPlace < 3 {
-                index = cap.index(cap.startIndex, offsetBy: decimalPlace)
-                cap.insert(".", at: index)
+        if length <= 3 {
+            cap = "\(String(format: "%.2f",response.volume!))"
+        
+        } else {
+            var index = cap.index(cap.startIndex, offsetBy: 3)
+            cap = cap.substring(to: index)
+            if length > 9 {
+                let decimalPlace = length - 9
+                if decimalPlace < 3 {
+                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+                    cap.insert(".", at: index)
+                }
+                
+                cap = "\(cap)B"
+            } else if length > 6 {
+                let decimalPlace = length - 6
+                if decimalPlace < 3 {
+                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+                    cap.insert(".", at: index)
+                }
+                
+                cap = "\(cap)M"
+            } else if length > 3 {
+                let decimalPlace = length - 3
+                if decimalPlace < 3 {
+                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+                    cap.insert(".", at: index)
+                }
+                cap = "\(cap)K"
+                
+            } else {
+                cap = "\(String(format: "%.2f",response.volume!))"
             }
-            
-            cap = "$\(cap)B"
-        } else if length > 8 {
-            let decimalPlace = length - 8
-            if decimalPlace < 3 {
-                index = cap.index(cap.startIndex, offsetBy: decimalPlace)
-                cap.insert(".", at: index)
-            }
-            
-            cap = "$\(cap)M"
         }
+        
         
         let changeValue = response.price! - response.price!/(1+response.percent!/100)
         let formattedChange = String(format: "%.2f", changeValue)
@@ -58,12 +76,26 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
         if response.quote == "usd" {
             formattedPrice = "\(response.price!)"
         } else {
-            formattedPrice = String(format: "%.5f", response.price!)
+            formattedPrice = "\(response.price!)"
         }
         
-        let vm = ShowCoin.ShowCoin.ViewModel(price: formattedPrice, percent: "\(formattedChange) (\(formattedPercent)%)", volume: "\(cap)", name: response.name, symbol: response.symbol, didIncrease: didIncrease, quote: response.quote.uppercased())
+        let highFormatted = String(format: "%.2f", response.high24 ?? 0.0)
+        let lowFormatted = String(format: "%.2f", response.low24 ?? 0.0)
+        
+        let open: Double = response.price! - response.price! * response.percent!/100.0
+        let openFormatted = String(format: "%.2f", open)
+        
+        let data = ShowCoin.ShowCoin.ViewModel.Data(open: open, high: response.high24 ?? 0.0, low: response.low24 ?? 0.0, close: response.price!)
+        
+        let vm = ShowCoin.ShowCoin.ViewModel(price: formattedPrice, open: openFormatted, percent: "\(formattedChange) (\(formattedPercent)%)", volume: "\(cap)",high24: highFormatted, low24: lowFormatted, name: response.name, symbol: response.symbol, didIncrease: didIncrease, quote: response.quote.uppercased(), exchange: response.exchange, quotes: response.quotes, exchanges: response.exchanges, cap: response.cap, data: data)
         viewController?.displayCoin(viewModel: vm)
     }
+    
+    func presentCharts(response: ShowCoin.FetchChart.Response) {
+        let vm = ShowCoin.FetchChart.ViewModel(chartData: response.chartData)
+        self.viewController?.displayCharts(viewModel: vm)
+    }
+    
     func presentExchangesAndPair(response: ShowCoin.FetchExchangesAndPair.Response) {
         let vm = ShowCoin.FetchExchangesAndPair.ViewModel(exchangeName: response.exchangeName.capitalized, quote: response.quote.uppercased(), quotes: response.quotes)
         viewController?.displayExchanges(viewModel: vm)

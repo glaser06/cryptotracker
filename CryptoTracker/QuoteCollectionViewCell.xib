@@ -33,6 +33,10 @@
                             <constraint firstItem="vSt-os-BmQ" firstAttribute="centerX" secondItem="a7i-Ce-3zE" secondAttribute="centerX" id="X7i-9o-pQh"/>
                             <constraint firstItem="vSt-os-BmQ" firstAttribute="centerY" secondItem="a7i-Ce-3zE" secondAttribute="centerY" id="b83-gJ-NHB"/>
                         </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="7"/>
+                            <userDefinedRuntimeAttribute type="string" keyPath="layer.borderWidth" value="1"/>
+                        </userDefinedRuntimeAttributes>
                     </view>
                 </subviews>
             </view>
@@ -44,6 +48,7 @@
             </constraints>
             <size key="customSize" width="72" height="69"/>
             <connections>
+                <outlet property="backView" destination="a7i-Ce-3zE" id="6A3-kd-ufl"/>
                 <outlet property="quoteLabel" destination="vSt-os-BmQ" id="p6D-lS-3Km"/>
             </connections>
             <point key="canvasLocation" x="36" y="61.5"/>

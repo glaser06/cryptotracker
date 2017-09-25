@@ -51,9 +51,13 @@
 		6D6825F41F5027A100A25873 /* Coin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825F31F5027A100A25873 /* Coin.swift */; };
 		6D6825F61F502BA200A25873 /* CoinWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825F51F502BA200A25873 /* CoinWorker.swift */; };
 		6D6825F81F502BBE00A25873 /* CryptowatchAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6825F71F502BBE00A25873 /* CryptowatchAPI.swift */; };
+		E30E86721F75B89B00AC5C2B /* FiatAssetTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30E86701F75B89B00AC5C2B /* FiatAssetTableViewCell.swift */; };
+		E30E86731F75B89B00AC5C2B /* FiatAssetTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E30E86711F75B89B00AC5C2B /* FiatAssetTableViewCell.xib */; };
+		E37950C51F6D056400C3338A /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37950C41F6D056400C3338A /* UIViewExtension.swift */; };
 		E37AAB6B1F699634001546BD /* QuoteCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37AAB691F699634001546BD /* QuoteCollectionViewCell.swift */; };
 		E37AAB6C1F699634001546BD /* QuoteCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E37AAB6A1F699634001546BD /* QuoteCollectionViewCell.xib */; };
 		E38689C51F6772E0004E98D7 /* CryptocompareAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E38689C41F6772E0004E98D7 /* CryptocompareAPI.swift */; };
+		E3D4B93E1F70D7B2005FCDB8 /* TempStorage.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3D4B93D1F70D7B2005FCDB8 /* TempStorage.xib */; };
 		E3F3238B1F5DC236000B1CE1 /* ShowAccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323851F5DC236000B1CE1 /* ShowAccountInteractor.swift */; };
 		E3F3238C1F5DC236000B1CE1 /* ShowAccountModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323861F5DC236000B1CE1 /* ShowAccountModels.swift */; };
 		E3F3238D1F5DC236000B1CE1 /* ShowAccountPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323871F5DC236000B1CE1 /* ShowAccountPresenter.swift */; };
@@ -136,9 +140,13 @@
 		C2DFC567092D0555DF853086 /* Pods-CryptoTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTracker.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTracker/Pods-CryptoTracker.debug.xcconfig"; sourceTree = "<group>"; };
 		C8BCC6C313A66009E6096456 /* Pods-CryptoTrackerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTrackerTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTrackerTests/Pods-CryptoTrackerTests.release.xcconfig"; sourceTree = "<group>"; };
 		D000E416070A248539B5183C /* Pods-CryptoTrackerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoTrackerUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CryptoTrackerUITests/Pods-CryptoTrackerUITests.release.xcconfig"; sourceTree = "<group>"; };
+		E30E86701F75B89B00AC5C2B /* FiatAssetTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FiatAssetTableViewCell.swift; sourceTree = "<group>"; };
+		E30E86711F75B89B00AC5C2B /* FiatAssetTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FiatAssetTableViewCell.xib; sourceTree = "<group>"; };
+		E37950C41F6D056400C3338A /* UIViewExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIViewExtension.swift; path = ../UIViewExtension.swift; sourceTree = "<group>"; };
 		E37AAB691F699634001546BD /* QuoteCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuoteCollectionViewCell.swift; sourceTree = "<group>"; };
 		E37AAB6A1F699634001546BD /* QuoteCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = QuoteCollectionViewCell.xib; sourceTree = "<group>"; };
 		E38689C41F6772E0004E98D7 /* CryptocompareAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptocompareAPI.swift; sourceTree = "<group>"; };
+		E3D4B93D1F70D7B2005FCDB8 /* TempStorage.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TempStorage.xib; sourceTree = "<group>"; };
 		E3F323851F5DC236000B1CE1 /* ShowAccountInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountInteractor.swift; sourceTree = "<group>"; };
 		E3F323861F5DC236000B1CE1 /* ShowAccountModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountModels.swift; sourceTree = "<group>"; };
 		E3F323871F5DC236000B1CE1 /* ShowAccountPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountPresenter.swift; sourceTree = "<group>"; };
@@ -225,6 +233,7 @@
 		6D0ED8C11F4CE0A700D5146D /* CryptoTracker */ = {
 			isa = PBXGroup;
 			children = (
+				E37950C41F6D056400C3338A /* UIViewExtension.swift */,
 				6D0ED8F31F4DF60B00D5146D /* Models */,
 				6D0ED8F11F4DF60100D5146D /* Services */,
 				6D0ED8F21F4DF60600D5146D /* Workers */,
@@ -338,8 +347,11 @@
 		6D62037F1F50AA7900054A44 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				E30E86701F75B89B00AC5C2B /* FiatAssetTableViewCell.swift */,
+				E30E86711F75B89B00AC5C2B /* FiatAssetTableViewCell.xib */,
 				6D62037B1F50AA7500054A44 /* AssetTableViewCell.swift */,
 				6D62037C1F50AA7500054A44 /* AssetTableViewCell.xib */,
+				E3D4B93D1F70D7B2005FCDB8 /* TempStorage.xib */,
 			);
 			name = Cells;
 			sourceTree = "<group>";
@@ -514,8 +526,10 @@
 			files = (
 				6D62037E1F50AA7500054A44 /* AssetTableViewCell.xib in Resources */,
 				6D0ED8CD1F4CE0A700D5146D /* LaunchScreen.storyboard in Resources */,
+				E30E86731F75B89B00AC5C2B /* FiatAssetTableViewCell.xib in Resources */,
 				6D0ED8CA1F4CE0A700D5146D /* Assets.xcassets in Resources */,
 				6D0ED9041F4E058600D5146D /* CoinTableViewCell.xib in Resources */,
+				E3D4B93E1F70D7B2005FCDB8 /* TempStorage.xib in Resources */,
 				6D0ED8C81F4CE0A700D5146D /* Main.storyboard in Resources */,
 				E37AAB6C1F699634001546BD /* QuoteCollectionViewCell.xib in Resources */,
 			);
@@ -664,7 +678,9 @@
 				"${BUILT_PRODUCTS_DIR}/Charts/Charts.framework",
 				"${BUILT_PRODUCTS_DIR}/Hero/Hero.framework",
 				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftCharts/SwiftCharts.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/YIInnerShadowView/YIInnerShadowView.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -673,7 +689,9 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Charts.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hero.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftCharts.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/YIInnerShadowView.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -704,6 +722,7 @@
 			files = (
 				6D6203741F509EFD00054A44 /* ShowPortfolioModels.swift in Sources */,
 				6D6203731F509EFD00054A44 /* ShowPortfolioInteractor.swift in Sources */,
+				E37950C51F6D056400C3338A /* UIViewExtension.swift in Sources */,
 				6D6825F41F5027A100A25873 /* Coin.swift in Sources */,
 				6D62038B1F51009300054A44 /* AddTransactionViewController.swift in Sources */,
 				6D62038A1F51009300054A44 /* AddTransactionRouter.swift in Sources */,
@@ -723,6 +742,7 @@
 				6D0ED8FE1F4DF94700D5146D /* ListCoinsRouter.swift in Sources */,
 				6D6825F61F502BA200A25873 /* CoinWorker.swift in Sources */,
 				6D0ED8FB1F4DF94700D5146D /* ListCoinsInteractor.swift in Sources */,
+				E30E86721F75B89B00AC5C2B /* FiatAssetTableViewCell.swift in Sources */,
 				E38689C51F6772E0004E98D7 /* CryptocompareAPI.swift in Sources */,
 				6D6203871F51009300054A44 /* AddTransactionInteractor.swift in Sources */,
 				E3F3238D1F5DC236000B1CE1 /* ShowAccountPresenter.swift in Sources */,

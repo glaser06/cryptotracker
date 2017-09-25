@@ -42,6 +42,8 @@ enum ShowPortfolio
             
             var coinName: String
             
+            var symbol: String
+            
             var amount: String
             
             var totalValue: String
@@ -56,6 +58,10 @@ enum ShowPortfolio
             
             var fiat: Bool
             
+            var cap: String
+            
+            
+            
         }
         
         
@@ -64,13 +70,35 @@ enum ShowPortfolio
   }
     enum FetchAllCoins {
         struct Request {
-        
+            
         }
         struct Response {
         
         }
         struct ViewModel {
             
+        }
+    }
+    enum FetchAssetCharts{
+        struct Request {
+            
+        }
+        struct Response {
+            var data: [[(Int, Double, Double, Double, Double, Double)]]
+        }
+        struct ViewModel {
+            var data: [[(Int, Double, Double, Double, Double, Double)]]
+        }
+    }
+    enum FetchPortFolioChart{
+        struct Request {
+            
+        }
+        struct Response {
+            var data: [(Int, Double, Double, Double, Double, Double)]
+        }
+        struct ViewModel {
+            var data: [(Int, Double, Double, Double, Double, Double)]
         }
     }
 }

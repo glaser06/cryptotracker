@@ -14,6 +14,13 @@ import UIKit
 
 enum ShowCoin
 {
+    enum Duration {
+        case Day
+        case Week
+        case Month
+        case Month3
+        case Year
+    }
     // MARK: Use cases
     
     enum ShowCoin
@@ -31,13 +38,23 @@ enum ShowCoin
             
             var volume: Double?
             
+            var high24: Double?
+            
+            var low24: Double?
+            
             var name: String
             
             var symbol: String
             
             var quote: String
             
+            var exchange: String
             
+            var quotes: [String]
+            
+            var exchanges: [String]
+            
+            var cap: String
             
             
         }
@@ -45,9 +62,15 @@ enum ShowCoin
         {
             var price: String
             
+            var open: String
+            
             var percent: String
             
             var volume: String
+            
+            var high24: String
+            
+            var low24: String
             
             var name: String
             
@@ -57,12 +80,44 @@ enum ShowCoin
             
             var quote: String
             
+            var exchange: String
             
+            var quotes: [String]
             
+            var exchanges: [String]
+            
+            var cap: String
+            
+            struct Data {
+                var open: Double
+                var high: Double
+                var low: Double
+                var close: Double
+                
+            }
+            var data: Data
             
             
         }
     }
+    
+    enum FetchChart {
+        struct Request {
+            var duration: Duration
+        }
+        struct Response {
+            
+            var chartData: [(Int, Double, Double, Double, Double, Double)] // unix time, close price, volume
+            
+            
+        }
+        struct ViewModel {
+            
+            var chartData: [(Int, Double, Double, Double, Double, Double)] // unix time, close price, volume
+        }
+        
+    }
+    
     enum FetchExchangesAndPair {
         struct Request {
             

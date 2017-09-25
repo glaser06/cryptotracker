@@ -15,10 +15,16 @@ import UIKit
 protocol ShowPortfolioPresentationLogic
 {
     func presentPortfolio(response: ShowPortfolio.FetchPortfolio.Response)
+    
+    func presentCharts(response: ShowPortfolio.FetchAssetCharts.Response)
+    
+    func presentPortfolioChart(response: ShowPortfolio.FetchPortFolioChart.Response)
 }
 
 class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
 {
+    
+
   weak var viewController: ShowPortfolioDisplayLogic?
   
   // MARK: Do something
@@ -26,16 +32,26 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
     func presentPortfolio(response: ShowPortfolio.FetchPortfolio.Response) {
         let price = String(format: "%.2f", response.value)
         var tempAssets: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
+        let marketWorker = MarketWorker.sharedInstance
         for each in response.assets {
-//            if each.assetType != .Fiat {
-                let statsPair: Pair = each.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value
+            if each.assetType != .Fiat {
+            
+                let statsPair: Pair = marketWorker.coinCollection[each.coin.symbol.lowercased()]!.defaultPair
                 let totalValue = String(format: "%.2f", each.amountHeld * (statsPair.price)!)
                 let price = String(format: "%.2f", (statsPair.price!))
                 let percent = String(format: "%.2f", (statsPair.percentChange24!))
                 let isUp = statsPair.percentChange24! >= 0
-            let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp, total: each.amountHeld * (statsPair.price)!, fiat: each.assetType == .Fiat)
+                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin.name, symbol: each.coin.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp, total: each.amountHeld * (statsPair.price)!, fiat: each.assetType == .Fiat, cap: statsPair.marketCapString)
                 tempAssets.append(a)
-//            }
+            } else {
+                let statsPair: Pair = each.coin.defaultPair
+                let totalValue = String(format: "%.2f", each.amountHeld * (statsPair.price)!)
+                let price = String(format: "%.2f", (statsPair.price!))
+                let percent = String(format: "%.2f", (statsPair.percentChange24!))
+                let isUp = statsPair.percentChange24! >= 0
+                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin.name, symbol: each.coin.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp, total: each.amountHeld * (statsPair.price)!, fiat: each.assetType == .Fiat, cap: statsPair.marketCapString)
+                tempAssets.append(a)
+            }
             
         }
         let gainsValue = response.value - response.initialValue
@@ -45,6 +61,19 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
         }
         
         let vm = ShowPortfolio.FetchPortfolio.ViewModel(totalValue: "$\(price)", overallGainValue: String(format: "$%.2f", gainsValue), overallGainPercent: String(format: "%.2f%", gainsPercent), assets: tempAssets)
-        viewController?.displayPortfolio(viewModel: vm)
+        DispatchQueue.main.async {
+            self.viewController?.displayPortfolio(viewModel: vm)
+        }
+        
+    }
+    func presentCharts(response: ShowPortfolio.FetchAssetCharts.Response) {
+        let vm = ShowPortfolio.FetchAssetCharts.ViewModel(data: response.data)
+        DispatchQueue.main.async {
+            self.viewController?.displayCharts(viewModel: vm)
+        }
+        
+    }
+    func presentPortfolioChart(response: ShowPortfolio.FetchPortFolioChart.Response) {
+        self.viewController?.displayPortfolioChart(viewModel: ShowPortfolio.FetchPortFolioChart.ViewModel(data: response.data))
     }
 }

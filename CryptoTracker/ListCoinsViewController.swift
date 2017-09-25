@@ -11,11 +11,13 @@
 //
 
 import UIKit
+import YIInnerShadowView
 
 protocol ListCoinsDisplayLogic: class
 {
 //    func displaySomething(viewModel: ListCoins.Something.ViewModel)
     func displayCoins(viewModel: ListCoins.FetchCoins.ViewModel)
+    func displayResults(viewModel: ListCoins.SearchCoin.ViewModel)
 }
 
 class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
@@ -67,19 +69,24 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
     
     // MARK: View lifecycle
     
-    var coinsOnDisplay: [ListCoins.FetchCoins.ViewModel.DisplayableCoin] = []
+    var coinsOnDisplay: [ListCoins.DisplayableCoin] = []
     var gotoTransaction: Bool = false
     var doSwitch: Bool = true
     var currentDisplayIndex: Int = 0
     
+    var displayable: ListCoins.FetchCoins.ViewModel?
+    
     var refresher: UIRefreshControl!
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         setupTable()
+        setupMenu()
         fetchCoins(nil)
-        
+//        self.view.bringSubview(toFront: self.menuView)
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationController?.navigationBar.shadowImage = UIImage()
 //        do {
@@ -95,7 +102,8 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
         
     }
     func setupTable() {
-        
+
+        coinTableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(forceRefresh(_:)), for: .valueChanged)
         coinTableView.refreshControl = refresher
@@ -111,7 +119,8 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
     // MARK: Do something
     
     @IBOutlet weak var coinTableView: UITableView!
-    @IBOutlet weak var menuView: UIView!
+//    @IBOutlet weak var menuView: UIView!
+    @IBOutlet weak var topLeftButton: UIButton!
     
     
     
@@ -156,30 +165,98 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
         
         self.coinTableView.reloadData()
         self.doSwitch = viewModel.doSwitch
+        if !self.doSwitch  {
+            self.topLeftButton.setImage(#imageLiteral(resourceName: "close-black"), for: .normal)
+        }
+        self.displayable = viewModel
     }
     
+    func displayResults(viewModel: ListCoins.SearchCoin.ViewModel) {
+        self.coinsOnDisplay = viewModel.coins
+        self.coinTableView.reloadData()
+    }
+    
+    
+    @IBOutlet weak var menuBarButton: UIBarButtonItem!
+    func setupMenu() {
+        
+//        var view = menuBarButton.customView!
+//        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44, height: 44)
+//        
+//        view.layer.cornerRadius = 22.0
+        self.topLeftButton.setImage(#imageLiteral(resourceName: "close-black"), for: .normal)
+        self.view.setNeedsLayout()
+        self.view.layoutIfNeeded()
+        
+    }
+    var tapToCloseGesture: UITapGestureRecognizer?
     @IBAction func menu() {
         
         if !self.doSwitch {
-            self.navigationController?.dismiss(animated: true, completion: nil)
+            self.dismiss(animated: true, completion: nil)
             return
-        } 
+        }
+        
         //        self.tabBarController?.selectedIndex = 1
         if self.navigationController?.navigationBar.layer.zPosition == -1 {
-            self.menuView.isHidden = true
+            //            self.menuView.isHidden = true
             self.navigationController?.navigationBar.layer.zPosition = 0
-            
-            
+            self.view.removeGestureRecognizer(self.tapToCloseGesture!)
+            collapseMenu()
         } else {
             
-            self.menuView.isHidden = false
+            //            self.menuView.isHidden = false
+            
+            expandMenu()
+            
             self.navigationController?.navigationBar.layer.zPosition = -1
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeMenu(_:)))
+            self.tapToCloseGesture = tapGesture
             self.view.addGestureRecognizer(tapGesture)
         }
         
         
         
+    }
+    func expandMenu() {
+        var view = menuBarButton.customView!
+        
+        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
+        
+        view.backgroundColor = UIColor.groupTableViewBackground
+        
+        UIView.animate(withDuration: 19.0, animations: {
+            self.menuBarButton.customView!.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
+            //            self.menuBarButton.customView!.addInnerShadow(onSide: .all, shadowColor: .darkGray, shadowSize: 1.0, shadowOpacity: 0.5)
+            let innerShadow: YIInnerShadowView = YIInnerShadowView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
+            innerShadow.layer.cornerRadius = 22
+            innerShadow.cornerRadius = 22
+            innerShadow.shadowRadius = 2
+            innerShadow.shadowOpacity = 0.4
+            innerShadow.shadowColor = UIColor.lightGray
+            innerShadow.shadowMask = YIInnerShadowMaskAll
+            innerShadow.tag = 11
+            //            self.menuBarButton.customView!.addSubview(innerShadow)
+            self.menuBarButton.customView?.setNeedsLayout()
+            self.menuBarButton.customView?.layoutIfNeeded()
+            
+            self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
+        }, completion: { (f) in
+            
+        })
+        
+    }
+    func collapseMenu() {
+        var view = menuBarButton.customView!
+        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44.0, height: 44.0)
+        view.backgroundColor = UIColor.white
+        view.viewWithTag(11)?.removeFromSuperview()
+        menuBarButton.customView = view
+        
+        
+        self.view.setNeedsLayout()
+        self.view.layoutIfNeeded()
     }
     func closeMenu(_ sender: UITapGestureRecognizer) {
         self.view.removeGestureRecognizer(sender)
@@ -192,6 +269,9 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
         self.tabBarController?.selectedIndex = sender.tag - 1
         self.menu()
     }
+    
+    
+    var selectedSymbol: String = ""
     
 }
 extension ListCoinsViewController: UITableViewDataSource {
@@ -238,6 +318,7 @@ extension ListCoinsViewController: UITableViewDataSource {
 extension ListCoinsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.selectedSymbol = self.coinsOnDisplay[indexPath.row].symbol.uppercased()
         if self.gotoTransaction {
             self.performSegue(withIdentifier: "AddTransaction", sender: tableView)
             
@@ -251,6 +332,41 @@ extension ListCoinsViewController: UITableViewDelegate {
     
 }
 
+extension ListCoinsViewController: UISearchBarDelegate {
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        self.interactor?.searchCoin(request: ListCoins.SearchCoin.Request(query: searchText))
+    }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        if searchBar.text == "" {
+            self.coinsOnDisplay = self.displayable!.coins
+            self.coinTableView.reloadData()
+        }
+        searchBar.resignFirstResponder()
+        
+    }
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        self.coinsOnDisplay = self.displayable!.coins
+        self.coinTableView.reloadData()
+        searchBar.resignFirstResponder()
+    }
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+//        self.coinsOnDisplay = self.displayable!.coins
+//        self.coinTableView.reloadData()
+        searchBar.barTintColor = UIColor.lightGray
+        searchBar.setShowsCancelButton(false, animated: true)
+        
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.barTintColor = UIColor.lightGray
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+    
+    
+}
 
 
 

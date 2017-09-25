@@ -15,7 +15,14 @@ import UIKit
 enum ListCoins
 {
   // MARK: Use cases
-  
+    struct DisplayableCoin {
+        var name: String
+        var symbol: String
+        var cap: String
+        var percentage: String
+        var price: String
+        var isGreen: Bool
+    }
   
     enum FetchCoins {
         
@@ -38,17 +45,42 @@ enum ListCoins
         }
         struct ViewModel
         {
-            struct DisplayableCoin {
-                var name: String
-                var symbol: String
-                var cap: String
-                var percentage: String
-                var price: String
-            }
+            
             
             var coins: [DisplayableCoin]
             var gotoTransaction: Bool
             var doSwitch: Bool = true
+            
+        }
+    }
+    
+    enum SearchCoin {
+        struct Request {
+            var query: String
+        }
+        struct Response
+        {
+            struct Coin {
+                var name: String?
+                var symbol: String
+                var cap: String?
+                var price: Double?
+                var percentage: Double?
+                
+                
+                
+            }
+            var coins: [Coin]
+//            var gotoTransaction: Bool
+//            var doSwitch: Bool = true
+            
+        }
+        struct ViewModel
+        {
+            
+            
+            var coins: [DisplayableCoin]
+            
             
         }
     }

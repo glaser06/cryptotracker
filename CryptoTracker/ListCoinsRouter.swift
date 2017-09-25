@@ -30,7 +30,8 @@ class ListCoinsRouter: NSObject, ListCoinsRoutingLogic, ListCoinsDataPassing
   // MARK: Routing
   
     func routeToShowCoin(segue: UIStoryboardSegue) {
-        let destinationVC = (segue.destination as! UINavigationController).viewControllers.first as! ShowCoinViewController
+//        let destinationVC = (segue.destination as! UINavigationController).viewControllers.first as! ShowCoinViewController
+        let destinationVC = segue.destination as! ShowCoinViewController
         var destinationDS = destinationVC.router!.dataStore!
         
         passDataToShowCoin(source: dataStore!, destination: &destinationDS, index: viewController!.coinTableView.indexPathForSelectedRow!.row)
@@ -40,7 +41,7 @@ class ListCoinsRouter: NSObject, ListCoinsRoutingLogic, ListCoinsDataPassing
     {
 //        destination.coin = source.coins[index]
         let coin = source.coins[index]
-        destination.coin = MarketWorker.sharedInstance.coinCollection[coin.symbol.lowercased()]
+        destination.coin = MarketWorker.sharedInstance.coinCollection[viewController!.selectedSymbol.lowercased()]!
         
     }
     func routeToAddTransaction(segue: UIStoryboardSegue) {
@@ -53,7 +54,7 @@ class ListCoinsRouter: NSObject, ListCoinsRoutingLogic, ListCoinsDataPassing
     func passDataToAddTransaction(source: ListCoinsDataStore, destination: inout AddTransactionDataStore, index: Int)
     {
         let coin = source.coins[index]
-        destination.coin = MarketWorker.sharedInstance.coinCollection[coin.symbol.lowercased()]
+        destination.coin = MarketWorker.sharedInstance.coinCollection[self.viewController!.selectedSymbol]
         destination.transactionType = .Buy
 //        destination.exchange = source.coin?.exchanges.first?.value
 //        destination.pair = source.coin?.exchanges.first?.value.pairs.first

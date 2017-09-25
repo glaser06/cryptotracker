@@ -134,9 +134,9 @@ class Asset {
         self.assetType = type
     }
     
-    var marketValue: Double {
-        return self.amountHeld * self.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
-    }
+//    var marketValue: Double {
+//        return self.amountHeld * self.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
+//    }
     var initialValue: Double {
         var initTotal = 0.0
         var amount = 0.0
@@ -200,7 +200,7 @@ class Asset {
             let newCoin = Coin(name: coinName, symbol: coinName)
             var temp: [String: [String: Pair]] = [:]
             temp[coinName] = [:]
-            var pair = Pair(base: newCoin, quote: coinName, pair: "\(coinName)\(coinName)")
+            var pair = Pair(base: newCoin.symbol, quote: coinName, pair: "\(coinName)\(coinName)")
             pair.price = 1.0
             pair.percentChange24 = 0.0
             temp[pair.quote]![pair.quote] = pair
@@ -302,7 +302,7 @@ class Transaction {
         let quote = try decoder.decode(key: Keys.quoteSymbol) ?? ""
         let pairName = try decoder.decode(key: Keys.pairName) ?? ""
         let coin = MarketWorker.sharedInstance.coinCollection[base]!
-        let pair = Pair(base: coin, quote: quote, pair: pairName)
+        let pair = Pair(base: coin.symbol, quote: quote, pair: pairName)
         self.pair = pair
         
         self.isInitialFunding = try decoder.decode(key: Keys.isInitFund) ?? false

@@ -20,6 +20,7 @@ class Coin {
 //    var overallInfo: OverallStatistics?
     
     var exchanges: [String: Exchange] = [:]
+    var pairs: [String: Pair] = [:]
     
     init(name: String, symbol: String) {
         self.name = name
@@ -30,14 +31,14 @@ class Coin {
         return Array(self.exchanges.keys)
     }
     func allQuotes() -> [String] {
-        var set = Set<String>()
-        for exchange in self.exchanges {
-            if exchange.value.potentialPairs[self.symbol] != nil {
-                _ = exchange.value.potentialPairs[self.symbol]!.map({ set.insert($0) })
-            }
-            
-        }
-        return Array(set)
+//        var set = Set<String>()
+//        for exchange in self.exchanges {
+//            if exchange.value.potentialPairs[self.symbol] != nil {
+//                _ = exchange.value.potentialPairs[self.symbol]!.map({ set.insert($0) })
+//            }
+//            
+//        }
+        return Array(pairs.keys)
     }
     
     var defaultPair: Pair {
@@ -46,6 +47,11 @@ class Coin {
     var defaultExchange: Exchange {
         return self.exchanges[defaultExchangeName]!
     }
+    
+    var defaultChartData: Pair.ChartData {
+        return defaultPair.chartData[defaultExchangeName]!
+    }
+    
     var defaultFiat = "usd"
     var defaultExchangeName = "CoinMarketCap"
     
@@ -95,6 +101,8 @@ struct Exchange {
     
     var pairs: [String: [String: Pair]] // key is base currency
     
+    var coins: [String: Coin] = [:]
+    
     var potentialPairs: [String: [String]] = [:]
     
     var name: String
@@ -117,7 +125,7 @@ struct Exchange {
     func quoteNames(base: String) -> [String] {
         var names: [String: String] = [:]
         
-        return Array(self.pairs[base]!.keys)
+        return Array(self.pairs[base.lowercased()]!.keys)
 //        
 //        for pair in self.pairs[base]! {
 //            names[pair.quote] = ""
@@ -176,7 +184,95 @@ extension Exchange: CerealType {
     }
 }
 
+
+
 class Pair: NSObject {
+    
+    struct ChartData {
+        
+        typealias ChartDataType = [(Int, Double,Double, Double, Double, Double)]
+        
+        var exchange: String
+        
+        var data: [ShowCoin.Duration: [(Int, Double,Double, Double, Double, Double)]]? = [:]
+        
+        
+//        returns 15 minute candlesticks for 24 hours
+        var day: [(Int, Double, Double, Double, Double, Double)]? {
+            
+            return condense(duration: .Day, constant: 15)
+            
+        }
+        var week: [(Int, Double, Double, Double, Double, Double)]? {
+            return data![.Week]
+        }
+        var month: [(Int, Double, Double, Double, Double, Double)]? {
+            return condense(duration: .Month, constant: 3)
+        }
+        var month3: [(Int, Double, Double, Double, Double, Double)]? {
+            return data![.Month3]
+        }
+        var year: [(Int, Double, Double, Double, Double, Double)]? {
+            return data![.Year]
+        }
+        
+        func time(_ duration: ShowCoin.Duration) -> [(Int, Double, Double, Double, Double, Double)]? {
+            switch duration {
+            case .Day:
+                return condense(duration: .Day, constant: 15)
+            case .Month:
+                return condense(duration: .Month, constant: 3)
+            default:
+                return data![duration]
+            }
+            
+        }
+        
+        func condense(duration: ShowCoin.Duration, constant: Int) -> [(Int, Double, Double, Double, Double, Double)]? {
+            let d = data![duration]
+            if d == nil || d!.count == 0 {
+                return d
+            }
+            
+            var inInterval = false
+            var newData: [(Int, Double, Double, Double, Double, Double)] = []
+            var open = 0.0
+            var close = 0.0
+            var high = 0.0
+            var low = d![0].2
+            var vol = 0.0
+            
+            for (index, each) in d!.enumerated() {
+                if !inInterval {
+                    inInterval = true
+                    high = each.1
+                    low = each.2
+                    open = each.3
+                    close = each.4
+                    vol = each.5
+                }
+                if each.1 > high {
+                    high = each.1
+                }
+                if each.2 < low {
+                    low = each.2
+                }
+                vol += each.5
+                if index % constant == 0 {
+                    close = each.4
+                    let datum = (each.0, high, low, open, close, vol)
+                    newData.append(datum)
+                    inInterval = false
+                }
+            }
+            
+            return newData
+        }
+        
+        
+        
+        
+    }
     
     var base: String
     
@@ -191,6 +287,10 @@ class Pair: NSObject {
     var valueChange24: Double?
     
     var volume24: Double?
+    var volumeString: String {
+        return self.toString(d: self.volume24!)
+    }
+    
     
     var lastPrice: Double?
     
@@ -199,6 +299,17 @@ class Pair: NSObject {
     var lowPrice24: Double?
     
     var marketCap: Double?
+    var marketCapString: String {
+        return self.toString(d: marketCap)
+    }
+    
+    var baseCoin: Coin {
+        return MarketWorker.sharedInstance.coinCollection[base]!
+    }
+    var quoteCoin: Coin? {
+        return MarketWorker.sharedInstance.coinCollection[quote]
+    }
+    
 
     
     var percentChange7D: Double?
@@ -207,11 +318,68 @@ class Pair: NSObject {
     
     var supply: Double?
     
+    var exchanges: [String: Exchange] = [:]
+    
+    var defaultExchange: Exchange {
+        
+        if self.quote == "usd" {
+            return exchanges["CoinMarketCap"]!
+        } else {
+            return exchanges.first!.value
+        }
+        
+    }
+    
+    var chartData: [String: ChartData] = [:]
+    
+    func toString(d: Double?) -> String {
+        if d == nil {
+            return ""
+        }
+        var cap = String(describing: Int(d!))
+        
+        let length = cap.characters.count
+        if length <= 3 {
+            cap = "\(String(format: "%.2f",d!))"
+            
+        } else {
+            var index = cap.index(cap.startIndex, offsetBy: 3)
+            cap = cap.substring(to: index)
+            if length > 9 {
+                let decimalPlace = length - 9
+                if decimalPlace < 3 {
+                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+                    cap.insert(".", at: index)
+                }
+                
+                cap = "\(cap)B"
+            } else if length > 6 {
+                let decimalPlace = length - 6
+                if decimalPlace < 3 {
+                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+                    cap.insert(".", at: index)
+                }
+                
+                cap = "\(cap)M"
+            } else if length > 3{
+                let decimalPlace = length - 3
+                if decimalPlace < 3 {
+                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+                    cap.insert(".", at: index)
+                }
+                cap = "\(cap)K"
+                
+            } else {
+                cap = "\(String(format: "%.2f",d!))"
+            }
+        }
+        return cap
+    }
 
     
-    init(base: Coin, quote: String, pair: String) {
+    init(base: String, quote: String, pair: String) {
         
-        self.base = base.symbol
+        self.base = base
         self.quote = quote
         self.pairName = pair
         super.init()

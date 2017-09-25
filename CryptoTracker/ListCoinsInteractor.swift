@@ -17,7 +17,7 @@ protocol ListCoinsBusinessLogic
 
     func fetchCoins(request: ListCoins.FetchCoins.Request)
     func forceRefresh(request: ListCoins.FetchCoins.Request)
-    
+    func searchCoin(request: ListCoins.SearchCoin.Request)
     
     
 }
@@ -41,6 +41,20 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
     var gotoTransaction: Bool?
     var doSwitch: Bool?
     
+    func searchCoin(request: ListCoins.SearchCoin.Request) {
+        let query = request.query
+        
+        let results = self.coins.filter({
+            $0.symbol.lowercased().range(of: query.lowercased()) != nil
+        })
+        
+        let resp = ListCoins.SearchCoin.Response(coins: results.map({
+            ListCoins.SearchCoin.Response.Coin(name: $0.name, symbol: $0.symbol.uppercased(), cap: $0.defaultPair.marketCapString, price: $0.defaultPair.price, percentage: $0.defaultPair.percentChange24)
+        }))
+        self.presenter?.presentResults(response: resp)
+        
+    }
+    
     func forceRefresh(request: ListCoins.FetchCoins.Request) {
         marketWorker.retrieveCoins(completion: {(c) in
             self.fetchCoins(request: request)
@@ -51,17 +65,13 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
     func fetchCoins(request: ListCoins.FetchCoins.Request) {
         
         MarketWorker.sharedInstance.exchangeInfoGroup.notify(queue: .main, execute: {
-            let coins: [Coin] = Array(MarketWorker.sharedInstance.coinCollection.values).sorted(by: { (coin1,coin2) in
-                let pair1 = coin1.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.marketCap!
-                let pair2 = coin2.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.marketCap!
-                return pair1 > pair2
-            })
+            let coins: [Coin] = MarketWorker.sharedInstance.topCoins
 //            completion(exchanges)
             self.coins = coins
             var responseCoins: [ListCoins.FetchCoins.Response.Coin] = []
             for coin in self.coins {
-                let statPair = coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value
-                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: String(describing: statPair.marketCap!), price: statPair.price!, percentage: statPair.percentChange24!)
+                let statPair = coin.defaultPair
+                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: String(describing: Int(statPair.marketCap!)), price: statPair.price!, percentage: statPair.percentChange24!)
                 responseCoins.append(tempCoin)
             }
             self.presenter?.presentCoins(response: ListCoins.FetchCoins.Response(coins: responseCoins, gotoTransaction: self.gotoTransaction ?? false, doSwitch: self.doSwitch ?? true))

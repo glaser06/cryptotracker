@@ -38,7 +38,11 @@ class CoinTableViewCell: UITableViewCell {
     
     var isSender = false
     
-    func setCell(data: ListCoins.FetchCoins.ViewModel.DisplayableCoin, change: @escaping () -> Void, currentInfo: Int) {
+    func setCell(data: ListCoins.DisplayableCoin, change: @escaping () -> Void, currentInfo: Int) {
+        
+        displayButton.titleLabel?.numberOfLines = 1
+        displayButton.titleLabel?.adjustsFontSizeToFitWidth = true
+        displayButton.titleLabel?.lineBreakMode = .byClipping
         
         self.tickerLabel.text = data.name
         self.capLabel.text = data.cap
@@ -53,8 +57,19 @@ class CoinTableViewCell: UITableViewCell {
         self.changeAllDisplays = change
         self.changeDisplayNoLooping()
         
+        if data.isGreen {
+            self.displayButton.backgroundColor = color(from: 108, green: 203, blue: 158)
+            
+        } else {
+            self.displayButton.backgroundColor = UIView.theRed
+        }
+        
 //        self.percentLabel.text = data.percentage
         
+    }
+    func color(from red: Int, green: Int, blue: Int) -> UIColor {
+        //        UIColor(red: Float(red)/255.0, green: Float(green)/255.0, blue: Float(blue)/255.0, alpha: 1.0)
+        return UIColor(red: CGFloat(red)/255.0, green: CGFloat(green)/255.0, blue: CGFloat(blue)/255.0, alpha: 1.0)
     }
     @IBAction func changeDisplay() {
         

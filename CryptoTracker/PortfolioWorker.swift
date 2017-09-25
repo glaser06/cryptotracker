@@ -19,6 +19,21 @@ class PortfolioWorker
     
     var portfolio: Portfolio = Portfolio()
     
+    func marketValue() -> Double {
+        let market = MarketWorker.sharedInstance
+        var val = 0.0
+        for asset in self.portfolio.assets {
+            if asset.assetType == .Fiat {
+                val += asset.amountHeld * asset.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
+            } else {
+                let coin = market.coinCollection[asset.coin.symbol.lowercased()]
+                val += asset.amountHeld * coin!.defaultPair.price!
+            }
+            
+        }
+        return val
+    }
+    
     func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool, exchange: String) {
         var type: Transaction.OrderType = .Buy
         if !isBuy {
@@ -94,7 +109,7 @@ class PortfolioWorker
                 let coin = Coin(name: pair.quote, symbol: pair.quote)
                 var temp: [String: [String: Pair]] = [:]
                 temp[pair.quote] = [:]
-                var pair = Pair(base: coin, quote: pair.quote, pair: "\(pair.quote)\(pair.quote)")
+                var pair = Pair(base: coin.symbol, quote: pair.quote, pair: "\(pair.quote)\(pair.quote)")
                 pair.price = 1.0
                 pair.percentChange24 = 0.0
                 temp[pair.quote]![pair.quote] = pair
@@ -125,6 +140,79 @@ class PortfolioWorker
             print("not save")
         }
         
+        
+    }
+    var chartDataWaitGroup: DispatchGroup = DispatchGroup()
+    
+    func fetchAssetCharts(force: Bool, completion: @escaping () -> Void) {
+        let coinWorker = CoinWorker()
+        
+        for (index, asset) in self.portfolio.assets.enumerated() {
+            if asset.assetType != .Fiat {
+                if !force && MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]?.day != nil {
+                    asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name] = MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]!
+                } else {
+                    chartDataWaitGroup.enter()
+                    coinWorker.fetchChart(of: asset.coin.defaultPair, from: asset.coin.defaultExchange, for: .Day, completion: { (data) in
+                        var newArr: [(Int,Double, Double, Double, Double, Double)] = data
+//                        for (i, d) in data.enumerated() {
+//                            if i % 15 == 0 {
+//                                newArr.append(d)
+//                            }
+//                            
+//                        }
+                        MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName] = Pair.ChartData(exchange: asset.coin.defaultExchangeName, data: [:])
+                        MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]!.data![.Day] = newArr
+                        
+                        asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name] = MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]
+//                        asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name]!.data![.Day] = newArr
+                        
+                        
+//                        !.data![.Day] = newArr
+                        self.chartDataWaitGroup.leave()
+                    })
+                }
+                
+                
+            }
+            
+        }
+        
+        chartDataWaitGroup.notify(queue: .main, execute: {
+            completion()
+        })
+        
+        
+        
+    }
+    func constructPortfolioChart() -> [(Int, Double, Double, Double, Double, Double)] {
+        if self.portfolio.assets.count == 0 {
+            return []
+        }
+        var totalData: [(Int, Double, Double, Double, Double, Double)] = Array(repeating: (0,0,0,0,0,0), count: self.portfolio.assets[0].coin.defaultChartData.day!.count)
+//        for asset in self.portfolio.assets {
+//            
+//        }
+        
+        let coins = self.portfolio.assets.filter({ $0.assetType != .Fiat })
+        let amounts = coins.map({ $0.amountHeld })
+        let charts = coins.map({$0.coin.defaultChartData.day!})
+        let zipped = zip(amounts,charts)
+        let data = zipped.reduce((0.0,totalData), { (arg1:  (Double, [(Int, Double, Double, Double, Double, Double)]), arg2:  (Double, [(Int, Double, Double, Double, Double, Double)]) ) in
+            
+            return (arg2.0, zip(arg1.1, arg2.1).map({
+                
+                let x = $0.1.0
+                let price = $0.1.4
+                let amount = arg2.0
+                let y = $0.0.1 + price * amount
+                let data: (Int, Double, Double, Double, Double, Double) = (x,y,0.0,0.0,0.0,0.0)
+                return data
+            }))
+//            zip($0.0, $1)
+            
+        })
+        return data.1
         
     }
     
@@ -161,15 +249,22 @@ class PortfolioWorker
 //            asset.currentPrice = 1.0
 //        }
     }
-    
-    init() {
+    func unpackAndSet() {
         do {
+            
             try self.unpackPortfolio({ (p) in
+                print("asset count: \(p.assets.count)")
+                
                 self.portfolio = p
             })
-        } catch {
             
+        } catch {
+            print("error unpacking portfolio")
         }
+    }
+    
+    init() {
+        
         
     }
     
