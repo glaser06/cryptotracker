@@ -87,7 +87,7 @@ class ShowAccountViewController: UIViewController, ShowAccountDisplayLogic
     @IBAction func clearPortfolio() {
         PortfolioWorker.sharedInstance.portfolio = Portfolio()
         do {
-            try PortfolioWorker.sharedInstance.savePortfolio()
+//            try PortfolioWorker.sharedInstance.savePortfolio()
         } catch {
             
         }

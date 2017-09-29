@@ -56,59 +56,59 @@ class AddTransactionInteractor: AddTransactionBusinessLogic, AddTransactionDataS
         presenter?.presentCompletedTransaction(response: AddTransaction.SaveTransaction.Response())
     }
     func loadTransaction(request: AddTransaction.LoadTransaction.Request) {
-        let buy: Bool = self.transactionType == .Buy
-        
-        var exchangeIndex = 0
-        var quoteIndex = 0
-        
-        
-        
-        
-        if self.pair == nil {
-            self.exchange = self.coin!.exchanges.first!.value
-            if self.coin!.exchanges.count > 1 {
-                self.exchange = Array(self.coin!.exchanges.values)[1]
-//                exchangeIndex = 1
-            }
-            
-            self.pair = self.exchange!.pairs[self.coin!.symbol]!.first?.value
-        }
-        if request.exchangeName != nil {
-            self.exchange = self.coin!.exchanges[request.exchangeName!]!
-            self.pair = self.exchange!.pairs[self.coin!.symbol]!.first?.value
-        }
-        if request.quoteName != nil {
-            
-            for pairs in self.exchange!.pairs[self.coin!.symbol]! {
-                if pairs.key == request.quoteName! {
-                    self.pair = pairs.value
-                }
-            }
-//            for pairs in self.exchange!.pairs {
-//                for pair in pairs {
-//                    
-//                }
-//                
+//        let buy: Bool = self.transactionType == .Buy
+//        
+//        var exchangeIndex = 0
+//        var quoteIndex = 0
+//        
+//        
+//        
+//        
+//        if self.pair == nil {
+//            self.exchange = self.coin!.exchanges.first!.value
+//            if self.coin!.exchanges.count > 1 {
+//                self.exchange = Array(self.coin!.exchanges.values)[1]
+////                exchangeIndex = 1
 //            }
-            //            self.pair = self.exchange?.pairs.find
-        }
-        
-        if self.pair!.price == nil {
-            coinWorker.fetchPair(pair: self.pair!, exchange: self.exchange!, completion: { (newPair) in
-                self.pair = newPair
-                
-//                let exchangeNames: [String] = self.coin!.exchangeNames()
+//            
+//            self.pair = self.exchange!.pairs[self.coin!.symbol]!.first?.value
+//        }
+//        if request.exchangeName != nil {
+//            self.exchange = self.coin!.exchanges[request.exchangeName!]!
+//            self.pair = self.exchange!.pairs[self.coin!.symbol]!.first?.value
+//        }
+//        if request.quoteName != nil {
+//            
+//            for pairs in self.exchange!.pairs[self.coin!.symbol]! {
+//                if pairs.key == request.quoteName! {
+//                    self.pair = pairs.value
+//                }
+//            }
+////            for pairs in self.exchange!.pairs {
+////                for pair in pairs {
+////                    
+////                }
+////                
+////            }
+//            //            self.pair = self.exchange?.pairs.find
+//        }
+//        
+//        if self.pair!.price == nil {
+//            coinWorker.fetchPair(pair: self.pair!, exchange: self.exchange!, completion: { (newPair) in
+//                self.pair = newPair
 //                
-//                let quotenames: [String] = self.coin!.quoteNames()
-                
-                let response = AddTransaction.LoadTransaction.Response(pair: self.pair!, exchange: self.exchange!, isBuy: buy, currentPrice: (self.pair?.price!)!, coin: self.coin!, exchangeName: self.exchange!.name, quoteName: self.pair!.quote )
-                self.presenter?.presentTransaction(response: response)
-            })
-        } else {
-            
-            let response = AddTransaction.LoadTransaction.Response(pair: self.pair!, exchange: self.exchange!, isBuy: buy, currentPrice: (self.pair?.price!)!, coin: self.coin!, exchangeName: self.exchange!.name, quoteName: self.pair!.quote)
-            presenter?.presentTransaction(response: response)
-        }
+////                let exchangeNames: [String] = self.coin!.exchangeNames()
+////                
+////                let quotenames: [String] = self.coin!.quoteNames()
+//                
+//                let response = AddTransaction.LoadTransaction.Response(pair: self.pair!, exchange: self.exchange!, isBuy: buy, currentPrice: (self.pair?.price!)!, coin: self.coin!, exchangeName: self.exchange!.name, quoteName: self.pair!.quote )
+//                self.presenter?.presentTransaction(response: response)
+//            })
+//        } else {
+//            
+//            let response = AddTransaction.LoadTransaction.Response(pair: self.pair!, exchange: self.exchange!, isBuy: buy, currentPrice: (self.pair?.price!)!, coin: self.coin!, exchangeName: self.exchange!.name, quoteName: self.pair!.quote)
+//            presenter?.presentTransaction(response: response)
+//        }
         
     }
 }

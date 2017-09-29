@@ -78,11 +78,11 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        let p = PortfolioWorker.sharedInstance
+//        let p = PortfolioWorker.sharedInstance
         self.view.bringSubview(toFront: self.menuView)
         self.lineChart.delegate = self
             
-        self.getAllCoins()
+//        self.getAllCoins()
         
         
         

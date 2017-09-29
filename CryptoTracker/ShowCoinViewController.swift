@@ -12,7 +12,7 @@
 
 import UIKit
 import Charts
-import SwiftCharts
+//import SwiftCharts
 
 protocol ShowCoinDisplayLogic: class
 {

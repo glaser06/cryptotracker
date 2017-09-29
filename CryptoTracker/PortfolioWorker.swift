@@ -22,246 +22,204 @@ class PortfolioWorker
     func marketValue() -> Double {
         let market = MarketWorker.sharedInstance
         var val = 0.0
-        for asset in self.portfolio.assets {
-            if asset.assetType == .Fiat {
-                val += asset.amountHeld * asset.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
-            } else {
-                let coin = market.coinCollection[asset.coin.symbol.lowercased()]
-                val += asset.amountHeld * coin!.defaultPair.price!
-            }
-            
-        }
+//        for asset in self.portfolio.assets {
+//            if asset.assetType == .Fiat {
+//                val += asset.amountHeld * asset.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
+//            } else {
+//                let coin = market.coinCollection[asset.coin.symbol.lowercased()]
+//                val += asset.amountHeld * coin!.defaultPair.price!
+//            }
+//
+//        }
         return val
     }
     
     func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool, exchange: String) {
-        var type: Transaction.OrderType = .Buy
-        if !isBuy {
-            type = .Sell
-        }
-        
-        let transaction = Transaction(pair: pair, price: price, amount: amount, type: type, exchange: exchange)
-        let sellTransaction = Transaction(pair: pair, price: price, amount: price*amount, type: isBuy ? .Sell : .Buy, exchange: exchange)
-        let base = MarketWorker.sharedInstance.coinCollection[pair.base]!
-        var found = false
-        var quoteFound = false
-        for each in self.portfolio.assets {
-            if each.coin.symbol == base.symbol {
-//                let asset = each
-                if transaction.orderType == .Sell {
-                    if each.amountHeld - transaction.amount < 0 {
-                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-transaction.amount) * -1, type: .Buy, exchange: exchange)
-//                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-transaction.amount) * -1
-                        tempTrans.notes = "Capital Injection"
-                        tempTrans.isInitialFunding = true
-                        each.addTransaction(transaction: tempTrans)
-                        
-                    }
-                }
-                
-                each.addTransaction(transaction: transaction)
-                found = true
-                break
-            }
-            
-        }
-        for each in self.portfolio.assets {
-            if each.coin.symbol == pair.quote {
-//                let asset = each
-                if sellTransaction.orderType == .Sell {
-                    if each.amountHeld - sellTransaction.amount < 0 {
-                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-sellTransaction.amount) * -1, type: .Buy, exchange: exchange)
-                        tempTrans.notes = "Capital Injection"
-                        tempTrans.isInitialFunding = true
-//                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-sellTransaction.amount) * -1
-                        each.addTransaction(transaction: tempTrans)
-                    }
-                }
-                each.addTransaction(transaction: sellTransaction)
-                quoteFound = true
-                break
-            }
-        }
-        if !found {
-            let asset = Asset(coin: base, type: .Crypto)
-            
-            if transaction.orderType == .Sell {
-                if asset.amountHeld - transaction.amount < 0 {
-                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-transaction.amount) * -1, type: .Buy, exchange: exchange)
-//                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-transaction.amount) * -1
-                    tempTrans.notes = "Capital Injection"
-                    tempTrans.isInitialFunding = true
-                    asset.addTransaction(transaction: tempTrans)
-                }
-            }
-            
-            asset.addTransaction(transaction: transaction)
-            self.portfolio.assets.append(asset)
-        }
-        if !quoteFound {
-            let asset: Asset
-            if MarketWorker.sharedInstance.coinCollection[pair.quote] != nil {
-                let coin = MarketWorker.sharedInstance.coinCollection[pair.quote]!
-                asset = Asset(coin: coin, type: .Crypto)
-                
-            }
-            else {
-                let coin = Coin(name: pair.quote, symbol: pair.quote)
-                var temp: [String: [String: Pair]] = [:]
-                temp[pair.quote] = [:]
-                var pair = Pair(base: coin.symbol, quote: pair.quote, pair: "\(pair.quote)\(pair.quote)")
-                pair.price = 1.0
-                pair.percentChange24 = 0.0
-                temp[pair.quote]![pair.quote] = pair
-                let exchange = Exchange(pairs: temp, name: "CoinMarketCap")
-                coin.exchanges["CoinMarketCap"] = exchange
-                asset = Asset(coin: coin, type: .Fiat)
-                
-            }
-            if sellTransaction.orderType == .Sell {
-                if asset.amountHeld - sellTransaction.amount < 0 {
-                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-sellTransaction.amount) * -1, type: .Buy, exchange: exchange)
-                    tempTrans.notes = "Capital Injection"
-                    tempTrans.isInitialFunding = true
-//                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-sellTransaction.amount) * -1
-                    asset.addTransaction(transaction: tempTrans)
-                }
-            } else {
-                
-            }
-            
-            asset.addTransaction(transaction: sellTransaction)
-            self.portfolio.assets.append(asset)
-            
-        }
-        do {
-            try savePortfolio()
-        } catch {
-            print("not save")
-        }
+//        var type: Transaction.OrderType = .Buy
+//        if !isBuy {
+//            type = .Sell
+//        }
+//        
+//        let transaction = Transaction(pair: pair, price: price, amount: amount, type: type, exchange: exchange)
+//        let sellTransaction = Transaction(pair: pair, price: price, amount: price*amount, type: isBuy ? .Sell : .Buy, exchange: exchange)
+//        let base = MarketWorker.sharedInstance.coinCollection[pair.base]!
+//        var found = false
+//        var quoteFound = false
+//        for each in self.portfolio.assets {
+//            if each.coin.symbol == base.symbol {
+////                let asset = each
+//                if transaction.orderType == .Sell {
+//                    if each.amountHeld - transaction.amount < 0 {
+//                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-transaction.amount) * -1, type: .Buy, exchange: exchange)
+////                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-transaction.amount) * -1
+//                        tempTrans.notes = "Capital Injection"
+//                        tempTrans.isInitialFunding = true
+//                        each.addTransaction(transaction: tempTrans)
+//                        
+//                    }
+//                }
+//                
+//                each.addTransaction(transaction: transaction)
+//                found = true
+//                break
+//            }
+//            
+//        }
+//        for each in self.portfolio.assets {
+//            if each.coin.symbol == pair.quote {
+////                let asset = each
+//                if sellTransaction.orderType == .Sell {
+//                    if each.amountHeld - sellTransaction.amount < 0 {
+//                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-sellTransaction.amount) * -1, type: .Buy, exchange: exchange)
+//                        tempTrans.notes = "Capital Injection"
+//                        tempTrans.isInitialFunding = true
+////                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-sellTransaction.amount) * -1
+//                        each.addTransaction(transaction: tempTrans)
+//                    }
+//                }
+//                each.addTransaction(transaction: sellTransaction)
+//                quoteFound = true
+//                break
+//            }
+//        }
+//        if !found {
+//            let asset = Asset(coin: base, type: .Crypto)
+//            
+//            if transaction.orderType == .Sell {
+//                if asset.amountHeld - transaction.amount < 0 {
+//                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-transaction.amount) * -1, type: .Buy, exchange: exchange)
+////                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-transaction.amount) * -1
+//                    tempTrans.notes = "Capital Injection"
+//                    tempTrans.isInitialFunding = true
+//                    asset.addTransaction(transaction: tempTrans)
+//                }
+//            }
+//            
+//            asset.addTransaction(transaction: transaction)
+//            self.portfolio.assets.append(asset)
+//        }
+//        if !quoteFound {
+//            let asset: Asset
+//            if MarketWorker.sharedInstance.coinCollection[pair.quote] != nil {
+//                let coin = MarketWorker.sharedInstance.coinCollection[pair.quote]!
+//                asset = Asset(coin: coin, type: .Crypto)
+//                
+//            }
+//            else {
+//                let coin = Coin(name: pair.quote, symbol: pair.quote)
+//                var temp: [String: [String: Pair]] = [:]
+//                temp[pair.quote] = [:]
+//                var pair = Pair(base: coin.symbol, quote: pair.quote, pair: "\(pair.quote)\(pair.quote)")
+//                pair.price = 1.0
+//                pair.percentChange24 = 0.0
+//                temp[pair.quote]![pair.quote] = pair
+//                let exchange = Exchange(pairs: temp, name: "CoinMarketCap")
+//                coin.exchanges["CoinMarketCap"] = exchange
+//                asset = Asset(coin: coin, type: .Fiat)
+//                
+//            }
+//            if sellTransaction.orderType == .Sell {
+//                if asset.amountHeld - sellTransaction.amount < 0 {
+//                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-sellTransaction.amount) * -1, type: .Buy, exchange: exchange)
+//                    tempTrans.notes = "Capital Injection"
+//                    tempTrans.isInitialFunding = true
+////                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-sellTransaction.amount) * -1
+//                    asset.addTransaction(transaction: tempTrans)
+//                }
+//            } else {
+//                
+//            }
+//            
+//            asset.addTransaction(transaction: sellTransaction)
+//            self.portfolio.assets.append(asset)
+//            
+//        }
+//        do {
+//            try savePortfolio()
+//        } catch {
+//            print("not save")
+//        }
         
         
     }
     var chartDataWaitGroup: DispatchGroup = DispatchGroup()
     
     func fetchAssetCharts(force: Bool, completion: @escaping () -> Void) {
-        let coinWorker = CoinWorker()
-        
-        for (index, asset) in self.portfolio.assets.enumerated() {
-            if asset.assetType != .Fiat {
-                if !force && MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]?.day != nil {
-                    asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name] = MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]!
-                } else {
-                    chartDataWaitGroup.enter()
-                    coinWorker.fetchChart(of: asset.coin.defaultPair, from: asset.coin.defaultExchange, for: .Day, completion: { (data) in
-                        var newArr: [(Int,Double, Double, Double, Double, Double)] = data
-//                        for (i, d) in data.enumerated() {
-//                            if i % 15 == 0 {
-//                                newArr.append(d)
-//                            }
-//                            
-//                        }
-                        MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName] = Pair.ChartData(exchange: asset.coin.defaultExchangeName, data: [:])
-                        MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]!.data![.Day] = newArr
-                        
-                        asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name] = MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]
-//                        asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name]!.data![.Day] = newArr
-                        
-                        
-//                        !.data![.Day] = newArr
-                        self.chartDataWaitGroup.leave()
-                    })
-                }
-                
-                
-            }
-            
-        }
-        
-        chartDataWaitGroup.notify(queue: .main, execute: {
-            completion()
-        })
-        
+//        let coinWorker = CoinWorker()
+//
+//        for (index, asset) in self.portfolio.assets.enumerated() {
+//            if asset.assetType != .Fiat {
+//                if !force && MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]?.day != nil {
+//                    asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name] = MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]!
+//                } else {
+//                    chartDataWaitGroup.enter()
+//                    coinWorker.fetchChart(of: asset.coin.defaultPair, from: asset.coin.defaultExchange, for: .Day, completion: { (data) in
+//                        var newArr: [(Int,Double, Double, Double, Double, Double)] = data
+////                        for (i, d) in data.enumerated() {
+////                            if i % 15 == 0 {
+////                                newArr.append(d)
+////                            }
+////
+////                        }
+//                        MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName] = Pair.ChartData(exchange: asset.coin.defaultExchangeName, data: [:])
+//                        MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]!.data![.Day] = newArr
+//
+//                        asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name] = MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]
+////                        asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name]!.data![.Day] = newArr
+//
+//
+////                        !.data![.Day] = newArr
+//                        self.chartDataWaitGroup.leave()
+//                    })
+//                }
+//
+//
+//            }
+//
+//        }
+//
+//        chartDataWaitGroup.notify(queue: .main, execute: {
+//            completion()
+//        })
+//
         
         
     }
     func constructPortfolioChart() -> [(Int, Double, Double, Double, Double, Double)] {
-        if self.portfolio.assets.count == 0 {
-            return []
-        }
-        var totalData: [(Int, Double, Double, Double, Double, Double)] = Array(repeating: (0,0,0,0,0,0), count: self.portfolio.assets[0].coin.defaultChartData.day!.count)
-//        for asset in self.portfolio.assets {
-//            
+//        if self.portfolio.assets.count == 0 {
+//            return []
 //        }
-        
-        let coins = self.portfolio.assets.filter({ $0.assetType != .Fiat })
-        let amounts = coins.map({ $0.amountHeld })
-        let charts = coins.map({$0.coin.defaultChartData.day!})
-        let zipped = zip(amounts,charts)
-        let data = zipped.reduce((0.0,totalData), { (arg1:  (Double, [(Int, Double, Double, Double, Double, Double)]), arg2:  (Double, [(Int, Double, Double, Double, Double, Double)]) ) in
-            
-            return (arg2.0, zip(arg1.1, arg2.1).map({
-                
-                let x = $0.1.0
-                let price = $0.1.4
-                let amount = arg2.0
-                let y = $0.0.1 + price * amount
-                let data: (Int, Double, Double, Double, Double, Double) = (x,y,0.0,0.0,0.0,0.0)
-                return data
-            }))
-//            zip($0.0, $1)
-            
-        })
-        return data.1
+//        var totalData: [(Int, Double, Double, Double, Double, Double)] = Array(repeating: (0,0,0,0,0,0), count: self.portfolio.assets[0].coin.defaultChartData.day!.count)
+////        for asset in self.portfolio.assets {
+////
+////        }
+//
+//        let coins = self.portfolio.assets.filter({ $0.assetType != .Fiat })
+//        let amounts = coins.map({ $0.amountHeld })
+//        let charts = coins.map({$0.coin.defaultChartData.day!})
+//        let zipped = zip(amounts,charts)
+//        let data = zipped.reduce((0.0,totalData), { (arg1:  (Double, [(Int, Double, Double, Double, Double, Double)]), arg2:  (Double, [(Int, Double, Double, Double, Double, Double)]) ) in
+//
+//            return (arg2.0, zip(arg1.1, arg2.1).map({
+//
+//                let x = $0.1.0
+//                let price = $0.1.4
+//                let amount = arg2.0
+//                let y = $0.0.1 + price * amount
+//                let data: (Int, Double, Double, Double, Double, Double) = (x,y,0.0,0.0,0.0,0.0)
+//                return data
+//            }))
+////            zip($0.0, $1)
+//
+//        })
+//        return data.1
+        return []
         
     }
     
-    func savePortfolio() throws {
-        
-        let portfolio: Portfolio = PortfolioWorker.sharedInstance.portfolio
-        
-        
-        var encoder = CerealEncoder()
-//        try encoder.encode(portfolio, forKey: "portfolio")
-        try encoder.encode(portfolio, forKey: "portfolio")
-        let data = encoder.toData()
-//                let decoder = try CerealDecoder(data: data)
-        
-        let p: Portfolio = try CerealDecoder(data: data).decodeCereal(key: "portfolio")!
-        print(p.assets.count)
-        UserDefaults.standard.set(data, forKey: "portfolio")
-        UserDefaults.standard.synchronize()
-        
-    }
-    func unpackPortfolio(_ completion: ((Portfolio) -> Void)?) throws {
-        if let data = UserDefaults.standard.data(forKey: "portfolio") {
-            let p: Portfolio = try CerealDecoder(data: data).decodeCereal(key: "portfolio")!
-            if let c = completion {
-                c(p)
-            }
-            
-        }
-        
-    }
     
-    func updateAssetPrices() {
-//        for asset in self.portfolio.assets {
-//            asset.currentPrice = 1.0
-//        }
-    }
-    func unpackAndSet() {
-        do {
-            
-            try self.unpackPortfolio({ (p) in
-                print("asset count: \(p.assets.count)")
-                
-                self.portfolio = p
-            })
-            
-        } catch {
-            print("error unpacking portfolio")
-        }
-    }
+    
+    
     
     init() {
         

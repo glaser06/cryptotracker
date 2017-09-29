@@ -40,7 +40,7 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
 //        portfolioWorker.updateAssetPrices()
         marketWorker.exchangeInfoGroup.notify(queue: .main, execute: {
             if self.portfolioWorker.portfolio.assets.count == 0 {
-                self.portfolioWorker.unpackAndSet()
+//                self.portfolioWorker.unpackAndSet()
             }
             
             let resp = ShowPortfolio.FetchPortfolio.Response(value: self.portfolioWorker.marketValue(), assets: self.portfolioWorker.portfolio.assets, initialValue: self.portfolioWorker.portfolio.initialValue)
@@ -56,24 +56,24 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
     }
     
     func fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request) {
-        marketWorker.exchangeInfoGroup.notify(queue: .main, execute: {
-            
-            self.portfolioWorker.fetchAssetCharts(force: true) {
-                DispatchQueue.global(qos: .userInteractive).async {
-                    let p = self.portfolioWorker.portfolio
-                    let b: [Asset] = p.assets.filter({
-                        $0.assetType != Asset.AssetType.Fiat
-                    }).filter({
-                        $0.amountHeld != 0
-                    })
-                    let c: [[(Int, Double, Double, Double, Double, Double)]] = b.map({ return $0.coin.defaultPair.chartData[$0.coin.defaultExchange.name]!.day! })
-                    let resp = ShowPortfolio.FetchAssetCharts.Response(data: c)
-                    self.presenter?.presentCharts(response: resp)
-                    self.fetchPortfolioChart()
-                }
-            }
-            
-        })
+//        marketWorker.exchangeInfoGroup.notify(queue: .main, execute: {
+//
+//            self.portfolioWorker.fetchAssetCharts(force: true) {
+//                DispatchQueue.global(qos: .userInteractive).async {
+//                    let p = self.portfolioWorker.portfolio
+//                    let b: [Asset] = p.assets.filter({
+//                        $0.assetType != Asset.AssetType.Fiat
+//                    }).filter({
+//                        $0.amountHeld != 0
+//                    })
+//                    let c: [[(Int, Double, Double, Double, Double, Double)]] = b.map({ return $0.coin.defaultPair.chartData[$0.coin.defaultExchange.name]!.day! })
+//                    let resp = ShowPortfolio.FetchAssetCharts.Response(data: c)
+//                    self.presenter?.presentCharts(response: resp)
+//                    self.fetchPortfolioChart()
+//                }
+//            }
+//
+//        })
         
         
     }

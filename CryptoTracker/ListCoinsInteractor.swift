@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 protocol ListCoinsBusinessLogic
 {
@@ -37,21 +38,21 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
     var marketWorker: MarketWorker = MarketWorker.sharedInstance
     
     // MARK: Do something
-    var coins: [Coin] = []
+    var coins: Results<Coin>?
     var gotoTransaction: Bool?
     var doSwitch: Bool?
     
     func searchCoin(request: ListCoins.SearchCoin.Request) {
-        let query = request.query
+//        let query = request.query
+//
+//        let results = self.coins.filter({
+//            $0.symbol.lowercased().range(of: query.lowercased()) != nil
+//        })
         
-        let results = self.coins.filter({
-            $0.symbol.lowercased().range(of: query.lowercased()) != nil
-        })
-        
-        let resp = ListCoins.SearchCoin.Response(coins: results.map({
-            ListCoins.SearchCoin.Response.Coin(name: $0.name, symbol: $0.symbol.uppercased(), cap: $0.defaultPair.marketCapString, price: $0.defaultPair.price, percentage: $0.defaultPair.percentChange24)
-        }))
-        self.presenter?.presentResults(response: resp)
+//        let resp = ListCoins.SearchCoin.Response(coins: results.map({
+//            ListCoins.SearchCoin.Response.Coin(name: $0.name, symbol: $0.symbol.uppercased(), cap: $0.defaultPair.marketCapString, price: $0.defaultPair.price, percentage: $0.defaultPair.percentChange24)
+//        }))
+//        self.presenter?.presentResults(response: resp)
         
     }
     
@@ -63,19 +64,32 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
     }
     
     func fetchCoins(request: ListCoins.FetchCoins.Request) {
-        
-        MarketWorker.sharedInstance.exchangeInfoGroup.notify(queue: .main, execute: {
-            let coins: [Coin] = MarketWorker.sharedInstance.topCoins
-//            completion(exchanges)
+        MarketWorker.sharedInstance.retrieveCoins {
+            let coins: Results<Coin> = MarketWorker.sharedInstance.topCoins
+            
+            //            completion(exchanges)
             self.coins = coins
             var responseCoins: [ListCoins.FetchCoins.Response.Coin] = []
-            for coin in self.coins {
-                let statPair = coin.defaultPair
-                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: String(describing: Int(statPair.marketCap!)), price: statPair.price!, percentage: statPair.percentChange24!)
+            print(coins.count)
+            for coin in coins {
+                var statPair: Pair
+                if let pair = coin.defaultPair  {
+                    statPair = pair
+                } else {
+                    continue
+                }
+                if coin.name == "" {
+//                    continue
+                }
+                
+                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: String(describing: Int(statPair.marketCap.value!)), price: statPair.price.value!, percentage: statPair.percentChange.value!)
                 responseCoins.append(tempCoin)
             }
             self.presenter?.presentCoins(response: ListCoins.FetchCoins.Response(coins: responseCoins, gotoTransaction: self.gotoTransaction ?? false, doSwitch: self.doSwitch ?? true))
             request.completion()
+        }
+        MarketWorker.sharedInstance.exchangeInfoGroup.notify(queue: .main, execute: {
+            
         })
         
 //        marketWorker.retrieveCoins(completion: { (coins) in
