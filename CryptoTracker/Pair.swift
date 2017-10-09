@@ -76,6 +76,10 @@ class Pair: Object {
         return "id"
     }
     
+    static func keyFrom(base: String, quote: String, exchange: String) -> String {
+        return "\(base)-\(quote)-\(exchange)"
+    }
+    
 //    dynamic var pairName: String
     
     
@@ -100,9 +104,115 @@ class Pair: Object {
     
     let charts = List<Chart>()
     
+    var marketCapString: String {
+        return toString(d: self.marketCap.value)
+    }
+    
+    func toString(d: Double?) -> String {
+        if d == nil {
+            return ""
+        }
+        var cap = String(describing: Int(d!))
+        
+        let length = cap.characters.count
+        if length <= 3 {
+            cap = "\(String(format: "%.2f",d!))"
+            
+        } else {
+            var index = cap.index(cap.startIndex, offsetBy: 3)
+            cap = cap.substring(to: index)
+            if length > 9 {
+                let decimalPlace = length - 9
+                if decimalPlace < 3 {
+                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+                    cap.insert(".", at: index)
+                }
+                
+                cap = "\(cap)B"
+            } else if length > 6 {
+                let decimalPlace = length - 6
+                if decimalPlace < 3 {
+                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+                    cap.insert(".", at: index)
+                }
+                
+                cap = "\(cap)M"
+            } else if length > 3{
+                let decimalPlace = length - 3
+                if decimalPlace < 3 {
+                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+                    cap.insert(".", at: index)
+                }
+                cap = "\(cap)K"
+                
+            } else {
+                cap = "\(String(format: "%.2f",d!))"
+            }
+        }
+        return cap
+    }
+    func time(_ data: [(Int, Double, Double, Double, Double, Double)], duration: ShowCoin.Duration) -> [(Int, Double, Double, Double, Double, Double)] {
+        switch duration {
+        case .Day:
+            return condense(data, constant: 15)
+        case .Month:
+            return condense(data, constant: 3)
+        default:
+            return data
+        }
+        
+    }
+
+    
+    func condense(_ data: [(Int, Double, Double, Double, Double, Double)], constant: Int) -> [(Int, Double, Double, Double, Double, Double)] {
+        let d = data
+//        if d == nil || d.count == 0 {
+//            return d
+//        }
+        
+        var inInterval = false
+        var newData: [(Int, Double, Double, Double, Double, Double)] = []
+        var open = 0.0
+        var close = 0.0
+        var high = 0.0
+        var low = d[0].2
+        var vol = 0.0
+        
+        for (index, each) in d.enumerated() {
+            if !inInterval {
+                inInterval = true
+                high = each.1
+                low = each.2
+                open = each.3
+                close = each.4
+                vol = each.5
+            }
+            if each.1 > high {
+                high = each.1
+            }
+            if each.2 < low {
+                low = each.2
+            }
+            vol += each.5
+            if index % constant == 0 {
+                close = each.4
+                let datum = (each.0, high, low, open, close, vol)
+                newData.append(datum)
+                inInterval = false
+            }
+        }
+        
+        return newData
+    }
+    
+    
     
     
 }
+
+
+    
+
 class Chart: Object {
     dynamic var duration: String = ""
     
@@ -147,64 +257,8 @@ class Chart: Object {
 //            return data![.Year]
 //        }
 //        
-//        func time(_ duration: ShowCoin.Duration) -> [(Int, Double, Double, Double, Double, Double)]? {
-//            switch duration {
-//            case .Day:
-//                return condense(duration: .Day, constant: 15)
-//            case .Month:
-//                return condense(duration: .Month, constant: 3)
-//            default:
-//                return data![duration]
-//            }
-//            
-//        }
-//        
-//        func condense(duration: ShowCoin.Duration, constant: Int) -> [(Int, Double, Double, Double, Double, Double)]? {
-//            let d = data![duration]
-//            if d == nil || d!.count == 0 {
-//                return d
-//            }
-//            
-//            var inInterval = false
-//            var newData: [(Int, Double, Double, Double, Double, Double)] = []
-//            var open = 0.0
-//            var close = 0.0
-//            var high = 0.0
-//            var low = d![0].2
-//            var vol = 0.0
-//            
-//            for (index, each) in d!.enumerated() {
-//                if !inInterval {
-//                    inInterval = true
-//                    high = each.1
-//                    low = each.2
-//                    open = each.3
-//                    close = each.4
-//                    vol = each.5
-//                }
-//                if each.1 > high {
-//                    high = each.1
-//                }
-//                if each.2 < low {
-//                    low = each.2
-//                }
-//                vol += each.5
-//                if index % constant == 0 {
-//                    close = each.4
-//                    let datum = (each.0, high, low, open, close, vol)
-//                    newData.append(datum)
-//                    inInterval = false
-//                }
-//            }
-//            
-//            return newData
-//        }
-//        
-//        
-//        
-//        
-//    }
-//    
+//
+//
 //    var base: String
 //    
 //    var quote: String
@@ -265,50 +319,7 @@ class Chart: Object {
 //    
 //    var chartData: [String: ChartData] = [:]
 //    
-//    func toString(d: Double?) -> String {
-//        if d == nil {
-//            return ""
-//        }
-//        var cap = String(describing: Int(d!))
-//        
-//        let length = cap.characters.count
-//        if length <= 3 {
-//            cap = "\(String(format: "%.2f",d!))"
-//            
-//        } else {
-//            var index = cap.index(cap.startIndex, offsetBy: 3)
-//            cap = cap.substring(to: index)
-//            if length > 9 {
-//                let decimalPlace = length - 9
-//                if decimalPlace < 3 {
-//                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
-//                    cap.insert(".", at: index)
-//                }
-//                
-//                cap = "\(cap)B"
-//            } else if length > 6 {
-//                let decimalPlace = length - 6
-//                if decimalPlace < 3 {
-//                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
-//                    cap.insert(".", at: index)
-//                }
-//                
-//                cap = "\(cap)M"
-//            } else if length > 3{
-//                let decimalPlace = length - 3
-//                if decimalPlace < 3 {
-//                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
-//                    cap.insert(".", at: index)
-//                }
-//                cap = "\(cap)K"
-//                
-//            } else {
-//                cap = "\(String(format: "%.2f",d!))"
-//            }
-//        }
-//        return cap
-//    }
-//    
+//
 //    
 //    init(base: String, quote: String, pair: String) {
 //        

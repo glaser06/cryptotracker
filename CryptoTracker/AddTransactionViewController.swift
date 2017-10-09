@@ -189,11 +189,11 @@ class AddTransactionViewController: UIViewController, AddTransactionDisplayLogic
     
     
     func loadnewExchange() {
-        let req = AddTransaction.LoadTransaction.Request(exchangeName: self.exchangeSelectionField.text, quoteName: nil)
+        let req = AddTransaction.LoadTransaction.Request(exchangeName: self.exchangeSelectionField.text, quoteName: self.quoteCurrencySelection.text?.lowercased())
         self.interactor?.loadTransaction(request: req)
     }
     func loadNewPair() {
-        let req = AddTransaction.LoadTransaction.Request(exchangeName: nil, quoteName: self.quoteCurrencySelection.text?.lowercased())
+        let req = AddTransaction.LoadTransaction.Request(exchangeName: self.exchangeSelectionField.text, quoteName: self.quoteCurrencySelection.text?.lowercased())
         self.interactor?.loadTransaction(request: req)
     }
     
@@ -235,9 +235,15 @@ extension AddTransactionViewController: UIPickerViewDataSource, UIPickerViewDele
         
         switch pickerView.tag {
         case 1:
+            if exchangeNames.count == 0 {
+                return
+            }
             self.exchangeSelectionField.text = exchangeNames[row]
             self.loadnewExchange()
         case 2:
+            if quoteNames.count == 0 {
+                return
+            }
             self.quoteCurrencySelection.text = quoteNames[row]
             self.loadNewPair()
         default:

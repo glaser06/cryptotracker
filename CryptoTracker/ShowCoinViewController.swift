@@ -17,10 +17,14 @@ import Charts
 protocol ShowCoinDisplayLogic: class
 {
     func displayCoin(viewModel: ShowCoin.ShowCoin.ViewModel)
-    func displayExchanges(viewModel: ShowCoin.FetchExchangesAndPair.ViewModel)
+//    func displayExchanges(viewModel: ShowCoin.FetchExchangesAndPair.ViewModel)
     func displayHoldings(viewModel: ShowCoin.FetchHoldings.ViewModel)
     
     func displayCharts(viewModel: ShowCoin.FetchChart.ViewModel)
+    
+    func displayAddToWatchlist()
+    func displayRemoveFromWatchlist()
+    
 }
 
 class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
@@ -77,13 +81,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         super.viewDidLoad()
         transactionButtonsView.isHidden = false
         
-        self.collectionHeight.constant = 65
-        self.view.layoutIfNeeded()
-        fetchHoldings()
-        fetchCoin()
         
-
-        setupCharts() 
         
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationController?.navigationBar.shadowImage = UIImage()
@@ -92,6 +90,17 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         setupQuoteCollection()
         setupBottomView()
         setupInfoView()
+        setupCharts()
+        
+        self.collectionHeight.constant = 0
+        self.view.layoutIfNeeded()
+        fetchHoldings()
+        fetchCoin()
+        
+
+        
+        
+        
         
         self.navigationController?.interactivePopGestureRecognizer?.delegate = nil
         
@@ -107,6 +116,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var currencyButton: UIButton!
     @IBOutlet weak var exchangeButton: UIButton!
+    @IBOutlet weak var quoteBarButton: UIBarButtonItem!
 //    @IBOutlet weak var otherExchangesButton: UIButton!
 //    @IBOutlet weak var overallCoinButton: UIButton!
 
@@ -120,17 +130,19 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     @IBOutlet weak var low24Label: UILabel!
     @IBOutlet weak var mktCapLabel: UILabel!
     
-    @IBOutlet weak var holdingValueLabel: UILabel!
+//    @IBOutlet weak var holdingValueLabel: UILabel!
     @IBOutlet weak var holdingInitialLabel: UILabel!
     @IBOutlet weak var profitLossButton: UIButton!
-    @IBOutlet weak var holdingChangeLabel: UILabel!
+//    @IBOutlet weak var holdingChangeLabel: UILabel!
     @IBOutlet weak var holdingAmountLabel: UILabel!
     @IBOutlet weak var holdingsView: UIView!
+    @IBOutlet weak var holdingsPieChart: PieChartView!
     
     @IBOutlet weak var quotesCollectionView: UICollectionView!
     
     @IBOutlet weak var collectionHeight: NSLayoutConstraint!
     @IBOutlet weak var holdingsHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var chartHeightConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var chartHighLabel: UILabel!
     @IBOutlet weak var chartLowLabel: UILabel!
@@ -139,8 +151,10 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     @IBOutlet weak var chartVolumeLabel: UILabel!
     
     @IBOutlet var durationButtons: [UIButton]!
-    @IBOutlet var filterSelectionButtons: [UIButton]!
-    @IBOutlet var filterSelectionIndicators: [UIView]!
+//    @IBOutlet var filterSelectionButtons: [UIButton]!
+//    @IBOutlet var filterSelectionIndicators: [UIView]!
+    
+    @IBOutlet var pairSearchBar: UISearchBar!
     
     
     
@@ -149,6 +163,11 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     @IBOutlet weak var transactionButtonsView: UIView!
     @IBOutlet weak var infoContainerView: UIView!
     @IBOutlet weak var scrollView: UIScrollView!
+    
+    @IBOutlet weak var buyButton: UIButton!
+    @IBOutlet weak var sellButton: UIButton!
+    @IBOutlet weak var watchButton: UIButton!
+//    @IBOutlet weak var addButton: UIButton!
     
     
     @IBOutlet weak var candleIndicator: UIView!
@@ -179,6 +198,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     var displayedSelections: [String] = []
     
     func setupButtons() {
+//        addButton.layer.borderColor = UIView.theBlue.cgColor
 //        currencyButton.transform = CGAffineTransform(scaleX: -1.0, y: 1.0)
 //        currencyButton.titleLabel?.transform = CGAffineTransform(scaleX: -1.0, y: 1.0)
 //        currencyButton.imageView?.transform = CGAffineTransform(scaleX: -1.0, y: 1.0)
@@ -259,6 +279,14 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         }
         self.performSegue(withIdentifier: "AddTransaction", sender: self)
     }
+    @IBAction func addToWatchlist() {
+        if self.watchButton.title(for: .normal) == "Watch" {
+            self.interactor?.addToWatchlist()
+        } else {
+            self.interactor?.removeFromWatchlist()
+        }
+        
+    }
     
     @IBAction func switchCharts(sender: UIButton?) {
         let durations: [ShowCoin.Duration] = [.Day, .Week, .Month, .Month3, .Year]
@@ -276,15 +304,15 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             self.dismissSelectionView()
             return
         }
-        
-        self.filterSelectionButtons.map({
-            if $0.tag == 1 {
-                $0.setTitle("All Quotes", for: .normal)
-            } else {
-                $0.setTitle("In \(self.displayedExchange.capitalized)", for: .normal)
-            }
-            
-        })
+        self.pairSearchBar.placeholder = "Search All Quotes..."
+//        self.filterSelectionButtons.map({
+//            if $0.tag == 1 {
+//                $0.setTitle("All Quotes", for: .normal)
+//            } else {
+//                $0.setTitle("In \(self.displayedExchange.capitalized)", for: .normal)
+//            }
+//
+//        })
         
         self.displayedSelections = self.quotes
         self.quotesCollectionView.reloadData()
@@ -320,7 +348,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         self.currencyButton.backgroundColor = UIColor.clear
         self.exchangeButton.backgroundColor = UIColor.clear
         UIView.animate(withDuration: 0.2, animations: {
-            self.collectionHeight.constant = 65
+            self.collectionHeight.constant = 0
             self.view.layoutIfNeeded()
         })
     }
@@ -329,14 +357,15 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             self.dismissSelectionView()
             return
         }
-        self.filterSelectionButtons.map({
-            if $0.tag == 1 {
-                $0.setTitle("All Exchanges", for: .normal)
-            } else {
-                $0.setTitle("Has \(self.displayedQuote.uppercased())", for: .normal)
-            }
-            
-        })
+        self.pairSearchBar.placeholder = "Search exchanges that trade \(self.displayedQuote.uppercased())"
+//        self.filterSelectionButtons.map({
+//            if $0.tag == 1 {
+//                $0.setTitle("All Exchanges", for: .normal)
+//            } else {
+//                $0.setTitle("Has \(self.displayedQuote.uppercased())", for: .normal)
+//            }
+//
+//        })
         
         self.displayedSelections = self.exchanges
         self.quotesCollectionView.reloadData()
@@ -357,12 +386,18 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         if self.quotes.contains(info) {
             self.currencyButton.setTitle(info, for: .normal)
             self.displayedQuote = info
+//            self.displayedExchange = self.exchangeButton.title(for: .normal)!
             self.displayExchangeSelection()
             
             
         } else if self.exchanges.contains(info) {
+            if self.displayedExchange == info {
+                self.dismissSelectionView()
+                return
+            }
             self.exchangeButton.setTitle(info, for: .normal)
             self.displayedExchange = info
+//            self.displayedQuote = self.currencyButton.title(for: .normal)!.lowercased()
             self.dismissSelectionView()
             
         }
@@ -371,42 +406,42 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     }
     
     @IBAction func switchFilters(sender: UIButton) {
-        if sender.tag == 1 {
-            self.filterSelectionIndicators.map({
-                if $0.tag == 1 {
-                    $0.isHidden = false
-                    
-                } else {
-                    $0.isHidden = true
-                }
-                
-            })
-            self.filterSelectionButtons.map({
-                if $0.tag == 1 {
-                    $0.setTitleColor(UIView.theBlue, for: .normal)
-                    
-                } else {
-                    $0.setTitleColor(UIColor.lightGray, for: .normal)
-                }
-            })
-            
-        } else if sender.tag == 2 {
-            self.filterSelectionIndicators.map({
-                if $0.tag == 1 {
-                    $0.isHidden = true
-                } else {
-                    $0.isHidden = false
-                }
-                
-            })
-            self.filterSelectionButtons.map({
-                if $0.tag == 1 {
-                    $0.setTitleColor(UIColor.lightGray, for: .normal)
-                } else {
-                    $0.setTitleColor(UIView.theBlue, for: .normal)
-                }
-            })
-        }
+//        if sender.tag == 1 {
+//            self.filterSelectionIndicators.map({
+//                if $0.tag == 1 {
+//                    $0.isHidden = false
+//                    
+//                } else {
+//                    $0.isHidden = true
+//                }
+//                
+//            })
+//            self.filterSelectionButtons.map({
+//                if $0.tag == 1 {
+//                    $0.setTitleColor(UIView.theBlue, for: .normal)
+//                    
+//                } else {
+//                    $0.setTitleColor(UIColor.lightGray, for: .normal)
+//                }
+//            })
+//            
+//        } else if sender.tag == 2 {
+//            self.filterSelectionIndicators.map({
+//                if $0.tag == 1 {
+//                    $0.isHidden = true
+//                } else {
+//                    $0.isHidden = false
+//                }
+//                
+//            })
+//            self.filterSelectionButtons.map({
+//                if $0.tag == 1 {
+//                    $0.setTitleColor(UIColor.lightGray, for: .normal)
+//                } else {
+//                    $0.setTitleColor(UIView.theBlue, for: .normal)
+//                }
+//            })
+//        }
     }
     
     
@@ -430,19 +465,68 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
 //        print("here")
     }
     
+    func displayAddToWatchlist() {
+        self.watchButton.setTitle("", for: .normal)
+        self.watchButton.setImage(#imageLiteral(resourceName: "down-round"), for: .normal)
+    }
+    func displayRemoveFromWatchlist() {
+        self.watchButton.setTitle("Watch", for: .normal)
+        self.watchButton.setImage(nil, for: .normal)
+    }
+    
     func displayHoldings(viewModel: ShowCoin.FetchHoldings.ViewModel) {
+        if viewModel.watchlist {
+            displayAddToWatchlist()
+        }
         if !viewModel.exists {
+            
             self.holdingsView.isHidden = true
-            self.holdingsHeightConstraint.constant = 60
+            self.holdingsHeightConstraint.constant = 0
             return
         }
-        self.holdingsHeightConstraint.constant = 200
-        self.holdingValueLabel.text = viewModel.marketValue
-        self.holdingInitialLabel.text = viewModel.initialValue
-//        self.holdingChangeLabel.text = viewModel.change24H
-        self.holdingAmountLabel.text = viewModel.amount
+        self.setupPiechart()
         
-        self.profitLossButton.setTitle(viewModel.totalGain, for: .normal)
+        self.holdingsHeightConstraint.constant = 128
+//        self.holdingValueLabel.text = viewModel.marketValue
+        self.holdingInitialLabel.text = "$100.23"
+//        self.holdingChangeLabel.text = viewModel.change24H
+//        self.holdingAmountLabel.text = viewModel.amount
+        
+        self.profitLossButton.setTitle("$1232.10", for: .normal)
+    }
+    func setupPiechart() {
+        let allColors = UIView.allColors
+        let entry1 = PieChartDataEntry(value: 30.0)
+        let entry2 = PieChartDataEntry(value: 70.0)
+        var entries: [PieChartDataEntry] = [entry1, entry2]
+        
+        let dataSet = PieChartDataSet(values: entries, label: nil)
+        
+        let data = PieChartData(dataSet: dataSet)
+        
+        dataSet.drawValuesEnabled = false
+        dataSet.colors = [allColors[1], UIColor.lightGray]
+        dataSet.valueColors = [UIColor.black]
+        holdingsPieChart.data = data
+        //All other additions to this function will go here
+        holdingsPieChart.backgroundColor = UIColor.clear
+        holdingsPieChart.holeColor = UIColor.clear
+        holdingsPieChart.entryLabelColor = UIColor.clear
+        //        pieChartView.centerText = "$76721"
+        holdingsPieChart.holeRadiusPercent = 0.93
+        dataSet.selectionShift = 0.0
+        holdingsPieChart.chartDescription = nil
+        holdingsPieChart.legend.enabled = false
+        holdingsPieChart.rotationEnabled = false
+        //        pieChartView.isRotationEnabled = false
+        
+        //        pieChartView.drawSliceTextEnabled = false
+        //        pieChartView.drawSlicesUnderHoleEnabled = true
+        //        pieChartView
+        
+        
+        //This must stay at end of function
+        holdingsPieChart.notifyDataSetChanged()
     }
     
     func displayCoin(viewModel: ShowCoin.ShowCoin.ViewModel)
@@ -461,25 +545,39 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             self.percentLabel.textColor = UIView.theRed
         }
 //        self.currencyButton.setTitle(viewModel.quote, for: .normal)
-        self.displayedQuote = viewModel.quote
+        
 //        self.quoteNameLabel.text = self.displayedQuote.uppercased()
         
         
 //        print(viewModel.quotes)
         
         self.exchangeButton.setTitle(viewModel.exchange, for: .normal)
-        self.currencyButton.setTitle(viewModel.quote, for: .normal)
+        self.currencyButton.setTitle("\(viewModel.symbol.uppercased())/\(viewModel.quote)", for: .normal)
+        self.quoteBarButton.title = viewModel.quote.uppercased()
         self.displayedExchange = viewModel.exchange
+        
+        
+        self.quotes = viewModel.quotes
+        self.exchanges = viewModel.exchanges
+        transactionButtonsView.isHidden = false
+        
+        if self.isSelectionViewUp && self.currencyButton.backgroundColor == UIColor.clear {
+            self.displayedSelections = self.quotes
+            
+        } else if self.isSelectionViewUp && self.currencyButton.backgroundColor != UIColor.clear  {
+            self.displayedSelections = self.exchanges
+        } else {
+            self.displayedSelections = self.quotes
+        }
+
         self.displayedQuote = viewModel.quote.lowercased()
 //        if viewModel.exchangeName != "" {
 //            transactionButtonsView.isHidden = false
 //        }
 //        print(viewModel.quotes)
-        self.quotes = viewModel.quotes
-        transactionButtonsView.isHidden = false
         
-        self.exchanges = viewModel.exchanges
-        self.displayedSelections = self.quotes
+        
+        
         
         self.quotesCollectionView.reloadData()
         
@@ -494,7 +592,8 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         let totalWidth: CGFloat = (self.view.frame.width) - 40.0
         var width: CGFloat = CGFloat((abs(open-close)/(high-low))) * totalWidth
         let a: CGFloat = CGFloat(abs(open-close)/(high-low))
-        if a.isNaN {
+        
+        if a.isNaN || a.isInfinite {
             width = 0.0
         } else {
             
@@ -508,7 +607,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         var start: CGFloat = 0.0
         if close - open > 0 {
             let a: CGFloat = CGFloat((open-low)/(high-low))
-            if a.isNaN {
+            if a.isNaN || a.isInfinite {
                 start = 0.0
             } else {
                 
@@ -528,7 +627,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
 //            self.openRightConstraint.isActive = false
         } else if close - open < 0  {
             let a: CGFloat = CGFloat((close-low)/(high-low))
-            if a.isNaN {
+            if a.isNaN || a.isInfinite {
                 start = 0.0
                 
             } else {
@@ -548,7 +647,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
 //            self.openRightConstraint.isActive = true
         } else {
             let a: CGFloat = CGFloat((close-low)/(high-low))
-            if a.isNaN {
+            if a.isNaN || a.isInfinite {
                 start = 0.0
                 
             } else {
@@ -604,7 +703,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         self.lineChart.xAxis.enabled = false
         //        self.lineChart.xAxis.labelPosition = .bottom
         self.lineChart.chartDescription = nil
-//        self.lineChart.extraTopOffset = 36.0
+//        self.lineChart.extraBottomOffset = 16.0
         //        self.lineChart.extraBottomOffset = 50.0
         self.lineChart.data?.highlightEnabled = false
         
@@ -621,9 +720,11 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         self.barChart.legend.enabled = false
         self.barChart.rightAxis.enabled = true
         self.barChart.rightAxis.drawAxisLineEnabled = false
-        self.barChart.rightAxis.labelTextColor = UIColor.white
+        self.barChart.rightAxis.labelTextColor = UIColor.clear
         
-        self.barChart.extraBottomOffset = 40.0
+        
+        
+        self.barChart.extraBottomOffset = 0.0
         self.barChart.chartDescription = nil
         
         //        self.barChart.leftAxis.enabled = false
@@ -638,8 +739,11 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         self.lineChart.highlightPerDragEnabled = false
         self.lineChart.highlightPerTapEnabled = false
         let hold: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(enableGraph))
-        hold.minimumPressDuration = 0.1
+        hold.minimumPressDuration = 0.2
         self.lineChart.addGestureRecognizer(hold)
+        
+        self.barChart.backgroundColor = UIColor.clear
+        self.lineChart.backgroundColor = UIColor.clear
         
         
     }
@@ -669,18 +773,20 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
 //            let vol = self.barChart.getHighlightByTouchPoint(loc)
 //            let bar = self.barChart.getEntryByTouchPoint(point: CGPoint(x: loc.x, y: 0.0)) as! BarChartDataEntry
 //            let vol = bar.
-            let ohlc = self.lineChart.getEntryByTouchPoint(point: loc) as! CandleChartDataEntry
-//            print(ohlc)
-            self.priceLabel.text = "\(ohlc.close)"
-            self.high24Label.text = "\(ohlc.high)"
-            self.low24Label.text = "\(ohlc.low)"
-            self.openLabel.text = "\(ohlc.open)"
-//            self.volumeLabel.text = "\(vol)"
-            self.displayCandlestick(open: ohlc.open, high: ohlc.high, low: ohlc.low, close: ohlc.close)
-//            print("enabled")
-            self.lineChart.highlightPerDragEnabled = true
-            self.lineChart.highlightPerTapEnabled = true
-//            self.scrollView.isScrollEnabled = false
+            if let ohlc = self.lineChart.getEntryByTouchPoint(point: loc) as? CandleChartDataEntry {
+                //            print(ohlc)
+                self.priceLabel.text = "\(ohlc.close)"
+                self.high24Label.text = "\(ohlc.high)"
+                self.low24Label.text = "\(ohlc.low)"
+                self.openLabel.text = "\(ohlc.open)"
+                //            self.volumeLabel.text = "\(vol)"
+                self.displayCandlestick(open: ohlc.open, high: ohlc.high, low: ohlc.low, close: ohlc.close)
+                //            print("enabled")
+                self.lineChart.highlightPerDragEnabled = true
+                self.lineChart.highlightPerTapEnabled = true
+                //            self.scrollView.isScrollEnabled = false
+            }
+
         }
         
         
@@ -796,23 +902,23 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         
     }
     
-    func displayExchanges(viewModel: ShowCoin.FetchExchangesAndPair.ViewModel) {
-        
+//    func displayExchanges(viewModel: ShowCoin.FetchExchangesAndPair.ViewModel) {
+//
+////        self.exchangeButton.setTitle(viewModel.exchangeName, for: .normal)
+////        self.firstExchangeButton.setTitleColor(UIColor.lightGray, for: .normal)
+////        self.currencyButton.setTitle(viewModel.quote, for: .normal)
 //        self.exchangeButton.setTitle(viewModel.exchangeName, for: .normal)
-//        self.firstExchangeButton.setTitleColor(UIColor.lightGray, for: .normal)
 //        self.currencyButton.setTitle(viewModel.quote, for: .normal)
-        self.exchangeButton.setTitle(viewModel.exchangeName, for: .normal)
-        self.currencyButton.setTitle(viewModel.quote, for: .normal)
-        self.displayedExchange = viewModel.exchangeName.lowercased()
-        self.displayedQuote = viewModel.quote.lowercased()
-        if viewModel.exchangeName != "" {
-            transactionButtonsView.isHidden = false
-        }
-//        print(viewModel.quotes)
-        self.quotes = viewModel.quotes
-        self.quotesCollectionView.reloadData()
-        
-    }
+//        self.displayedExchange = viewModel.exchangeName.lowercased()
+//        self.displayedQuote = viewModel.quote.lowercased()
+//        if viewModel.exchangeName != "" {
+//            transactionButtonsView.isHidden = false
+//        }
+////        print(viewModel.quotes)
+//        self.quotes = viewModel.quotes
+//        self.quotesCollectionView.reloadData()
+//
+//    }
 }
 extension ShowCoinViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {

@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import RealmSwift
 import YIInnerShadowView
 
 protocol ShowAccountDisplayLogic: class
@@ -85,11 +86,9 @@ class ShowAccountViewController: UIViewController, ShowAccountDisplayLogic
         self.tabBarController?.selectedIndex = 0
     }
     @IBAction func clearPortfolio() {
-        PortfolioWorker.sharedInstance.portfolio = Portfolio()
-        do {
-//            try PortfolioWorker.sharedInstance.savePortfolio()
-        } catch {
-            
+        let realm = try! Realm()
+        try! realm.write {
+            realm.deleteAll()
         }
         
     }

@@ -69,6 +69,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     }
     
     var assets: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
+    var watchlist: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableCoin] = []
     var assetsOnDisplay: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
 //    var allColors: [NSUIColor] = ChartColorTemplates.joyful() + ChartColorTemplates.liberty() + ChartColorTemplates.pastel() + ChartColorTemplates.vordiplom() + ChartColorTemplates.material() + ChartColorTemplates.colorful()
     var colorsForAssets: [NSUIColor] = []
@@ -91,7 +92,8 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         
         setupAssetTable()
         setupMenu()
-        
+        self.reload()
+        self.fetchCharts()
 //        fetchPortfolio()
 //        pieChartUpdate()
         
@@ -103,7 +105,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         
     }
     override func viewWillAppear(_ animated: Bool) {
-//        reload()
+        reload()
     }
     
     @IBOutlet weak var menuBarButton: UIBarButtonItem!
@@ -154,6 +156,8 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     func setupAssetTable() {
         assetTableView.tableFooterView = UIView()
         assetTableView.register(UINib(nibName: "AssetTableViewCell", bundle: nil), forCellReuseIdentifier: "AssetCell")
+        assetTableView.register(UINib(nibName: "FiatAssetTableViewCell", bundle: nil), forCellReuseIdentifier: "FiatAssetCell")
+        assetTableView.register(UINib(nibName: "WatchlistTableViewCell", bundle: nil), forCellReuseIdentifier: "WatchlistCell")
         
         assetTableView.rowHeight = UITableViewAutomaticDimension
         assetTableView.estimatedRowHeight = 200
@@ -167,9 +171,12 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     @IBOutlet weak var totalValueLabel: UILabel!
     @IBOutlet weak var chartValueLabel: UILabel!
     
+    
     @IBOutlet weak var tableHeight: NSLayoutConstraint!
     
     @IBOutlet weak var totalGainsLabel: UILabel!
+    @IBOutlet weak var returnLabel: UILabel!
+    @IBOutlet weak var costLabel: UILabel!
     
     @IBOutlet weak var pieChartView: PieChartView!
     @IBOutlet weak var lineChart: LineChartView!
@@ -189,7 +196,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         fetchPortfolio()
         pieChartUpdate()
 //        lineChartUpdate()
-        fetchCharts()
+//        fetchCharts()
         
     }
     
@@ -205,15 +212,19 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         
         
         self.assets = viewModel.assets
+        self.watchlist = viewModel.watchlist
         self.pieChartUpdate()
 //        self.lineChartUpdate()
         let tempButton = UIButton()
         tempButton.tag = self.selectedAssets
         self.changeAssetsDisplayed(sender: tempButton)
         
-        let price = viewModel.totalValue
+        let price = viewModel.totalString
         self.totalValueLabel.text = price
         self.chartValueLabel.text = price
+        
+        self.returnLabel.text = "\(viewModel.overallGainPercent)%"
+        self.costLabel.text = viewModel.initialCost
         
         self.totalGainsLabel.text = "\(viewModel.overallGainValue)"
 //        (\(viewModel.overallGainPercent))
@@ -228,7 +239,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         
         
     }
-    var chartData: [[(Int, Double, Double, Double, Double, Double)]] = []
+    var chartData: [String: [(Int, Double, Double, Double, Double, Double)]] = [:]
     
     func displayCharts(viewModel: ShowPortfolio.FetchAssetCharts.ViewModel) {
         self.chartData = viewModel.data
@@ -287,14 +298,15 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         self.lineChart.data = data
     }
     func pieChartUpdate() {
-        let allColors: [NSUIColor] = ChartColorTemplates.joyful() + ChartColorTemplates.liberty() + ChartColorTemplates.pastel() + ChartColorTemplates.vordiplom() + ChartColorTemplates.material() + ChartColorTemplates.colorful()
-        
+        let allColors = UIView.allColors
+        self.colorsForAssets = []
         var entries: [PieChartDataEntry] = []
         for (index,asset) in self.assets.enumerated() {
             let entry = PieChartDataEntry(value: asset.total)
             entries.append(entry)
             self.colorsForAssets.append(allColors[index])
         }
+        
 //        let entry1 = PieChartDataEntry(value: 20, label: nil)
 //        let entry2 = PieChartDataEntry(value: 30, label: nil)
 //        let entry3 = PieChartDataEntry(value: 40, label: nil)
@@ -493,25 +505,52 @@ extension ShowPortfolioViewController: UITableViewDataSource {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.assetsOnDisplay.count
+        if self.selectedAssets == 4 {
+            return self.watchlist.count
+        } else {
+            return self.assetsOnDisplay.count
+        }
+        
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "AssetCell") as! AssetTableViewCell
-//        cell.setCell(data: self.coinsOnDisplay[indexPath.row])
-        let row = indexPath.row
-        let asset = self.assetsOnDisplay[row]
         
-        for (index, each) in self.assets.enumerated() {
-            if each.coinName == asset.coinName {
-                let color = self.colorsForAssets[index]
-                if self.chartData.count <= indexPath.row {
-                    cell.setCell(asset: self.assetsOnDisplay[indexPath.row], color: color, data: [])
-                } else {
-                    cell.setCell(asset: self.assetsOnDisplay[indexPath.row], color: color, data: self.chartData[indexPath.row])
+        
+
+        let row = indexPath.row
+        
+        var cell: UITableViewCell = UITableViewCell()
+        if self.selectedAssets == 4 {
+            let coin = self.watchlist[row]
+            let c = tableView.dequeueReusableCell(withIdentifier: "WatchlistCell") as! WatchlistTableViewCell
+            c.setCell(coin: coin, data: self.chartData[coin.symbol.lowercased()] ?? [])
+            cell = c
+        } else {
+            let asset = self.assetsOnDisplay[row]
+            for (index, each) in self.assets.enumerated() {
+                if each.coinName == asset.coinName {
+                    let color = self.colorsForAssets[index]
+                    if !each.fiat {
+                        let c = tableView.dequeueReusableCell(withIdentifier: "AssetCell") as! AssetTableViewCell
+                        c.setCell(asset: self.assetsOnDisplay[indexPath.row],  color: color, data: self.chartData[asset.symbol] ?? [])
+                        cell = c
+                    } else {
+                        
+                        let c = tableView.dequeueReusableCell(withIdentifier: "FiatAssetCell") as! FiatAssetTableViewCell
+                        c.setCell(asset: self.assetsOnDisplay[indexPath.row], color: color)
+                        cell = c
+                    }
+                    
+                    
+                    //                if self.chartData.count <= indexPath.row {
+                    //                    cell.setCell(asset: self.assetsOnDisplay[indexPath.row], color: color, data: [])
+                    //                } else {
+                    //
+                    //                }
+                    
                 }
-                
             }
         }
+        
         
         
         return cell
@@ -520,6 +559,11 @@ extension ShowPortfolioViewController: UITableViewDataSource {
 extension ShowPortfolioViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = indexPath.row
+        if self.selectedAssets == 4 {
+            self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
+            tableView.deselectRow(at: indexPath, animated: true)
+            return
+        }
         
         if self.assetsOnDisplay[row].fiat  {
             tableView.deselectRow(at: indexPath, animated: true)

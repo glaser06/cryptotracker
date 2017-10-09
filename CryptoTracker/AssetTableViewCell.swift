@@ -32,13 +32,15 @@ class AssetTableViewCell: UITableViewCell {
     @IBOutlet weak var symbolLabel: UILabel!
     @IBOutlet weak var colorIndicator: UIView!
     @IBOutlet weak var capLabel: UILabel!
+    @IBOutlet weak var holdingPercentLabel: UILabel!
     
     @IBOutlet weak var amountLabel: UILabel!
     @IBOutlet weak var valueLabel: UILabel!
     @IBOutlet weak var lineChart: LineChartView!
+    @IBOutlet weak var pieChart: PieChartView!
     
     
-    func setCell(asset: ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset, color: UIColor, data: [(Int, Double, Double, Double, Double, Double)]) {
+    func setCell(asset: ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset,  color: UIColor, data: [(Int, Double, Double, Double, Double, Double)]) {
         
         self.totalValueLabel.text = asset.totalValue
 //        self.amountLabel.text = asset.amount
@@ -50,15 +52,54 @@ class AssetTableViewCell: UITableViewCell {
         
 //        self.amountLabel.text = asset.amount
         
-        self.colorIndicator.backgroundColor = color
+//        self.colorIndicator.backgroundColor = color
         self.capLabel.text = asset.cap
+        self.holdingPercentLabel.text = String(format: "%.0f", asset.total / asset.portfolioValue * 100)
         
         if !asset.isUp {
             self.percentLabel.textColor = UIColor.red
             self.valueColorView.backgroundColor = UIView.theRed
         }
         updateGraph(data: data)
+        updatePieChart(assetValue: asset.total, portfolioValue: asset.portfolioValue, color: color)
         
+    }
+    func updatePieChart(assetValue: Double, portfolioValue: Double, color: UIColor) {
+//        let allColors = [color]
+        let entry1 = PieChartDataEntry(value: assetValue)
+        let entry2 = PieChartDataEntry(value: portfolioValue)
+        var entries: [PieChartDataEntry] = [entry1, entry2]
+        
+        let dataSet = PieChartDataSet(values: entries, label: nil)
+        
+        let data = PieChartData(dataSet: dataSet)
+        
+        dataSet.drawValuesEnabled = false
+        dataSet.colors = [color, UIColor.lightGray]
+        dataSet.valueColors = [UIColor.black]
+        pieChart.data = data
+        //All other additions to this function will go here
+        pieChart.backgroundColor = UIColor.clear
+        pieChart.holeColor = UIColor.clear
+        pieChart.entryLabelColor = UIColor.clear
+        //        pieChartView.centerText = "$76721"
+        pieChart.holeRadiusPercent = 0.9
+        dataSet.selectionShift = 5.0
+        pieChart.highlightValue(Highlight(x: 0, dataSetIndex: 0, stackIndex: 0))
+        dataSet.sliceSpace = 2.5
+        
+        pieChart.chartDescription = nil
+        pieChart.legend.enabled = false
+        pieChart.rotationEnabled = false
+        //        pieChartView.isRotationEnabled = false
+        
+        //        pieChartView.drawSliceTextEnabled = false
+        //        pieChartView.drawSlicesUnderHoleEnabled = true
+        //        pieChartView
+        
+        
+        //This must stay at end of function
+        pieChart.notifyDataSetChanged()
     }
     func updateGraph(data: [(Int, Double, Double, Double, Double, Double)]) {
         if data.count == 0  {

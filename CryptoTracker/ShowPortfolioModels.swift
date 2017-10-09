@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 enum ShowPortfolio
 {
@@ -27,16 +28,19 @@ enum ShowPortfolio
         
         
         
-        var assets: [Asset]
+        var assets: List<Asset>
+        var watchlist: List<Coin>
         var initialValue: Double
     }
     struct ViewModel
     {
-        var totalValue: String
+        var totalString: String
         
         var overallGainValue: String
         
         var overallGainPercent: String
+        
+        var initialCost: String
         
         struct DisplayableAsset {
             
@@ -60,12 +64,28 @@ enum ShowPortfolio
             
             var cap: String
             
+            var portfolioValue: Double
+            
+            
+            
+        }
+
+        var assets: [DisplayableAsset] = []
+        struct DisplayableCoin {
+            var name: String
+            var symbol: String
+            var change: String
+            var isUp: Bool
+            var price: String
+            var marketCap: String
+            var high: String
+            var open: String
+            var low: String
             
             
         }
         
-        
-        var assets: [DisplayableAsset] = []
+        var watchlist: [DisplayableCoin] = []
     }
   }
     enum FetchAllCoins {
@@ -84,10 +104,10 @@ enum ShowPortfolio
             
         }
         struct Response {
-            var data: [[(Int, Double, Double, Double, Double, Double)]]
+            var data: [String: [(Int, Double, Double, Double, Double, Double)]]
         }
         struct ViewModel {
-            var data: [[(Int, Double, Double, Double, Double, Double)]]
+            var data: [String: [(Int, Double, Double, Double, Double, Double)]]
         }
     }
     enum FetchPortFolioChart{

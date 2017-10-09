@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 protocol ShowCoinBusinessLogic
 {
@@ -20,14 +21,23 @@ protocol ShowCoinBusinessLogic
     func fetchHoldings(request: ShowCoin.FetchHoldings.Request)
     
     func fetchCharts(request: ShowCoin.FetchChart.Request, force: Bool)
+    func addToWatchlist()
+    func removeFromWatchlist()
 }
 
 protocol ShowCoinDataStore
 {
     //var name: String { get set }
     var coin: Coin? { get set }
+//
+//    var exchange: Exchange? { get set }
+//
+//    var pair: Pair? { get set }
+    var coinSymbol: String! { get set }
     
-    var exchange: Exchange? { get set }
+    var quoteSymbol: String? { get set }
+    
+    var exchangeName: String? { get set }
     
     var pair: Pair? { get set }
 }
@@ -43,7 +53,30 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
     var exchange: Exchange?
     var pair: Pair?
     
+    var coinSymbol: String!
+    
+    var quoteSymbol: String?
+    
+    var exchangeName: String?
+    
+    
     // MARK: Do something
+    
+    func addToWatchlist() {
+        portfolioWorker.addToWatchlist(coin: self.coin!)
+        
+        presenter?.finishAddToWatchlist()
+        
+    }
+    func removeFromWatchlist() {
+        if !portfolioWorker.portfolio.assets.contains(where: { (asset) -> Bool in
+            return asset.coin?.symbol == self.coin?.symbol
+        }) {
+            portfolioWorker.removeFromWatchlist(coin: self.coin!)
+            presenter?.finishRemoveFromWatchlist()
+        }
+        
+    }
     
     func fetchHoldings(request: ShowCoin.FetchHoldings.Request) {
 //        if let asset = portfolioWorker.portfolio.find(coin: self.coin!.symbol) {
@@ -53,11 +86,16 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
 //            let amount: Double = asset.amountHeld
 //            let resp = ShowCoin.FetchHoldings.Response(marketValue: marketValue, initialValue: initValue, amount: amount, totalGain: marketValue-initValue, exists: true)
 //            presenter?.presentHoldings(response: resp)
-//            
+//
 //        } else {
 //            let resp = ShowCoin.FetchHoldings.Response(marketValue: 0.0, initialValue: 0.0, amount: 0.0, totalGain: 0.0, exists: false)
 //            presenter?.presentHoldings(response: resp)
 //        }
+        let watchlist = portfolioWorker.portfolio.watchlist.contains(self.coin!) || portfolioWorker.portfolio.assets.contains(where: { (asset) -> Bool in
+            return asset.coin?.symbol == self.coin?.symbol
+        })
+        let resp = ShowCoin.FetchHoldings.Response(marketValue: 0.0, initialValue: 0.0, amount: 0.0, totalGain: 0.0, exists: false, watchlist: watchlist)
+        presenter?.presentHoldings(response: resp)
         
     }
     func fetchCharts(request: ShowCoin.FetchChart.Request, force: Bool) {
@@ -71,10 +109,10 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
 //            }
 //
 //        }
-//        coinWorker.fetchChart(of: self.pair!, from: self.exchange!, for: request.duration, completion: { (data) in
-//            var newData: [(Int, Double, Double, Double, Double, Double)] = []
-//
-//            newData = data
+        coinWorker.fetchChart(of: self.pair!, from: self.exchange!, for: request.duration, completion: { (data) in
+            var newData: [(Int, Double, Double, Double, Double, Double)] = []
+
+            newData = data
 //            if MarketWorker.sharedInstance.pairs[self.pair!.base]![self.pair!.quote]!.chartData[self.exchange!.name.lowercased()] != nil {
 //                MarketWorker.sharedInstance.pairs[self.pair!.base]![self.pair!.quote]!.chartData[self.exchange!.name.lowercased()]!.data![request.duration] = newData
 //            } else {
@@ -82,13 +120,69 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
 //                MarketWorker.sharedInstance.pairs[self.pair!.base]![self.pair!.quote]!.chartData[self.exchange!.name.lowercased()]!.data![request.duration] = newData
 //            }
 //            let chart = MarketWorker.sharedInstance.pairs[self.pair!.base]![self.pair!.quote]!.chartData[self.exchange!.name.lowercased()]!.time(request.duration)
-//            let resp = ShowCoin.FetchChart.Response(chartData: chart!)
-//            self.presenter?.presentCharts(response: resp)
-//        })
+            let chart = self.pair!.time(newData, duration: request.duration)
+            let resp = ShowCoin.FetchChart.Response(chartData: chart)
+            self.presenter?.presentCharts(response: resp)
+        })
     }
     
     func fetchCoin(request: ShowCoin.ShowCoin.Request) {
-//        let allQuotes = self.coin!.allQuotes().map({ $0.uppercased() })
+        
+        let realm = try! Realm()
+        let coin: Coin = self.coin!
+        let allQuotes = Array(Set(coin.pairs.map { (p) -> String in
+            p.quoteSymbol.uppercased()
+        }))
+        let allExchanges = Array(Set(coin.pairs.map { (p) -> String in
+            p.exchangeName
+        }))
+        let quotesInExchange = coin.pairs.filter("exchangeName = %@", request.exchange!).map({ (p) -> String in
+            p.quoteSymbol.uppercased()
+        })
+        let exchangesHasQuote = coin.pairs.filter("quoteSymbol = %@", request.quote!.lowercased())
+        let exchangeNames = Array(exchangesHasQuote.map({ (p) -> String in
+            p.exchangeName
+        }))
+        
+
+        var pair: Pair
+        if request.quote != nil && request.exchange != nil {
+            if let p = exchangesHasQuote.filter("exchangeName = %@", request.exchange!).first {
+                pair = p
+            } else {
+                pair = exchangesHasQuote.first!
+            }
+
+            
+            
+            
+            
+        } else {
+            pair = coin.pairs.filter("quoteSymbol = %@ AND exchangeName = %@", "usd", "CoinMarketCap").first!
+            
+        }
+        self.pair = pair
+        self.quoteSymbol = pair.quoteSymbol
+        let exchange = pair.exchange!
+        self.exchange = pair.exchange!
+        self.exchangeName = exchange.name
+        
+        
+        
+        if self.exchangeName == "CoinMarketCap" {
+            
+        }
+        let resp = ShowCoin.ShowCoin.Response(price: pair.price.value ?? 0.0, percent: pair.percentChange.value ?? 0.0, valueChanged: pair.valueChange.value ?? 0.0, volume: pair.volume.value ?? 0.0, high24: pair.high.value ?? 0.0, low24: pair.low.value ?? 0.0, name: coin.name, symbol: coin.symbol, quote: self.quoteSymbol!, exchange: self.exchangeName!, quotes: allQuotes, exchanges: exchangeNames, cap: pair.toString(d: pair.marketCap.value))
+        
+        self.presenter?.presentCoin(response: resp)
+        
+        self.coinWorker.fetchPrice(of: self.coinSymbol, and: self.quoteSymbol!, from: self.exchangeName!, completion: {
+            let resp = ShowCoin.ShowCoin.Response(price: pair.price.value, percent: pair.percentChange.value, valueChanged: pair.valueChange.value, volume: pair.volume.value, high24: pair.high.value, low24: pair.low.value, name: coin.name, symbol: coin.symbol, quote: self.quoteSymbol!, exchange: self.exchangeName!, quotes: allQuotes, exchanges: exchangeNames, cap: pair.toString(d: pair.marketCap.value))
+            
+            self.presenter?.presentCoin(response: resp)
+        }, error: {})
+        self.fetchCharts(request: ShowCoin.FetchChart.Request(duration: .Day), force: true)
+        
 //        MarketWorker.sharedInstance.exchangeInfoGroup.notify(queue: .main, execute: {
 //
 //            if request.quote != nil && request.exchange != nil  {
@@ -127,9 +221,9 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
 //                let resp = ShowCoin.ShowCoin.Response(price: self.pair!.price!, percent: self.pair!.percentChange24, volume: self.pair!.volume24, high24: self.pair!.highPrice24, low24: self.pair!.lowPrice24, name: self.coin!.name, symbol: self.coin!.symbol, quote: self.pair!.quote,exchange: self.exchange!.name, quotes: allQuotes, exchanges: Array(self.coin!.pairs[self.pair!.quote]!.exchanges.keys), cap: self.coin!.defaultPair.marketCapString)
 //                self.presenter?.presentCoin(response: resp)
 //            }
-//            self.fetchCharts(request: ShowCoin.FetchChart.Request(duration: .Day), force: true)
+        
 //        })
-//        return
+        return
         
         
         

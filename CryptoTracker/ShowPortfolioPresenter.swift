@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 protocol ShowPortfolioPresentationLogic
 {
@@ -30,47 +31,75 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
   // MARK: Do something
   
     func presentPortfolio(response: ShowPortfolio.FetchPortfolio.Response) {
-//        let price = String(format: "%.2f", response.value)
-//        var tempAssets: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
-//        let marketWorker = MarketWorker.sharedInstance
-//        for each in response.assets {
-//            if each.assetType != .Fiat {
-//            
-//                let statsPair: Pair = marketWorker.coinCollection[each.coin.symbol.lowercased()]!.defaultPair
-//                let totalValue = String(format: "%.2f", each.amountHeld * (statsPair.price)!)
-//                let price = String(format: "%.2f", (statsPair.price!))
-//                let percent = String(format: "%.2f", (statsPair.percentChange24!))
-//                let isUp = statsPair.percentChange24! >= 0
-//                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin.name, symbol: each.coin.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp, total: each.amountHeld * (statsPair.price)!, fiat: each.assetType == .Fiat, cap: statsPair.marketCapString)
-//                tempAssets.append(a)
-//            } else {
-//                let statsPair: Pair = each.coin.defaultPair
-//                let totalValue = String(format: "%.2f", each.amountHeld * (statsPair.price)!)
-//                let price = String(format: "%.2f", (statsPair.price!))
-//                let percent = String(format: "%.2f", (statsPair.percentChange24!))
-//                let isUp = statsPair.percentChange24! >= 0
-//                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin.name, symbol: each.coin.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp, total: each.amountHeld * (statsPair.price)!, fiat: each.assetType == .Fiat, cap: statsPair.marketCapString)
-//                tempAssets.append(a)
-//            }
-//            
-//        }
-//        let gainsValue = response.value - response.initialValue
-//        var gainsPercent = gainsValue/response.initialValue
-//        if response.initialValue == 0.0 {
-//            gainsPercent = 0.0
-//        }
-//        
-//        let vm = ShowPortfolio.FetchPortfolio.ViewModel(totalValue: "$\(price)", overallGainValue: String(format: "$%.2f", gainsValue), overallGainPercent: String(format: "%.2f%", gainsPercent), assets: tempAssets)
-//        DispatchQueue.main.async {
-//            self.viewController?.displayPortfolio(viewModel: vm)
-//        }
+        let price = String(format: "%.2f", response.value)
+        var tempAssets: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
+        let marketWorker = MarketWorker.sharedInstance
+        let realm = try! Realm()
+        for each in response.assets {
+//            print(each.coin!.name)
+            if each.coin!.coinType != Coin.CoinType.Fiat.rawValue{
+            
+                let statsPair: Pair = each.coin!.defaultPair!
+                let totalValue = String(format: "%.2f", each.amountHeld * (statsPair.price.value!))
+                let price = String(format: "%.2f", (statsPair.price.value!))
+                let percent = String(format: "%.2f", (statsPair.percentChange.value ?? 0.0))
+                let isUp = statsPair.percentChange.value ?? 0.0 >= 0
+                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin!.name, symbol: each.coin!.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp, total: each.amountHeld * (statsPair.price.value!), fiat: false, cap: statsPair.marketCapString, portfolioValue: response.value)
+                tempAssets.append(a)
+            } else {
+//                let statsPair: Pair = each.coin!.defaultPair!
+                let totalValue = String(format: "%.2f", each.amountHeld )
+//                let price = String(format: "%.2f", (statsPair.price.value!))
+//                let percent = String(format: "%.2f", (statsPair.percentChange.value!))
+//                let isUp = statsPair.percentChange.value! >= 0
+                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin!.name, symbol: each.coin!.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(0.0)", change: "\(0.0)%", isUp: true, total: each.amountHeld , fiat: true, cap: "$0.0", portfolioValue: response.value)
+                tempAssets.append(a)
+            }
+            
+        }
+        let gainsValue = response.value - response.initialValue
+        var gainsPercent = gainsValue/response.initialValue
+        if response.initialValue == 0.0 {
+            gainsPercent = 0.0
+        }
+        
+//        do watchlist stuff
+        var tempList: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableCoin] = []
+        let displayDouble: (Double?) -> String = { (d) in
+            return String(format: "%.2f", d ?? 0.0)
+        }
+//        let watchlist = response.watchlist.map({ (c) -> Pair in
+//            c.defaultPair!
+//        })
+        let watchlist = response.watchlist.sorted { (c1, c2) -> Bool in
+            let mcap1: Double = c1.defaultPair!.marketCap.value ?? 0.0
+            let mcap2: Double = c2.defaultPair!.marketCap.value ?? 0.0
+
+            return mcap1 > mcap2
+        }
+        for each in watchlist {
+            let pair: Pair? = each.defaultPair
+            let isUp = pair?.percentChange.value ?? 0.0 >= 0.0
+            let percent = displayDouble(each.defaultPair?.percentChange.value)
+            let price = "$\(displayDouble(each.defaultPair?.price.value))"
+            let high = "$\(displayDouble(pair?.high.value))"
+            let open = "$\(displayDouble(pair?.open.value))"
+            let low = "$\(displayDouble(pair?.low.value))"
+            
+            let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableCoin(name: each.name, symbol: each.symbol, change: percent, isUp: isUp, price: price , marketCap: each.defaultPair?.marketCapString ?? "", high: high, open: open, low: low)
+            tempList.append(a)
+        }
+        
+        let vm = ShowPortfolio.FetchPortfolio.ViewModel(totalString: "$\(price)", overallGainValue: String(format: "$%.2f", gainsValue), overallGainPercent: String(format: "%.2f%", gainsPercent), initialCost: String(format: "$%.2f", response.initialValue), assets: tempAssets, watchlist: tempList)
+        DispatchQueue.main.async {
+            self.viewController?.displayPortfolio(viewModel: vm)
+        }
         
     }
     func presentCharts(response: ShowPortfolio.FetchAssetCharts.Response) {
         let vm = ShowPortfolio.FetchAssetCharts.ViewModel(data: response.data)
-        DispatchQueue.main.async {
-            self.viewController?.displayCharts(viewModel: vm)
-        }
+        self.viewController?.displayCharts(viewModel: vm)
+        
         
     }
     func presentPortfolioChart(response: ShowPortfolio.FetchPortFolioChart.Response) {

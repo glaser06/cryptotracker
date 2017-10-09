@@ -1,4 +1,4 @@
-//
+	//
 //  ShowPortfolioInteractor.swift
 //  CryptoTracker
 //
@@ -24,28 +24,41 @@ protocol ShowPortfolioBusinessLogic
 protocol ShowPortfolioDataStore
 {
     //var name: String { get set }
+    
+    var charts: [String: [(Int, Double, Double, Double, Double, Double)]]! { get set }
 }
+    
 
 class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStore
 {
     var presenter: ShowPortfolioPresentationLogic?
     var portfolioWorker = PortfolioWorker.sharedInstance
     var marketWorker = MarketWorker.sharedInstance
+    var worker = ShowPortfolioWorker()
+    
+    var charts: [String : [(Int, Double, Double, Double, Double, Double)]]! = [:]
     //var name: String = ""
     
     // MARK: Do something
     
     func fetchPortfolio(request: ShowPortfolio.FetchPortfolio.Request) {
+        let resp = ShowPortfolio.FetchPortfolio.Response(value: self.portfolioWorker.marketValue(), assets: self.portfolioWorker.portfolio.assets, watchlist: self.portfolioWorker.portfolio.watchlist, initialValue: self.portfolioWorker.portfolio.initialValue)
+        self.presenter?.presentPortfolio(response: resp)
+        worker.fetchAllPrices {
+            let resp = ShowPortfolio.FetchPortfolio.Response(value: self.portfolioWorker.marketValue(), assets: self.portfolioWorker.portfolio.assets, watchlist: self.portfolioWorker.portfolio.watchlist, initialValue: self.portfolioWorker.portfolio.initialValue)
+            self.presenter?.presentPortfolio(response: resp)
+        }
+        
         
 //        portfolioWorker.updateAssetPrices()
-        marketWorker.exchangeInfoGroup.notify(queue: .main, execute: {
-            if self.portfolioWorker.portfolio.assets.count == 0 {
-//                self.portfolioWorker.unpackAndSet()
-            }
-            
-            let resp = ShowPortfolio.FetchPortfolio.Response(value: self.portfolioWorker.marketValue(), assets: self.portfolioWorker.portfolio.assets, initialValue: self.portfolioWorker.portfolio.initialValue)
-            self.presenter?.presentPortfolio(response: resp)
-        })
+//        marketWorker.exchangeInfoGroup.notify(queue: .main, execute: {
+//            if self.portfolioWorker.portfolio.assets.count == 0 {
+////                self.portfolioWorker.unpackAndSet()
+//            }
+//
+//            let resp = ShowPortfolio.FetchPortfolio.Response(value: self.portfolioWorker.marketValue(), assets: self.portfolioWorker.portfolio.assets, initialValue: self.portfolioWorker.portfolio.initialValue)
+//            self.presenter?.presentPortfolio(response: resp)
+//        })
         
     }
     func fetchAllCoins(_ completion: @escaping () -> Void) {
@@ -56,6 +69,30 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
     }
     
     func fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request) {
+        self.portfolioWorker.fetchAssetCharts(force: true) { (quote, data) in
+//            let p = self.portfolioWorker.portfolio
+//            let b: [Asset] = p.assets.filter({
+//                $0.assetType != Asset.AssetType.Fiat
+//            }).filter({
+//                $0.amountHeld != 0
+//            })
+            self.charts[quote.lowercased()] = data
+//            let c: [String: [(Int, Double, Double, Double, Double, Double)]] = b.map({ return $0.coin.defaultPair.chartData[$0.coin.defaultExchange.name]!.day! })
+            let resp = ShowPortfolio.FetchAssetCharts.Response(data: self.charts)
+            DispatchQueue.main.async {
+                self.presenter?.presentCharts(response: resp)
+            }
+            
+//            self.fetchPortfolioChart()
+
+        }
+        self.portfolioWorker.fetchWatchlistCharts(force: true) { (quote, data) in
+            self.charts[quote.lowercased()] = data
+            let resp = ShowPortfolio.FetchAssetCharts.Response(data: self.charts)
+            DispatchQueue.main.async {
+                self.presenter?.presentCharts(response: resp)
+            }
+        }
 //        marketWorker.exchangeInfoGroup.notify(queue: .main, execute: {
 //
 //            self.portfolioWorker.fetchAssetCharts(force: true) {
@@ -78,8 +115,8 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
         
     }
     func fetchPortfolioChart() {
-        let data = self.portfolioWorker.constructPortfolioChart()
-        self.presenter?.presentPortfolioChart(response: ShowPortfolio.FetchPortFolioChart.Response(data: data))
+//        let data = self.portfolioWorker.constructPortfolioChart()
+//        self.presenter?.presentPortfolioChart(response: ShowPortfolio.FetchPortFolioChart.Response(data: data))
         
     }
 }

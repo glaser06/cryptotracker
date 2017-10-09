@@ -57,10 +57,13 @@
 		E34ADD401F78CFBC006B1088 /* Pair.swift in Sources */ = {isa = PBXBuildFile; fileRef = E34ADD3F1F78CFBC006B1088 /* Pair.swift */; };
 		E34ADD421F78CFCA006B1088 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = E34ADD411F78CFCA006B1088 /* Asset.swift */; };
 		E34ADD441F78CFD2006B1088 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E34ADD431F78CFD2006B1088 /* Transaction.swift */; };
+		E35518201F8AF601005DBD9F /* WatchlistTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E355181E1F8AF601005DBD9F /* WatchlistTableViewCell.swift */; };
+		E35518211F8AF601005DBD9F /* WatchlistTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E355181F1F8AF601005DBD9F /* WatchlistTableViewCell.xib */; };
 		E37950C51F6D056400C3338A /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37950C41F6D056400C3338A /* UIViewExtension.swift */; };
 		E37AAB6B1F699634001546BD /* QuoteCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37AAB691F699634001546BD /* QuoteCollectionViewCell.swift */; };
 		E37AAB6C1F699634001546BD /* QuoteCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E37AAB6A1F699634001546BD /* QuoteCollectionViewCell.xib */; };
 		E38689C51F6772E0004E98D7 /* CryptocompareAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E38689C41F6772E0004E98D7 /* CryptocompareAPI.swift */; };
+		E3A6C6731F83A2F8004FBB9A /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3A6C6721F83A2F8004FBB9A /* StorageManager.swift */; };
 		E3D4B93E1F70D7B2005FCDB8 /* TempStorage.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3D4B93D1F70D7B2005FCDB8 /* TempStorage.xib */; };
 		E3F3238B1F5DC236000B1CE1 /* ShowAccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323851F5DC236000B1CE1 /* ShowAccountInteractor.swift */; };
 		E3F3238C1F5DC236000B1CE1 /* ShowAccountModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F323861F5DC236000B1CE1 /* ShowAccountModels.swift */; };
@@ -150,10 +153,13 @@
 		E34ADD3F1F78CFBC006B1088 /* Pair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pair.swift; sourceTree = "<group>"; };
 		E34ADD411F78CFCA006B1088 /* Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Asset.swift; sourceTree = "<group>"; };
 		E34ADD431F78CFD2006B1088 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		E355181E1F8AF601005DBD9F /* WatchlistTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistTableViewCell.swift; sourceTree = "<group>"; };
+		E355181F1F8AF601005DBD9F /* WatchlistTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WatchlistTableViewCell.xib; sourceTree = "<group>"; };
 		E37950C41F6D056400C3338A /* UIViewExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIViewExtension.swift; path = ../UIViewExtension.swift; sourceTree = "<group>"; };
 		E37AAB691F699634001546BD /* QuoteCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuoteCollectionViewCell.swift; sourceTree = "<group>"; };
 		E37AAB6A1F699634001546BD /* QuoteCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = QuoteCollectionViewCell.xib; sourceTree = "<group>"; };
 		E38689C41F6772E0004E98D7 /* CryptocompareAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptocompareAPI.swift; sourceTree = "<group>"; };
+		E3A6C6721F83A2F8004FBB9A /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		E3D4B93D1F70D7B2005FCDB8 /* TempStorage.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TempStorage.xib; sourceTree = "<group>"; };
 		E3F323851F5DC236000B1CE1 /* ShowAccountInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountInteractor.swift; sourceTree = "<group>"; };
 		E3F323861F5DC236000B1CE1 /* ShowAccountModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAccountModels.swift; sourceTree = "<group>"; };
@@ -289,6 +295,7 @@
 		6D0ED8F11F4DF60100D5146D /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E3A6C6721F83A2F8004FBB9A /* StorageManager.swift */,
 				6D0ED9061F4E3EF800D5146D /* CoinMarketCapAPI.swift */,
 				6D6825F71F502BBE00A25873 /* CryptowatchAPI.swift */,
 				E38689C41F6772E0004E98D7 /* CryptocompareAPI.swift */,
@@ -359,6 +366,8 @@
 		6D62037F1F50AA7900054A44 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				E355181E1F8AF601005DBD9F /* WatchlistTableViewCell.swift */,
+				E355181F1F8AF601005DBD9F /* WatchlistTableViewCell.xib */,
 				E30E86701F75B89B00AC5C2B /* FiatAssetTableViewCell.swift */,
 				E30E86711F75B89B00AC5C2B /* FiatAssetTableViewCell.xib */,
 				6D62037B1F50AA7500054A44 /* AssetTableViewCell.swift */,
@@ -538,6 +547,7 @@
 			files = (
 				6D62037E1F50AA7500054A44 /* AssetTableViewCell.xib in Resources */,
 				6D0ED8CD1F4CE0A700D5146D /* LaunchScreen.storyboard in Resources */,
+				E35518211F8AF601005DBD9F /* WatchlistTableViewCell.xib in Resources */,
 				E30E86731F75B89B00AC5C2B /* FiatAssetTableViewCell.xib in Resources */,
 				6D0ED8CA1F4CE0A700D5146D /* Assets.xcassets in Resources */,
 				6D0ED9041F4E058600D5146D /* CoinTableViewCell.xib in Resources */,
@@ -761,6 +771,7 @@
 				E30E86721F75B89B00AC5C2B /* FiatAssetTableViewCell.swift in Sources */,
 				E38689C51F6772E0004E98D7 /* CryptocompareAPI.swift in Sources */,
 				6D6203871F51009300054A44 /* AddTransactionInteractor.swift in Sources */,
+				E3A6C6731F83A2F8004FBB9A /* StorageManager.swift in Sources */,
 				E3F3238D1F5DC236000B1CE1 /* ShowAccountPresenter.swift in Sources */,
 				E34ADD441F78CFD2006B1088 /* Transaction.swift in Sources */,
 				6D0ED9071F4E3EF800D5146D /* CoinMarketCapAPI.swift in Sources */,
@@ -776,6 +787,7 @@
 				E3F3238B1F5DC236000B1CE1 /* ShowAccountInteractor.swift in Sources */,
 				E3F3238C1F5DC236000B1CE1 /* ShowAccountModels.swift in Sources */,
 				E37AAB6B1F699634001546BD /* QuoteCollectionViewCell.swift in Sources */,
+				E35518201F8AF601005DBD9F /* WatchlistTableViewCell.swift in Sources */,
 				6D0ED9091F4E3F0A00D5146D /* MarketWorker.swift in Sources */,
 				6D6203881F51009300054A44 /* AddTransactionModels.swift in Sources */,
 				6D0ED8FF1F4DF94700D5146D /* ListCoinsViewController.swift in Sources */,

@@ -13,6 +13,8 @@ import RealmSwift
 
 class Coin: Object {
     
+    let fiats: [String] = ["AUD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY", "KRW", "MXN", "MYR", "NOK", "NZD", "PHP", "PKR", "PLN", "RUB", "SEK", "SGD", "THB", "TRY", "TWD", "ZAR", "USD"]
+    
     enum CoinType: String {
         case Fiat = "fiat"
         case Crypto = "crypto"
@@ -26,10 +28,19 @@ class Coin: Object {
 //    }
     
     dynamic var symbol: String = ""
-//    func setSymbol(sym: String) {
-//        self.symbol = sym
-//        self.id = compoundKeyValue()
-//    }
+    func setSymbol(sym: String) {
+        self.symbol = sym
+        
+        if fiats.contains(sym.uppercased()) {
+            self.coinType = CoinType.Fiat.rawValue
+        } else {
+            self.coinType = CoinType.Crypto.rawValue
+        }
+        
+    }
+    override static func indexedProperties() -> [String] {
+        return ["name", "symbol"]
+    }
     
 //    public dynamic lazy var id: String = self.compoundKeyValue()
     
@@ -43,19 +54,33 @@ class Coin: Object {
     
     dynamic var coinType: String = CoinType.Crypto.rawValue
     
-    let pairs = List<Pair>()
-    let quotes = List<Pair>()
+    let pairs = List<Pair>() // where self is base
+    let quotes = List<Pair>() // where self is quote
     
+    
+    var defaultSource: String {
+        return "CoinMarketCap"
+    }
+    var _defaultPair: Results<Pair>!
     var defaultPair: Pair? {
+        
 //        let realm = try! Realm()
-        if self.pairs.contains(where: { (p) -> Bool in
-            return p.exchangeName == "CoinMarketCap"
-        }) {
-            return self.pairs[pairs.index(where: { (p) -> Bool in
-                p.exchangeName == "CoinMarketCap"
-            })!]
+//        if self.pairs.fil
+//        realm.objects(Coin.self).filter("ANY pairs.exchangeName = %@", "CoinMarketCap")
+        let a = self.pairs.filter("exchangeName = %@", self.defaultSource)
+        if a.count > 0 {
+            return a.first!
+        } else {
+            return nil
         }
-        return nil
+//        if self.pairs.contains(where: { (p) -> Bool in
+//            return p.exchangeName == "CoinMarketCap"
+//        }) {
+//            return self.pairs[pairs.index(where: { (p) -> Bool in
+//                p.exchangeName == "CoinMarketCap"
+//            })!]
+//        }
+//        return nil
 //        let pair = self.pairs.index { (p) -> Bool in
 //            print(p.exchangeName)
 //            return p.exchangeName == "CoinMarketCap"
@@ -68,8 +93,33 @@ class Coin: Object {
 //        return self.pairs[pair]
         
     }
+    func pair(with quote: String, on exchange: String) -> Pair? {
+        return self.pairs.filter("quoteSymbol = %@ AND exchangeName = %@", quote, exchange).first
+    }
+    func btcPair(on exchange: String) -> Pair? {
+        return pair(with: "btc", on: exchange)
+    }
+    
+    
     var nameAndSymbol: String {
         return "\(self.name)-\(self.symbol)"
+    }
+    
+    var exchangeNames: [String] {
+        
+        return Array(Set(self.pairs.map { (p) -> String in
+            p.exchangeName
+        }))
+    }
+    func exchangeNames(for quote: String) -> [String] {
+        return Array(Set(self.pairs.filter("quoteSymbol = %@", quote).map { (p) -> String in
+            p.exchangeName
+        }))
+    }
+    var quoteSymbols: [String] {
+        return Array(Set(self.pairs.map({ (p) -> String in
+            p.quoteSymbol
+        })))
     }
     
     

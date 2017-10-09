@@ -11,30 +11,178 @@
 //
 
 import UIKit
-import Cereal
+import RealmSwift
 
 class PortfolioWorker
 {
     static let sharedInstance = PortfolioWorker()
     
-    var portfolio: Portfolio = Portfolio()
+    var portfolio: Portfolio!
+    
+    
+    
+    func setup() {
+        let realm = try! Realm()
+        if let p = realm.object(ofType: Portfolio.self, forPrimaryKey: "Default") {
+            self.portfolio = p
+        } else {
+            let p = Portfolio()
+            p.name = "Default"
+            try! realm.write {
+                realm.add(p, update: true)
+            }
+            self.portfolio = p
+        }
+        
+        self.portfolio.cleanWatchlist()
+    }
+    
+    func addToWatchlist(coin: Coin) {
+        let realm = try! Realm()
+        if !portfolio.watchlist.contains(coin) {
+            try! realm.write {
+                portfolio.watchlist.append(coin)
+            }
+        }
+        self.portfolio.cleanWatchlist()
+    }
+    func removeFromWatchlist(coin: Coin) {
+        self.portfolio.removeFromWatchlist(coin: coin)
+    }
     
     func marketValue() -> Double {
+        return portfolio.value
         let market = MarketWorker.sharedInstance
         var val = 0.0
-//        for asset in self.portfolio.assets {
-//            if asset.assetType == .Fiat {
-//                val += asset.amountHeld * asset.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
-//            } else {
-//                let coin = market.coinCollection[asset.coin.symbol.lowercased()]
-//                val += asset.amountHeld * coin!.defaultPair.price!
-//            }
-//
-//        }
+        for asset in self.portfolio.assets {
+            if asset.coin!.coinType == Coin.CoinType.Fiat.rawValue {
+                val += asset.amountHeld
+            } else {
+//                let coin = market.coinCollection[]
+                val += asset.amountHeld * asset.coin!.defaultPair!.price.value!
+            }
+
+        }
         return val
     }
     
     func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool, exchange: String) {
+        var type: Transaction.OrderType = .Buy
+        if !isBuy {
+            type = .Sell
+        }
+        let transaction = Transaction()
+        transaction.pair = pair
+        transaction.price = price
+        transaction.fiatPrice = pair.base!.defaultPair!.price.value!
+        
+        if pair.quoteSymbol == "usd" {
+            transaction.fiatPrice = price
+        } else {
+            transaction.btcPrice = pair.base!.btcPair(on: "CoinMarketCap")!.price.value!
+        }
+        
+        
+        transaction.amount = amount
+        transaction.orderType = type.rawValue
+        
+        let total = price * amount
+        
+        let realm = try! Realm()
+        
+        var flag = false
+        try! realm.write {
+            var baseAsset: Asset
+            var quoteAsset: Asset
+            if let q = self.portfolio.assets.filter("coin.symbol = %@", pair.quoteSymbol).first {
+                quoteAsset = q
+            } else {
+                let asset = Asset()
+                asset.coin = pair.quote!
+                quoteAsset = asset
+                realm.add(quoteAsset)
+                portfolio.assets.append(quoteAsset)
+                
+            }
+            if let b = self.portfolio.assets.filter("coin.symbol = %@", pair.baseSymbol).first {
+                baseAsset = b
+            } else {
+                let asset = Asset()
+                asset.coin = pair.base!
+                baseAsset = asset
+                realm.add(baseAsset)
+                portfolio.assets.append(baseAsset)
+                
+            }
+            print(baseAsset.coin!.name)
+            let tempTransac = Transaction()
+            switch type {
+            case .Buy:
+                if quoteAsset.amountHeld < total {
+                    let amountToGet = total - quoteAsset.amountHeld
+                    
+                    tempTransac.amount = amountToGet
+                    if quoteAsset.coin!.symbol == "usd" {
+                        tempTransac.fiatPrice = 1.0
+//                        tempTransac.btcPrice = pair.quote!.btcPair(on: "CoinMarketCap")!.price.value!
+                    } else {
+                        tempTransac.fiatPrice = pair.quote!.defaultPair!.price.value!
+                        tempTransac.btcPrice = pair.quote!.btcPair(on: "CoinMarketCap")!.price.value!
+                    }
+                    
+                    
+                    tempTransac.isInitialFunding = true
+                    quoteAsset.buys.append(tempTransac)
+                    realm.add(tempTransac)
+                    
+                }
+            case .Sell:
+                if baseAsset.amountHeld < transaction.amount {
+                    let amountToGet = transaction.amount - baseAsset.amountHeld
+                    
+                    tempTransac.amount = amountToGet
+                    if quoteAsset.coin!.symbol == "usd" {
+                        tempTransac.fiatPrice = 1.0
+                        //                        tempTransac.btcPrice = pair.quote!.btcPair(on: "CoinMarketCap")!.price.value!
+                    } else {
+                        tempTransac.fiatPrice = pair.quote!.defaultPair!.price.value!
+                        tempTransac.btcPrice = pair.quote!.btcPair(on: "CoinMarketCap")!.price.value!
+                    }
+                    tempTransac.btcPrice = pair.base!.btcPair(on: "CoinMarketCap")!.price.value!
+                    tempTransac.isInitialFunding = true
+                    baseAsset.buys.append(tempTransac)
+                    realm.add(tempTransac)
+                }
+            }
+        
+            
+            
+            
+            
+            realm.add(transaction)
+            
+            
+            
+            switch type {
+            case .Buy:
+                baseAsset.buys.append(transaction)
+                quoteAsset.sells.append(transaction)
+            case .Sell:
+                baseAsset.sells.append(transaction)
+                quoteAsset.buys.append(transaction)
+            }
+            baseAsset.updateAmount()
+            quoteAsset.updateAmount()
+            
+        }
+        
+        let exchange = realm.object(ofType: Exchange.self, forPrimaryKey: exchange)!
+        
+        
+        
+    }
+    
+//    func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool, exchange: String) {
 //        var type: Transaction.OrderType = .Buy
 //        if !isBuy {
 //            type = .Sell
@@ -141,46 +289,48 @@ class PortfolioWorker
 //        }
         
         
-    }
+//    }
     var chartDataWaitGroup: DispatchGroup = DispatchGroup()
     
-    func fetchAssetCharts(force: Bool, completion: @escaping () -> Void) {
-//        let coinWorker = CoinWorker()
-//
-//        for (index, asset) in self.portfolio.assets.enumerated() {
-//            if asset.assetType != .Fiat {
-//                if !force && MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]?.day != nil {
-//                    asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name] = MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]!
-//                } else {
-//                    chartDataWaitGroup.enter()
-//                    coinWorker.fetchChart(of: asset.coin.defaultPair, from: asset.coin.defaultExchange, for: .Day, completion: { (data) in
-//                        var newArr: [(Int,Double, Double, Double, Double, Double)] = data
-////                        for (i, d) in data.enumerated() {
-////                            if i % 15 == 0 {
-////                                newArr.append(d)
-////                            }
-////
-////                        }
-//                        MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName] = Pair.ChartData(exchange: asset.coin.defaultExchangeName, data: [:])
-//                        MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]!.data![.Day] = newArr
-//
-//                        asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name] = MarketWorker.sharedInstance.coinCollection[asset.coin.symbol.lowercased()]!.defaultPair.chartData[asset.coin.defaultExchangeName]
-////                        asset.coin.defaultPair.chartData[asset.coin.defaultExchange.name]!.data![.Day] = newArr
-//
-//
-////                        !.data![.Day] = newArr
-//                        self.chartDataWaitGroup.leave()
-//                    })
-//                }
-//
-//
-//            }
-//
-//        }
-//
-//        chartDataWaitGroup.notify(queue: .main, execute: {
-//            completion()
-//        })
+    func fetchWatchlistCharts(force: Bool, completion: @escaping (String, [(Int,Double, Double, Double, Double, Double)]) -> Void) {
+        let coinWorker = CoinWorker()
+        
+        for (index, coin) in self.portfolio.watchlist.enumerated() {
+            
+            coinWorker.fetchChart(of: coin.defaultPair!, from: coin.defaultPair!.exchange!, for: .Day, completion: { (data) in
+                var newArr: [(Int,Double, Double, Double, Double, Double)] = data
+                
+                
+                let p = Pair()
+                let newData = p.time(newArr, duration: .Day)
+                completion(coin.symbol, newData)
+            })
+            
+        }
+    }
+    
+    func fetchAssetCharts(force: Bool, completion: @escaping (String, [(Int,Double, Double, Double, Double, Double)]) -> Void) {
+        let coinWorker = CoinWorker()
+
+        for (index, asset) in self.portfolio.assets.enumerated() {
+            if asset.coin?.coinType != Coin.CoinType.Fiat.rawValue {
+                
+                    coinWorker.fetchChart(of: asset.coin!.defaultPair!, from: asset.coin!.defaultPair!.exchange!, for: .Day, completion: { (data) in
+                        var newArr: [(Int,Double, Double, Double, Double, Double)] = data
+
+
+                        let p = Pair()
+                        let newData = p.time(newArr, duration: .Day)
+                        completion(asset.coin!.symbol, newData)
+                    })
+                
+
+
+            }
+
+        }
+
+
 //
         
         

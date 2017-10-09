@@ -26,7 +26,7 @@ protocol ListCoinsBusinessLogic
 protocol ListCoinsDataStore
 {
     //var name: String { get set }
-    var coins: [Coin] { get set }
+    var coins: Results<Coin>? { get set }
     var gotoTransaction: Bool? { get set }
     var doSwitch: Bool? { get set }
 }
@@ -43,16 +43,18 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
     var doSwitch: Bool?
     
     func searchCoin(request: ListCoins.SearchCoin.Request) {
-//        let query = request.query
-//
+        let query = request.query
+        
+        let results = self.coins?.filter("symbol CONTAINS %@ || name CONTAINS %@", query.lowercased(), query.lowercased())
+
 //        let results = self.coins.filter({
 //            $0.symbol.lowercased().range(of: query.lowercased()) != nil
 //        })
         
-//        let resp = ListCoins.SearchCoin.Response(coins: results.map({
-//            ListCoins.SearchCoin.Response.Coin(name: $0.name, symbol: $0.symbol.uppercased(), cap: $0.defaultPair.marketCapString, price: $0.defaultPair.price, percentage: $0.defaultPair.percentChange24)
-//        }))
-//        self.presenter?.presentResults(response: resp)
+        let resp = ListCoins.SearchCoin.Response(coins: results!.map({
+            ListCoins.SearchCoin.Response.Coin(name: $0.name, symbol: $0.symbol.uppercased(), cap: $0.defaultPair!.marketCapString, price: $0.defaultPair!.price.value!, percentage: $0.defaultPair!.percentChange.value!)
+        }))
+        self.presenter?.presentResults(response: resp)
         
     }
     
@@ -64,33 +66,53 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
     }
     
     func fetchCoins(request: ListCoins.FetchCoins.Request) {
-        MarketWorker.sharedInstance.retrieveCoins {
-            let coins: Results<Coin> = MarketWorker.sharedInstance.topCoins
-            
-            //            completion(exchanges)
-            self.coins = coins
-            var responseCoins: [ListCoins.FetchCoins.Response.Coin] = []
-            print(coins.count)
-            for coin in coins {
-                var statPair: Pair
-                if let pair = coin.defaultPair  {
-                    statPair = pair
-                } else {
-                    continue
-                }
-                if coin.name == "" {
-//                    continue
-                }
-                
+        let coins: Results<Coin> = MarketWorker.sharedInstance.topCoins!
+        
+        //            completion(exchanges)
+        self.coins = coins
+        var responseCoins: [ListCoins.FetchCoins.Response.Coin] = []
+        print(coins.count)
+        let start = Date()
+        responseCoins = coins.filter { (coin) -> Bool in
+            return coin.defaultPair != nil
+            }.map { (coin) -> ListCoins.FetchCoins.Response.Coin in
+                var statPair: Pair = coin.defaultPair!
                 let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: String(describing: Int(statPair.marketCap.value!)), price: statPair.price.value!, percentage: statPair.percentChange.value!)
-                responseCoins.append(tempCoin)
-            }
-            self.presenter?.presentCoins(response: ListCoins.FetchCoins.Response(coins: responseCoins, gotoTransaction: self.gotoTransaction ?? false, doSwitch: self.doSwitch ?? true))
-            request.completion()
+                return tempCoin
         }
-        MarketWorker.sharedInstance.exchangeInfoGroup.notify(queue: .main, execute: {
+        let end = Date()
+        let interval = end.timeIntervalSince(start)
+        print(interval)
+//        coins.map { (coin) -> U in
+//            var statPair: Pair
+//            if let pair = coin.defaultPair  {
+//                statPair = pair
+//                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: String(describing: Int(statPair.marketCap.value!)), price: statPair.price.value!, percentage: statPair.percentChange.value!)
+//            } else {
+//                continue
+//            }
+        
             
-        })
+            
+        
+//        for coin in coins {
+//            var statPair: Pair
+//            if let pair = coin.defaultPair  {
+//                statPair = pair
+//            } else {
+//                continue
+//            }
+//
+//
+//            let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: String(describing: Int(statPair.marketCap.value!)), price: statPair.price.value!, percentage: statPair.percentChange.value!)
+//            responseCoins.append(tempCoin)
+//        }
+        self.presenter?.presentCoins(response: ListCoins.FetchCoins.Response(coins: responseCoins, gotoTransaction: self.gotoTransaction ?? false, doSwitch: self.doSwitch ?? true))
+        request.completion()
+//        MarketWorker.sharedInstance.retrieveCoins {
+//
+//        }
+        
         
 //        marketWorker.retrieveCoins(completion: { (coins) in
         

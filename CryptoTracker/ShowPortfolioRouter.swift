@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 @objc protocol ShowPortfolioRoutingLogic
 {
@@ -46,9 +47,21 @@ class ShowPortfolioRouter: NSObject, ShowPortfolioRoutingLogic, ShowPortfolioDat
         passDataToShowCoin(source: dataStore!, destination: &destinationDS)
     }
     func passDataToShowCoin(source: ShowPortfolioDataStore, destination: inout ShowCoinDataStore) {
-        let assetCoin: String = viewController!.assetsOnDisplay[viewController!.assetTableView.indexPathForSelectedRow!.row].symbol.lowercased()
-        let coin = PortfolioWorker.sharedInstance.portfolio.assets[viewController!.assetTableView.indexPathForSelectedRow!.row].coin
-        destination.coin = MarketWorker.sharedInstance.coinCollection[assetCoin]
+        let index = viewController!.assetTableView.indexPathForSelectedRow!.row
+        var assetCoin: String
+        if viewController?.selectedAssets == 4 {
+            assetCoin = viewController!.watchlist[index].symbol.lowercased()
+        } else {
+            assetCoin = viewController!.assetsOnDisplay[viewController!.assetTableView.indexPathForSelectedRow!.row].symbol.lowercased()
+        }
+        
+        let realm = try! Realm()
+        let coin = realm.object(ofType: Coin.self, forPrimaryKey: assetCoin)!
+//            PortfolioWorker.sharedInstance.portfolio.assets.filter("coin.symbol = %@", assetCoin).first!.coin!
+        destination.coin = coin
+        destination.coinSymbol = coin.symbol
+        
+//        destination.coin = MarketWorker.sharedInstance.coinCollection[assetCoin]
 //        destination.exchange = coin.defaultExchange
 //        destination.pair = coin.defaultPair
     }

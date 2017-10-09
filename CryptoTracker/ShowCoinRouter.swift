@@ -36,19 +36,22 @@ class ShowCoinRouter: NSObject, ShowCoinRoutingLogic, ShowCoinDataPassing
     }
     func passDataToAddTransaction(source: ShowCoinDataStore, destination: inout AddTransactionDataStore)
     {
-        if source.exchange == nil || source.pair == nil {
-            
+        destination.pair = source.pair
+        destination.transactionType = viewController!.transactionType
+        destination.coin = source.coin!
+//        if source.exchangeName == nil || source.quoteSymbol == nil {
+        
             
 //            destination.exchange = source.coin!.defaultExchange
 //            destination.pair = source.coin!.defaultPair
 //            destination.pair = source.coin?.exchanges.first?.value.pairs.first?.value.first?.value
-        } else {
-            
-            destination.exchange = source.exchange
-            destination.pair = source.pair
-        }
-        destination.coin = source.coin
-        destination.transactionType = viewController!.transactionType
+//        } else {
+        
+//            destination.exchange = source.exchange
+//            destination.pair = source.pair
+//        }
+//        destination.coin = source.coin
+//        destination.transactionType = viewController!.transactionType
         
     }
     

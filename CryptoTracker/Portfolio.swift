@@ -8,15 +8,38 @@
 
 import Foundation
 import Cereal
+import RealmSwift
 
-class Portfolio {
+class Portfolio: Object {
+    
+    dynamic var name: String = ""
+    let assets = List<Asset>()
+    let watchlist = List<Coin>()
+    
+    override static func primaryKey() -> String? {
+        return "name"
+    }
+    override static func indexedProperties() -> [String] {
+        return ["name"]
+    }
     
     var value: Double {
         get {
             var val = 0.0
+            
+//            self.assets.map { (a) -> Double in
+//                return a.amountHeld * a.coin!.defaultPair!.price.value!
+//            }.reduce(<#T##initialResult: Result##Result#>, <#T##nextPartialResult: (Result, Double) throws -> Result##(Result, Double) throws -> Result#>)
+//            print(self.assets.count)
             for asset in self.assets {
-//                val += asset.amountHeld * asset.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
+                if asset.coin!.coinType == Coin.CoinType.Crypto.rawValue {
+                    print(asset.amountHeld)
+                    
+                    val += asset.amountHeld * asset.coin!.defaultPair!.price.value!
+                }
+                
             }
+            print(val)
             return val
         }
     }
@@ -24,26 +47,79 @@ class Portfolio {
     var initialValue: Double {
         get {
             var initTotal = 0.0
+            
+            
+            
             for asset in self.assets {
-                for transaction in asset.transactions {
-                    
+                for transaction in asset.buys {
+
                     if transaction.isInitialFunding {
-                        var coinPrice = 1.0
-                        if asset.assetType == .Crypto {
-                            coinPrice = transaction.price.usd!
-                            
-                        }
+                        var coinPrice = transaction.fiatPrice
+//                        if asset.assetType == .Crypto {
+//                            coinPrice = transaction.price.usd!
+//
+//                        }
                         
+                        print(transaction.amount)
                         initTotal += transaction.amount*coinPrice
                     }
-                    
+
                 }
             }
             return initTotal
         }
     }
     
-    var assets: [Asset] = []
+//    var assets: [Asset] = []
+    
+    func cleanWatchlist() {
+        let realm = try! Realm()
+        
+        
+        let assets: [String] = self.assets.map { (a) -> String in
+            a.coin!.symbol.lowercased()
+        }
+        
+        let tempList = Array(self.watchlist.filter("NOT (symbol IN %@)", assets))
+//        let b: [String] = tempList.map { (c) -> String in
+//            c.symbol
+//        }
+        try! realm.write {
+            self.watchlist.removeAll()
+//            print(tempList.count)
+            for i in tempList {
+                self.watchlist.append(i)
+            }
+//            for (index, coin) in tempList.enumerated() {
+//                if self.assets.contains(where: { (a) -> Bool in
+//                    return a.coin!.symbol == coin.symbol
+//                }) {
+//
+//                    self.watchlist.append(coin)
+//
+//                }
+//            }
+        }
+        
+    }
+    func removeFromWatchlist(coin: Coin) {
+        let realm = try! Realm()
+        let tempList = Array(self.watchlist.filter("symbol != %@", coin.symbol))
+        try! realm.write {
+            
+            self.watchlist.removeAll()
+            for i in tempList {
+                self.watchlist.append(i)
+            }
+        }
+    }
+    func addToWatchlist(coin: Coin) {
+        let realm = try! Realm()
+        
+        try! realm.write {
+            self.watchlist.append(coin)
+        }
+    }
     
     func initialValue(of coin: String) -> Double? {
         var initial = 0.0
@@ -73,157 +149,27 @@ class Portfolio {
 //            
 //        }
     }
-    init () {
-        
-    }
+    
     
     
     func find(coin: String) -> Asset? {
-        for asset in assets {
-            if asset.coin.symbol == coin {
-                return asset
-            }
-        }
-        return nil
-    }
-    
-    
-    
-}
-
-
-class Asset {
-    
-    var coin: Coin
-    
-    
-    
-    enum AssetType: Int, CerealRepresentable {
-        case Fiat
-        case Crypto
-        
-    }
-    var assetType: AssetType
-    
-    var amountHeld: Double = 0.0
-    
-    var transactions: [Transaction] = []
-    
-//    var currentPrice: Double = 0.0
-    
-    init(coin: Coin, type: AssetType) {
-        self.coin = coin
-        self.assetType = type
-    }
-    
-//    var marketValue: Double {
-//        return self.amountHeld * self.coin.exchanges["CoinMarketCap"]!.pairs.first!.value.first!.value.price!
-//    }
-    var initialValue: Double {
-        var initTotal = 0.0
-        var amount = 0.0
-//        for each in self.transactions {
-//            print(each.amount)
-//            print(each.price)
-//            print(each.orderType)
-//            
+        return assets.filter("coin.symbol = %@", coin).first
+//        for asset in assets {
+//            if asset.coin.symbol == coin {
+//                return asset
+//            }
 //        }
-        for transaction in self.transactions {
-            
-            if transaction.orderType == .Buy {
-                amount += transaction.amount
-            } else {
-                amount -= transaction.amount
-            }
-            
-        }
-        var levels = 0.0
-        var prevAmount = 0.0
-        for transaction in self.transactions {
-            if transaction.orderType == .Buy {
-                
-                levels += transaction.amount
-                if amount < levels {
-                    initTotal += (amount - prevAmount) * transaction.price.usd!
-                    return initTotal
-                }
-                initTotal += transaction.amount * transaction.price.usd!
-                prevAmount = transaction.amount
-                
-            }
-            
-            
-        }
-        return initTotal
+//        return nil
     }
     
-    
-    func addTransaction(transaction: Transaction) {
-        switch transaction.orderType {
-        case .Buy:
-            amountHeld += transaction.amount
-        case .Sell:
-            amountHeld -= transaction.amount
-            
-        }
-        self.transactions.append(transaction)
-        
-    }
     
     
 }
 
 
-class Transaction {
-    
-    enum OrderType: Int, CerealRepresentable {
-        case Buy
-        case Sell
-    }
-//    extension OrderType: CerealRepresentable { }
-    
-    var orderType: OrderType
-    
-    var isInitialFunding: Bool = false
-    
-    var datetime: NSDate = NSDate.init(timeIntervalSinceNow: TimeInterval(exactly: 0.0)!)
-    
-    var pair: Pair
-    
-    var notes: String = ""
-    
-    var amount: Double // of base currency
-    
-    struct Price {
-        var original: Double?
-        var usd: Double?
-        var btc: Double?
-    }
-    
-    var price: Price // in quoted currency
-    
-    var exchange: String = ""
-    
-    init(pair: Pair, price: Double, amount: Double, type: OrderType, exchange: String) {
-        
-        self.exchange = exchange
-        self.pair = pair
-//        let usd: Double = MarketWorker.sharedInstance.coinCollection[pair.base]!.USD
-        self.price = Price(original: price, usd: 0.0, btc: nil)
-        
-        self.amount = amount
-        
-        self.orderType = type
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-}
+
+
+
+
 
 

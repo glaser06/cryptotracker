@@ -14,7 +14,18 @@ import UIKit
 
 class ShowPortfolioWorker
 {
-  func doSomeWork()
-  {
-  }
+    let coinWorker = CoinWorker()
+    let portfolioWorker = PortfolioWorker.sharedInstance
+  
+    func fetchAllPrices(completion: @escaping () -> Void) {
+        let quotes = ["usd", "btc"]
+        let bases: [String] = portfolioWorker.portfolio.assets.filter("coin.coinType != 'fiat'").map { (a) -> String in
+            a.coin!.symbol
+            } + portfolioWorker.portfolio.watchlist.map({ (c) -> String in
+                c.symbol
+            })
+        let exchange = Exchange()
+        exchange.name = "CoinMarketCap"
+        coinWorker.fetchMultiple(bases: bases, quotes: quotes, exchange: exchange, completion: completion)
+    }
 }

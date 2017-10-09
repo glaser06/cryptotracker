@@ -29,10 +29,17 @@ class MarketWorker
         var usd: Coin = Coin()
         
         usd.name = "US Dollar".lowercased()
-        usd.symbol = "usd"
-        usd.coinType = Coin.CoinType.Fiat.rawValue
+        usd.setSymbol(sym: "usd")
+        var btc: Coin = Coin()
+        btc.name = "bitcoin"
+        btc.setSymbol(sym: "btc")
+
+
         if let u = realm.object(ofType: Coin.self, forPrimaryKey: "usd") {
             usd = u
+        }
+        if let u = realm.object(ofType: Coin.self, forPrimaryKey: "btc") {
+            btc = u
         }
         
         
@@ -41,16 +48,27 @@ class MarketWorker
             
             let coinmarketcap = Exchange()
             coinmarketcap.name = "CoinMarketCap"
+            
+            let cccagg = Exchange()
+            cccagg.name = "CCCAGG"
+            
+            
             try! realm.write {
-                
-                
+                realm.add(usd, update: true)
+                realm.add(btc, update: true)
+                realm.add(cccagg, update: true)
+                realm.add(coinmarketcap, update: true)
 //                fix this
                 
                 for data in json {
                     let name: String = data.1["name"].stringValue.lowercased()
-                    let symbol: String = data.1["symbol"].string!.lowercased()
+                    var symbol: String = data.1["symbol"].string!.lowercased()
+                    if let s = self.coinMapper[symbol] {
+                        symbol = s
+                    }
                     let cap: Double = Double(data.1["market_cap_usd"].stringValue)!
                     let price: Double = Double(data.1["price_usd"].string!)!
+                    let btcPrice: Double = Double(data.1["price_btc"].string!)!
                     let percent: Double
                     if let temp = data.1["percent_change_24h"].string {
                         percent = Double(temp)!
@@ -60,10 +78,8 @@ class MarketWorker
                     let volume = Double(data.1["24h_volume_usd"].stringValue)
                     
                     var coin: Coin = Coin()
-                    var pair = Pair()
                     coin.name = name
-                    coin.symbol = symbol
-                    coin.coinType = Coin.CoinType.Crypto.rawValue
+                    coin.setSymbol(sym: symbol)
                     if let c = realm.object(ofType: Coin.self, forPrimaryKey: symbol) {
                         coin = c
                         
@@ -71,47 +87,65 @@ class MarketWorker
                         realm.add(coin, update: true)
                     }
                     
-                    pair.setAll(base: coin, quote: usd, exc: coinmarketcap)
-                    if let p = coin.defaultPair {
-                        pair = p
-                    } else {
-                        coin.pairs.append(pair)
-                        realm.add(pair, update: true)
+                    
+                    let usdPair = StorageManager.addPair(realm: realm, base: coin, quote: usd, exchange: coinmarketcap)
+                    StorageManager.addPair(realm: realm, base: coin, quote: usd, exchange: cccagg)
+                    
+                    usdPair.price.value = price
+                    usdPair.marketCap.value = cap
+                    usdPair.volume.value = volume
+                    usdPair.percentChange.value = percent
+                    if coin.symbol != "btc" {
+                        let btcPair = StorageManager.addPair(realm: realm, base: coin, quote: btc, exchange: coinmarketcap)
+                        StorageManager.addPair(realm: realm, base: coin, quote: btc, exchange: cccagg)
+                        btcPair.price.value = btcPrice
+//                        usdPair.marketCap.value = cap
+//                        usdPair.volume.value = volume
+                        btcPair.percentChange.value = percent
+                        
                     }
+                    
+//                    let addPair: (Coin, Coin, Exchange) -> Void = { (base, quote, exc) in
+//                        var pair = Pair()
+//
+//                        pair.setAll(base: base, quote: quote, exc: coinmarketcap)
+//                        if let p = base.defaultPair {
+//                            pair = p
+//                        } else {
+//                            base.pairs.append(pair)
+//                            realm.add(pair, update: true)
+//                        }
+//
+//                        pair.price.value = price
+//                        pair.marketCap.value = cap
+//                        pair.volume.value = volume
+//                        pair.percentChange.value = percent
+//
+//                        quote.quotes.append(pair)
+//                        exc.pairs.append(pair)
+//                    }
 
-                    pair.price.value = price
-                    pair.marketCap.value = cap
-                    pair.volume.value = volume
-                    pair.percentChange.value = percent
-                    
-                    
-                    
-                    
-//              ************ add quote somehow **************
-                    usd.quotes.append(pair)
-//                    **********************
-                    coinmarketcap.pairs.append(pair)
-                    
-                    
-                    
-                     
-                    print(coin.name + "-" + name)
                     
                     
                 }
-                realm.add(usd, update: true)
+                
                 realm.add(coinmarketcap, update: true)
             }
 //            print(realm.objects(Coin.self).map({ (c) -> String in
 //                return c.name
 //            }))
-            self.fetchAllExchangesAndPairs(completion: completion)
+            if let c = completion {
+                c()
+            }
+//            self.fetchAllExchangesAndPairs(completion: nil)
             
             
             
         })
     }
+    
     func fetchAllExchangesAndPairs(completion:  ( () -> Void)?) {
+        
         bigService.fetchAllExchangesAndPairs(completion: { (json) in
             let realm = try! Realm()
             try! realm.write {
@@ -127,7 +161,7 @@ class MarketWorker
                         exchange = Exchange()
                         exchange.name = exchangeName
                     }
-                    
+                    realm.add(exchange, update: true)
 //                    realm.add(exchange, update: true)
 //                    print(exchangeName)
 
@@ -135,14 +169,15 @@ class MarketWorker
                         var coinSymbol = symbol.key.lowercased()
 //                        correct coin names
                         var base: Coin = Coin()
-                        base.symbol = coinSymbol
+
+                        base.setSymbol(sym: coinSymbol)
                         if let c = realm.object(ofType: Coin.self, forPrimaryKey: coinSymbol) {
 //                            print(c.name)
                             
                             
                             base = c
                             
-                            print(base.nameAndSymbol)
+//                            print(base.nameAndSymbol)
                         } else {
                             realm.add(base, update: true)
                             
@@ -155,49 +190,48 @@ class MarketWorker
                             
                             var quoteCoin: Coin = Coin()
 //                            quoteCoin = Coin()
-                            quoteCoin.symbol = quoteKey
-                            if quoteCoin.symbol == "btc" && quoteCoin.name == "" {
-                                
-                                print("what")
-                                
-                            }
+
+                            quoteCoin.setSymbol(sym: quoteKey)
+                            
                             if let c = realm.object(ofType: Coin.self, forPrimaryKey: quoteKey) {
                                 quoteCoin = c
+                            } else {
+                                realm.add(quoteCoin, update: true)
                             }
+                            var pair: Pair = StorageManager.addPair(realm: realm, base: base, quote: quoteCoin, exchange: exchange)
                             
-                            
-                            var pair: Pair = Pair()
-                            pair.setAll(base: base, quote: quoteCoin, exc: exchange)
-                            if let c = realm.object(ofType: Pair.self, forPrimaryKey: pair.compoundKeyValue()) {
-                                pair = c
-                            } 
-                            
-                            
-                            base.pairs.append(pair)
-                            quoteCoin.quotes.append(pair)
-                            exchange.pairs.append(pair)
-                            
-//                            print("\(pair.baseSymbol) ??? \(pair.quoteSymbol)")
-                            realm.add(quoteCoin, update: true)
-//                            print("quote")
-//                            print(quoteCoin.nameAndSymbol)
-                            if quoteCoin.symbol == "btc" && quoteCoin.name == "" {
-                                print("what")
-                            }
-                            realm.add(pair, update: true)
+//                            var pair: Pair = Pair()
+//                            pair.setAll(base: base, quote: quoteCoin, exc: exchange)
+//                            if let c = realm.object(ofType: Pair.self, forPrimaryKey: pair.compoundKeyValue()) {
+//                                pair = c
+//                            }
+//
+//
+//                            base.pairs.append(pair)
+//                            quoteCoin.quotes.append(pair)
+//                            exchange.pairs.append(pair)
+//
+////                            print("\(pair.baseSymbol) ??? \(pair.quoteSymbol)")
+//
+////                            print("quote")
+//
+//                            if quoteCoin.symbol == "btc" && quoteCoin.name == "" {
+//                                print(quoteCoin.nameAndSymbol)
+//                                print("what")
+//                            }
+//                            realm.add(pair, update: true)
                         }
                         
-                        print(base.nameAndSymbol)
-                        print("-----------------------")
+                        
                         
                     }
-                    realm.add(exchange, update: true)
+                    
                     
                     
                 }
             }
             if let c = completion {
-                c()
+//                c()
 //                print(realm.objects(Pair.self))
             }
             
@@ -424,10 +458,19 @@ class MarketWorker
         
         
         
+        
 //        self.retrieveCoins(completion: { (d) in })
         
 //        _ = Timer.scheduledTimer(timeInterval: self.refreshRate, target: self, selector: #selector(self.updateCoin), userInfo: nil, repeats: true)
         
+    }
+    func setup() {
+        realm = try! Realm()
+        self.topCoins = realm.objects(Coin.self).filter("ANY pairs.exchangeName = %@", "CoinMarketCap")
+//        realm.objects(Coin.self).filter { (coin) -> Bool in
+//            //            return coin.defaultPair != nil
+//            coin.defaultPair == nil
+//            }
     }
 //    func saveCoins() throws {
 //        let coins = Array(MarketWorker.sharedInstance.coinCollection.values)
@@ -452,23 +495,29 @@ class MarketWorker
 //    }
     
     var coinCollection: [String: Coin] = [:]
-    var topCoins: Results<Coin> {
-        get {
-            let realm = try! Realm()
-            let c = realm.objects(Coin.self)
-//            print(c.map({ $0.name }))
-            return c
-        }
-    }
+    var realm: Realm!
     
+    var topCoins: Results<Coin>?
+
+//        get {
+//            let realm = try! Realm()
+//            let c = realm.objects(Coin.self).filter { (coin) -> Bool in
+//                return coin.defaultPair != nil
+//            }
+////            print(c.map({ $0.name }))
+//            return c
+//        }
+//    }
+
     
     var exchanges: [String: Exchange] = [:]
     var pairs: [String: [String: Pair]] = [:]
     
     let coinMapper: [String: String] = [
-        "iot": "miota",
+        "miota": "iot",
 //        "XBT": "BTC",
     ]
+    
     
 //    static let exchanges
 }

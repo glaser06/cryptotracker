@@ -9,9 +9,11 @@
 import Foundation
 
 import UIKit
+import Charts
 
 extension UIView
 {
+    static let allColors: [NSUIColor] = ChartColorTemplates.joyful() + ChartColorTemplates.liberty() + ChartColorTemplates.pastel() + ChartColorTemplates.vordiplom() + ChartColorTemplates.material() + ChartColorTemplates.colorful()
     
     static var theBlue: UIColor {
         return UIColor(red: 0.0, green: 122.0/255.0, blue: 1.0, alpha: 1.0)

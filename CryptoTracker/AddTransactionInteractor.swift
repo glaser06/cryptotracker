@@ -29,7 +29,7 @@ protocol AddTransactionDataStore
     
     var transactionType: Transaction.OrderType { get set }
     
-    var exchange: Exchange? { get set }
+//    var exchange: Exchange? { get set }
 }
 
 class AddTransactionInteractor: AddTransactionBusinessLogic, AddTransactionDataStore
@@ -56,6 +56,106 @@ class AddTransactionInteractor: AddTransactionBusinessLogic, AddTransactionDataS
         presenter?.presentCompletedTransaction(response: AddTransaction.SaveTransaction.Response())
     }
     func loadTransaction(request: AddTransaction.LoadTransaction.Request) {
+//        let pair = self.pair!
+        let coin = self.coin!
+        let buy = self.transactionType == .Buy
+        var exchange: Exchange
+        
+        
+        
+        let allQuotes = Array(Set(coin.pairs.map { (p) -> String in
+            p.quoteSymbol.uppercased()
+        }))
+        let allExchanges = Array(Set(coin.pairs.map { (p) -> String in
+            p.exchangeName
+        }))
+        
+        
+        
+        var pair: Pair
+        if request.quoteName != nil && request.exchangeName != nil {
+            let quotesInExchange = coin.pairs.filter("exchangeName = %@", request.exchangeName!).map({ (p) -> String in
+                p.quoteSymbol.uppercased()
+            })
+            let exchangesHasQuote = coin.pairs.filter("quoteSymbol = %@", request.quoteName!.lowercased())
+            let exchangeNames = Array(exchangesHasQuote.map({ (p) -> String in
+                p.exchangeName
+            }))
+            if let p = exchangesHasQuote.filter("exchangeName = %@", request.exchangeName!).first {
+                pair = p
+            } else {
+                pair = exchangesHasQuote.first!
+            }
+            
+            
+            
+            
+            
+        } else {
+            pair = coin.pairs.filter("quoteSymbol = %@ AND exchangeName = %@", "usd", "CoinMarketCap").first!
+            
+        }
+        
+        
+//        if request.exchangeName == nil && request.quoteName == nil {
+//            pair = self.pair!
+//            exchange = pair.exchange!
+//
+//
+//
+//        } else {
+//            var reqExchange = ""
+//            var reqQuote = ""
+//            if request.exchangeName == nil {
+//                reqExchange = self.pair!.exchangeName
+//            } else {
+//                reqExchange = request.exchangeName!
+//            }
+//            if request.quoteName == nil {
+//                reqQuote = self.pair!.quoteSymbol
+//            } else {
+//                reqQuote = request.quoteName!
+//            }
+////            let key = Pair.keyFrom(base: self.coin!.symbol, quote: request.quoteName!, exchange: request.exchangeName!)
+//            if let p = coin.pairs.filter("quoteSymbol = %@ AND exchangeName = %@", reqQuote, reqExchange).first {
+//                pair = p
+//
+//            } else {
+//                pair = coin.pairs.filter("quoteSymbol = %@", reqQuote).first!
+//
+//            }
+//            exchange = pair.exchange!
+//
+//
+//
+//
+//
+//
+//        }
+        self.pair = pair
+        self.exchange = pair.exchange!
+        
+        let excName = self.exchange!.name
+        let quoteName = pair.quote!.symbol
+        
+        var price: Double = 0.0
+//        coinWorker.fetchMultiple(bases: <#T##[String]#>, quotes: <#T##[String]#>, exchange: <#T##Exchange#>, completion: <#T##() -> Void#>)
+        coinWorker.fetchMultiple(bases: [coin.symbol], quotes: [quoteName, "btc", "usd"], exchange: self.exchange!, completion: { () in
+            
+            price = pair.price.value!
+            
+            
+            let resp = AddTransaction.LoadTransaction.Response(pair: pair, exchange: self.exchange!, isBuy: buy, currentPrice: price, coin: coin, exchangeName: excName, quoteName: quoteName)
+            self.presenter?.presentTransaction(response: resp)
+        })
+//        if let p = pair.price.value {
+//            price = p
+//        } else {
+//
+//        }
+//        let price = pair.price.value ?? 0.0
+        
+        
 //        let buy: Bool = self.transactionType == .Buy
 //        
 //        var exchangeIndex = 0

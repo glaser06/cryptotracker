@@ -15,10 +15,12 @@ import UIKit
 protocol ShowCoinPresentationLogic
 {
     func presentCoin(response: ShowCoin.ShowCoin.Response)
-    func presentExchangesAndPair(response: ShowCoin.FetchExchangesAndPair.Response)
+//    func presentExchangesAndPair(response: ShowCoin.FetchExchangesAndPair.Response)
     func presentHoldings(response: ShowCoin.FetchHoldings.Response)
     
     func presentCharts(response: ShowCoin.FetchChart.Response)
+    func finishAddToWatchlist()
+    func finishRemoveFromWatchlist()
 }
 
 class ShowCoinPresenter: ShowCoinPresentationLogic
@@ -27,13 +29,20 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
     
     // MARK: Do something
     
+    func finishAddToWatchlist() {
+        viewController?.displayAddToWatchlist()
+    }
+    func finishRemoveFromWatchlist() {
+        viewController?.displayRemoveFromWatchlist()
+    }
+    
     func presentCoin(response: ShowCoin.ShowCoin.Response) {
         
-        var cap = String(describing: Int(response.volume!))
+        var cap = String(describing: Int(response.volume ?? 0.0))
         
         let length = cap.characters.count
         if length <= 3 {
-            cap = "\(String(format: "%.2f",response.volume!))"
+            cap = "\(String(format: "%.2f",response.volume ?? 0.0))"
         
         } else {
             var index = cap.index(cap.startIndex, offsetBy: 3)
@@ -66,9 +75,13 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
                 cap = "\(String(format: "%.2f",response.volume!))"
             }
         }
-        
-        
-        let changeValue = response.price! - response.price!/(1+response.percent!/100)
+        var changeValue: Double
+        if let c = response.valueChanged {
+            changeValue = c
+        } else {
+            changeValue = response.price! * (response.percent!/100)
+        }
+//        let changeValue = response.valueChanged!
         let formattedChange = String(format: "%.2f", changeValue)
         let formattedPercent = String(format: "%.2f", response.percent!)
         let didIncrease = (response.percent! >= 0)
@@ -82,7 +95,7 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
         let highFormatted = String(format: "%.2f", response.high24 ?? 0.0)
         let lowFormatted = String(format: "%.2f", response.low24 ?? 0.0)
         
-        let open: Double = response.price! - response.price! * response.percent!/100.0
+        let open: Double = response.price! - changeValue
         let openFormatted = String(format: "%.2f", open)
         
         let data = ShowCoin.ShowCoin.ViewModel.Data(open: open, high: response.high24 ?? 0.0, low: response.low24 ?? 0.0, close: response.price!)
@@ -96,13 +109,13 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
         self.viewController?.displayCharts(viewModel: vm)
     }
     
-    func presentExchangesAndPair(response: ShowCoin.FetchExchangesAndPair.Response) {
-        let vm = ShowCoin.FetchExchangesAndPair.ViewModel(exchangeName: response.exchangeName.capitalized, quote: response.quote.uppercased(), quotes: response.quotes)
-        viewController?.displayExchanges(viewModel: vm)
-    }
+//    func presentExchangesAndPair(response: ShowCoin.FetchExchangesAndPair.Response) {
+//        let vm = ShowCoin.FetchExchangesAndPair.ViewModel(exchangeName: response.exchangeName.capitalized, quote: response.quote.uppercased(), quotes: response.quotes)
+//        viewController?.displayExchanges(viewModel: vm)
+//    }
     func presentHoldings(response: ShowCoin.FetchHoldings.Response) {
         if !response.exists {
-            let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: "", initialValue: "", amount: "", totalGain: "", exists: false)
+            let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: "", initialValue: "", amount: "", totalGain: "", exists: false, watchlist: response.watchlist)
             self.viewController?.displayHoldings(viewModel: vm)
             return
         }
@@ -111,7 +124,7 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
         let amount = "\(response.amount)"
         let gain = String(format: "$%.2f", response.totalGain)
         let percentage = String(format: "%.2f", response.totalGain/response.initialValue) + "%"
-        let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: marketValue, initialValue: initValue, amount: amount, totalGain: "\(gain) (\(percentage))", exists: true)
+        let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: marketValue, initialValue: initValue, amount: amount, totalGain: "\(gain) (\(percentage))", exists: true, watchlist: response.watchlist)
         self.viewController?.displayHoldings(viewModel: vm)
     }
 }

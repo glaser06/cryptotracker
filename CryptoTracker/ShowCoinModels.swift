@@ -36,6 +36,8 @@ enum ShowCoin
             
             var percent: Double?
             
+            var valueChanged: Double?
+            
             var volume: Double?
             
             var high24: Double?
@@ -159,6 +161,7 @@ enum ShowCoin
             var totalGain: Double
             
             var exists: Bool
+            var watchlist: Bool
             
         }
         struct ViewModel {
@@ -169,6 +172,20 @@ enum ShowCoin
             var totalGain: String
             
             var exists: Bool
+            
+            var watchlist: Bool
+        }
+    }
+    
+    enum AddToWatchlist {
+        struct Request {
+            
+        }
+        struct Response {
+            
+        }
+        struct ViewModel {
+            
         }
     }
 

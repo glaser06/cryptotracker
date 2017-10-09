@@ -26,10 +26,10 @@ class AddTransactionPresenter: AddTransactionPresentationLogic
     // MARK: Do something
     
     func presentTransaction(response: AddTransaction.LoadTransaction.Response) {
-//        let vm = AddTransaction.LoadTransaction.ViewModel(isBuy: response.isBuy, currentPrice: "\(response.currentPrice)", coinName: response.coin.symbol, exchangeNames: response.coin.exchangeNames(), quoteNames: response.exchange.quoteNames(base: response.coin.symbol), exchangeName: response.exchangeName, quoteName: response.quoteName)
+        let vm = AddTransaction.LoadTransaction.ViewModel(isBuy: response.isBuy, currentPrice: "\(response.currentPrice)", coinName: response.coin.symbol, exchangeNames: response.coin.exchangeNames(for: response.quoteName), quoteNames: response.coin.quoteSymbols, exchangeName: response.exchangeName, quoteName: response.quoteName)
 
-//
-//        viewController?.displayTransaction(viewModel: vm)
+
+        viewController?.displayTransaction(viewModel: vm)
     }
     func presentCompletedTransaction(response: AddTransaction.SaveTransaction.Response) {
         viewController?.dismissCompletedTransaction(viewModel: AddTransaction.SaveTransaction.ViewModel())
