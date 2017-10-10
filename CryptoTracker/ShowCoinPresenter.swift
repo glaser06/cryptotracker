@@ -79,12 +79,12 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
         if let c = response.valueChanged {
             changeValue = c
         } else {
-            changeValue = response.price! * (response.percent!/100)
+            changeValue = response.price! * ((response.percent ?? 0.0)/100)
         }
 //        let changeValue = response.valueChanged!
         let formattedChange = String(format: "%.2f", changeValue)
-        let formattedPercent = String(format: "%.2f", response.percent!)
-        let didIncrease = (response.percent! >= 0)
+        let formattedPercent = String(format: "%.2f", response.percent ?? 0.0)
+        let didIncrease = (response.percent ?? 0.0 >= 0)
         let formattedPrice: String
         if response.quote == "usd" {
             formattedPrice = "\(response.price!)"

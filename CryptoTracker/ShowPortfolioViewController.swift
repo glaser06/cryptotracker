@@ -73,6 +73,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     var assetsOnDisplay: [ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
 //    var allColors: [NSUIColor] = ChartColorTemplates.joyful() + ChartColorTemplates.liberty() + ChartColorTemplates.pastel() + ChartColorTemplates.vordiplom() + ChartColorTemplates.material() + ChartColorTemplates.colorful()
     var colorsForAssets: [NSUIColor] = []
+    var anglesForAssets: [String: CGFloat] = [:]
     
     // MARK: View lifecycle
     
@@ -147,7 +148,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     func getAllCoins() {
         interactor?.fetchAllCoins {
             let p = PortfolioWorker.sharedInstance.portfolio
-            print(p)
+//            print(p)
             self.reload()
 //            self.fetchCharts()
         }
@@ -305,6 +306,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
             let entry = PieChartDataEntry(value: asset.total)
             entries.append(entry)
             self.colorsForAssets.append(allColors[index])
+            
         }
         
 //        let entry1 = PieChartDataEntry(value: 20, label: nil)
@@ -324,7 +326,14 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         dataSet.colors = allColors
         dataSet.valueColors = [UIColor.black]
         pieChartView.data = data
+        
         //All other additions to this function will go here
+        var angle: CGFloat = 0.0
+        for (index, ang) in pieChartView.drawAngles.enumerated() {
+            self.anglesForAssets[self.assets[index].symbol.lowercased()] = angle
+            angle += ang
+        }
+        
         pieChartView.backgroundColor = UIColor.clear
         pieChartView.holeColor = UIColor.clear
         pieChartView.entryLabelColor = UIColor.clear
@@ -531,7 +540,11 @@ extension ShowPortfolioViewController: UITableViewDataSource {
                     let color = self.colorsForAssets[index]
                     if !each.fiat {
                         let c = tableView.dequeueReusableCell(withIdentifier: "AssetCell") as! AssetTableViewCell
-                        c.setCell(asset: self.assetsOnDisplay[indexPath.row],  color: color, data: self.chartData[asset.symbol] ?? [])
+                        var rotation: CGFloat = self.anglesForAssets[asset.symbol]! - 90
+                        
+                        
+                        
+                        c.setCell(asset: self.assetsOnDisplay[indexPath.row],  color: color, rotation: rotation, data: self.chartData[asset.symbol] ?? [])
                         cell = c
                     } else {
                         

@@ -231,7 +231,7 @@ class MarketWorker
                 }
             }
             if let c = completion {
-//                c()
+                c()
 //                print(realm.objects(Pair.self))
             }
             

@@ -67,7 +67,7 @@ class Coin: Object {
 //        let realm = try! Realm()
 //        if self.pairs.fil
 //        realm.objects(Coin.self).filter("ANY pairs.exchangeName = %@", "CoinMarketCap")
-        let a = self.pairs.filter("exchangeName = %@", self.defaultSource)
+        let a = self.pairs.filter("exchangeName = %@", "CoinMarketCap")
         if a.count > 0 {
             return a.first!
         } else {

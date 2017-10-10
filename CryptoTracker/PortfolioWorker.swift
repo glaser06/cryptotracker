@@ -92,6 +92,8 @@ class PortfolioWorker
         
         var flag = false
         try! realm.write {
+            realm.add(transaction)
+            transaction.pair = pair
             var baseAsset: Asset
             var quoteAsset: Asset
             if let q = self.portfolio.assets.filter("coin.symbol = %@", pair.quoteSymbol).first {
@@ -114,7 +116,7 @@ class PortfolioWorker
                 portfolio.assets.append(baseAsset)
                 
             }
-            print(baseAsset.coin!.name)
+//            print(baseAsset.coin!.name)
             let tempTransac = Transaction()
             switch type {
             case .Buy:
@@ -159,7 +161,7 @@ class PortfolioWorker
             
             
             
-            realm.add(transaction)
+            
             
             
             
@@ -171,12 +173,14 @@ class PortfolioWorker
                 baseAsset.sells.append(transaction)
                 quoteAsset.buys.append(transaction)
             }
+            
             baseAsset.updateAmount()
             quoteAsset.updateAmount()
             
         }
         
-        let exchange = realm.object(ofType: Exchange.self, forPrimaryKey: exchange)!
+        
+//        let exchange = realm.object(ofType: Exchange.self, forPrimaryKey: exchange)!
         
         
         

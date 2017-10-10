@@ -58,7 +58,7 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
             
         }
         let gainsValue = response.value - response.initialValue
-        var gainsPercent = gainsValue/response.initialValue
+        var gainsPercent = response.value/response.initialValue * 100
         if response.initialValue == 0.0 {
             gainsPercent = 0.0
         }

@@ -53,8 +53,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let realm = try! Realm()
         MarketWorker.sharedInstance.setup()
         if realm.objects(Pair.self).count < 1000 {
+            let start = Date()
             MarketWorker.sharedInstance.retrieveCoins(completion: {
-                MarketWorker.sharedInstance.fetchAllExchangesAndPairs(completion: nil)
+                DispatchQueue.global(qos: .background).async {
+                    MarketWorker.sharedInstance.fetchAllExchangesAndPairs(completion: {
+                        
+                        let end = Date()
+                        let interval = end.timeIntervalSince(start)
+                        print("finished setup, took \(interval) seconds")
+                    })
+                }
+                
             })
         } else {
             MarketWorker.sharedInstance.retrieveCoins(completion: nil)

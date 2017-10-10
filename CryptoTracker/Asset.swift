@@ -47,7 +47,7 @@ class Asset: Object {
             
         }
         for transaction in self.sells {
-            amount -= transaction.amount
+            amount -= transaction.amount * transaction.price
         }
         var levels = 0.0
         var prevAmount = 0.0
@@ -71,17 +71,22 @@ class Asset: Object {
     func updateAmount() {
         var total: Double = 0.0
         for transaction in self.buys {
-            
-            if transaction.base!.coin!.symbol == self.coin!.symbol {
+            if transaction.orderType == Transaction.OrderType.Buy.rawValue {
                 total += transaction.amount
             } else {
                 total += transaction.amount * transaction.price
             }
             
+//            if transaction.pair!.baseSymbol == self.coin!.symbol {
+//
+//            } else {
+//
+//            }
+            
         }
         for transaction in self.sells {
             
-            if transaction.base!.coin!.symbol == self.coin!.symbol {
+            if transaction.orderType == Transaction.OrderType.Sell.rawValue  {
                 total -= transaction.amount
             } else {
                 total -= transaction.amount * transaction.price

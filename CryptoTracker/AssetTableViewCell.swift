@@ -40,7 +40,7 @@ class AssetTableViewCell: UITableViewCell {
     @IBOutlet weak var pieChart: PieChartView!
     
     
-    func setCell(asset: ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset,  color: UIColor, data: [(Int, Double, Double, Double, Double, Double)]) {
+    func setCell(asset: ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset,  color: UIColor, rotation: CGFloat, data: [(Int, Double, Double, Double, Double, Double)]) {
         
         self.totalValueLabel.text = asset.totalValue
 //        self.amountLabel.text = asset.amount
@@ -61,13 +61,13 @@ class AssetTableViewCell: UITableViewCell {
             self.valueColorView.backgroundColor = UIView.theRed
         }
         updateGraph(data: data)
-        updatePieChart(assetValue: asset.total, portfolioValue: asset.portfolioValue, color: color)
+        updatePieChart(assetValue: asset.total, portfolioValue: asset.portfolioValue, color: color, rotation: rotation)
         
     }
-    func updatePieChart(assetValue: Double, portfolioValue: Double, color: UIColor) {
+    func updatePieChart(assetValue: Double, portfolioValue: Double, color: UIColor, rotation: CGFloat) {
 //        let allColors = [color]
         let entry1 = PieChartDataEntry(value: assetValue)
-        let entry2 = PieChartDataEntry(value: portfolioValue)
+        let entry2 = PieChartDataEntry(value: portfolioValue - assetValue)
         var entries: [PieChartDataEntry] = [entry1, entry2]
         
         let dataSet = PieChartDataSet(values: entries, label: nil)
@@ -84,13 +84,14 @@ class AssetTableViewCell: UITableViewCell {
         pieChart.entryLabelColor = UIColor.clear
         //        pieChartView.centerText = "$76721"
         pieChart.holeRadiusPercent = 0.9
-        dataSet.selectionShift = 5.0
+        dataSet.selectionShift = 3.0
         pieChart.highlightValue(Highlight(x: 0, dataSetIndex: 0, stackIndex: 0))
         dataSet.sliceSpace = 2.5
         
         pieChart.chartDescription = nil
         pieChart.legend.enabled = false
         pieChart.rotationEnabled = false
+        pieChart.rotationAngle = rotation
         //        pieChartView.isRotationEnabled = false
         
         //        pieChartView.drawSliceTextEnabled = false

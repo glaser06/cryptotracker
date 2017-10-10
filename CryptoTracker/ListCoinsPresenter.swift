@@ -55,26 +55,31 @@ class ListCoinsPresenter: ListCoinsPresentationLogic
         var displayables: [ListCoins.DisplayableCoin] = []
         for coin in response.coins {
             var cap = coin.cap
-            let length = cap.characters.count
-            var index = cap.index(cap.startIndex, offsetBy: 3)
-            cap = cap.substring(to: index)
-            if length > 9 {
-                let decimalPlace = length - 9
-                if decimalPlace < 3 {
-                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
-                    cap.insert(".", at: index)
-                }
-                
-                cap = "$\(cap)B"
-            } else if length > 6 {
-                let decimalPlace = length - 6
-                if decimalPlace < 3 {
-                    index = cap.index(cap.startIndex, offsetBy: decimalPlace)
-                    cap.insert(".", at: index)
-                }
-                
-                cap = "$\(cap)M"
-            }
+//            let length = cap.characters.count
+//            if length < 3 {
+//                
+//            } else {
+//                var index = cap.index(cap.startIndex, offsetBy: 3)
+//                cap = cap.substring(to: index)
+//                if length > 9 {
+//                    let decimalPlace = length - 9
+//                    if decimalPlace < 3 {
+//                        index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+//                        cap.insert(".", at: index)
+//                    }
+//                    
+//                    cap = "$\(cap)B"
+//                } else if length > 6 {
+//                    let decimalPlace = length - 6
+//                    if decimalPlace < 3 {
+//                        index = cap.index(cap.startIndex, offsetBy: decimalPlace)
+//                        cap.insert(".", at: index)
+//                    }
+//                    
+//                    cap = "$\(cap)M"
+//                }
+//            }
+            
             
             
             var price = String(coin.price)
@@ -82,10 +87,10 @@ class ListCoinsPresenter: ListCoinsPresentationLogic
             if price.characters.count < offset {
                 offset = price.characters.count
             }
-            index = price.index(price.startIndex, offsetBy: offset)
+            var index = price.index(price.startIndex, offsetBy: offset)
             price = price.substring(to: index)
 //            print(coin.percentage >= 0)
-            let displayable = ListCoins.DisplayableCoin(name: coin.name.capitalized, symbol: coin.symbol.uppercased(), cap: cap, percentage: "\(String(format: "%.2f", coin.percentage))%", price: "$\(price)", isGreen: coin.percentage >= 0)
+            let displayable = ListCoins.DisplayableCoin(name: coin.name.capitalized, symbol: coin.symbol.uppercased(), cap: "$\(cap)", percentage: "\(String(format: "%.2f", coin.percentage))%", price: "$\(price)", isGreen: coin.percentage >= 0)
             displayables.append(displayable)
         }
         viewController?.displayCoins(viewModel: ListCoins.FetchCoins.ViewModel(coins: displayables, gotoTransaction: response.gotoTransaction, doSwitch: response.doSwitch))

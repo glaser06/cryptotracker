@@ -71,13 +71,14 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
         //            completion(exchanges)
         self.coins = coins
         var responseCoins: [ListCoins.FetchCoins.Response.Coin] = []
-        print(coins.count)
+        
         let start = Date()
         responseCoins = coins.filter { (coin) -> Bool in
             return coin.defaultPair != nil
             }.map { (coin) -> ListCoins.FetchCoins.Response.Coin in
                 var statPair: Pair = coin.defaultPair!
-                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: String(describing: Int(statPair.marketCap.value!)), price: statPair.price.value!, percentage: statPair.percentChange.value!)
+                
+                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: statPair.marketCapString, price: statPair.price.value!, percentage: statPair.percentChange.value ?? 0.0)
                 return tempCoin
         }
         let end = Date()

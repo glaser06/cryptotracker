@@ -13,7 +13,7 @@ import Charts
 
 extension UIView
 {
-    static let allColors: [NSUIColor] = ChartColorTemplates.joyful() + ChartColorTemplates.liberty() + ChartColorTemplates.pastel() + ChartColorTemplates.vordiplom() + ChartColorTemplates.material() + ChartColorTemplates.colorful()
+    static let allColors: [NSUIColor] =  ChartColorTemplates.pastel() + ChartColorTemplates.vordiplom() + ChartColorTemplates.material() + ChartColorTemplates.colorful() + ChartColorTemplates.joyful() + ChartColorTemplates.liberty()
     
     static var theBlue: UIColor {
         return UIColor(red: 0.0, green: 122.0/255.0, blue: 1.0, alpha: 1.0)

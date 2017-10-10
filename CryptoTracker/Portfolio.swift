@@ -33,13 +33,13 @@ class Portfolio: Object {
 //            print(self.assets.count)
             for asset in self.assets {
                 if asset.coin!.coinType == Coin.CoinType.Crypto.rawValue {
-                    print(asset.amountHeld)
+//                    print(asset.amountHeld)
                     
                     val += asset.amountHeld * asset.coin!.defaultPair!.price.value!
                 }
                 
             }
-            print(val)
+//            print(val)
             return val
         }
     }
@@ -60,7 +60,7 @@ class Portfolio: Object {
 //
 //                        }
                         
-                        print(transaction.amount)
+//                        print(transaction.amount)
                         initTotal += transaction.amount*coinPrice
                     }
 

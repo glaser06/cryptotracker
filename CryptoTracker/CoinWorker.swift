@@ -92,22 +92,22 @@ class CoinWorker
     }
     
     func fetchMultiple(bases: [String], quotes: [String], exchange: Exchange, completion: @escaping () -> Void) {
-        print(bases)
+//        print(bases)
         var excName = exchange.name
         if exchange.name == "CoinMarketCap" {
             excName = "CCCAGG"
         }
         bigService.fetchPriceMulti(for: bases, and: quotes, in: excName) { (json) in
             let prices = json.dictionaryValue
-            print(prices)
+//            print(prices)
             let realm = try! Realm()
             try! realm.write {
                 for each in prices {
                     let base = each.key.lowercased()
                     for quote in each.value.dictionaryValue {
                         let quoteSymbol = quote.key.lowercased()
-                        let data = quote.value.dictionaryValue
-                        let pair = StorageManager.addPair(realm: realm, base: base, quote: quoteSymbol, exchange: exchange.name)
+//                        let data = quote.value.dictionaryValue
+                        let pair = StorageManager.addPair(realm: realm, base: base, quote: quoteSymbol, exchange: excName)
                         pair.price.value = quote.value.double
                         
                         if exchange.name == "CoinMarketCap" {
