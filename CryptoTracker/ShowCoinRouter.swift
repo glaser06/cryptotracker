@@ -30,7 +30,8 @@ class ShowCoinRouter: NSObject, ShowCoinRoutingLogic, ShowCoinDataPassing
     // MARK: Routing
     
     func routeToAddTransaction(segue: UIStoryboardSegue?) {
-        let destinationVC = (segue?.destination as! UINavigationController).viewControllers.first as! AddTransactionViewController
+//        let destinationVC = segue?.destination as! AddTransactionViewController
+        let destinationVC = (segue?.destination as! UINavigationController).viewControllers.first! as! AddTransactionViewController
         var destinationDS = destinationVC.router!.dataStore!
         passDataToAddTransaction(source: dataStore!, destination: &destinationDS)
     }
@@ -39,20 +40,12 @@ class ShowCoinRouter: NSObject, ShowCoinRoutingLogic, ShowCoinDataPassing
         destination.pair = source.pair
         destination.transactionType = viewController!.transactionType
         destination.coin = source.coin!
-//        if source.exchangeName == nil || source.quoteSymbol == nil {
+
         
-            
-//            destination.exchange = source.coin!.defaultExchange
-//            destination.pair = source.coin!.defaultPair
-//            destination.pair = source.coin?.exchanges.first?.value.pairs.first?.value.first?.value
-//        } else {
-        
-//            destination.exchange = source.exchange
-//            destination.pair = source.pair
-//        }
-//        destination.coin = source.coin
-//        destination.transactionType = viewController!.transactionType
-        
+    }
+    func routeToCoinWebsite(segue: UIStoryboardSegue) {
+        let destinationVC = segue.destination as! CoinWebsiteViewController
+        destinationVC.url = dataStore!.coin!.website
     }
     
     //func routeToSomewhere(segue: UIStoryboardSegue?)

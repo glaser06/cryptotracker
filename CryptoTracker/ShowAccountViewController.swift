@@ -12,77 +12,82 @@
 
 import UIKit
 import RealmSwift
-import YIInnerShadowView
+//import YIInnerShadowView
+import Hero
 
 protocol ShowAccountDisplayLogic: class
 {
-  func displaySomething(viewModel: ShowAccount.Something.ViewModel)
+    func displaySomething(viewModel: ShowAccount.Something.ViewModel)
 }
 
 class ShowAccountViewController: UIViewController, ShowAccountDisplayLogic
 {
-  var interactor: ShowAccountBusinessLogic?
-  var router: (NSObjectProtocol & ShowAccountRoutingLogic & ShowAccountDataPassing)?
-
-  // MARK: Object lifecycle
-  
-  override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?)
-  {
-    super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    setup()
-  }
-  
-  required init?(coder aDecoder: NSCoder)
-  {
-    super.init(coder: aDecoder)
-    setup()
-  }
-  
-  // MARK: Setup
-  
-  private func setup()
-  {
-    let viewController = self
-    let interactor = ShowAccountInteractor()
-    let presenter = ShowAccountPresenter()
-    let router = ShowAccountRouter()
-    viewController.interactor = interactor
-    viewController.router = router
-    interactor.presenter = presenter
-    presenter.viewController = viewController
-    router.viewController = viewController
-    router.dataStore = interactor
-  }
-  
-  // MARK: Routing
-  
-  override func prepare(for segue: UIStoryboardSegue, sender: Any?)
-  {
-    if let scene = segue.identifier {
-      let selector = NSSelectorFromString("routeTo\(scene)WithSegue:")
-      if let router = router, router.responds(to: selector) {
-        router.perform(selector, with: segue)
-      }
+    var interactor: ShowAccountBusinessLogic?
+    var router: (NSObjectProtocol & ShowAccountRoutingLogic & ShowAccountDataPassing)?
+    
+    // MARK: Object lifecycle
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?)
+    {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        setup()
     }
-  }
-  
-  // MARK: View lifecycle
-  
-  override func viewDidLoad()
-  {
-    super.viewDidLoad()
-    doSomething()
-//    self.view.bringSubview(toFront: self.menuView)
-    setupMenu()
-  }
-  
-  // MARK: Do something
-  
-//    @IBOutlet weak var menuView: UIView!
-//    @IBOutlet weak var menuBarButton: UIBarButtonItem!
+    
+    required init?(coder aDecoder: NSCoder)
+    {
+        super.init(coder: aDecoder)
+        setup()
+    }
+    
+    // MARK: Setup
+    
+    private func setup()
+    {
+        let viewController = self
+        let interactor = ShowAccountInteractor()
+        let presenter = ShowAccountPresenter()
+        let router = ShowAccountRouter()
+        viewController.interactor = interactor
+        viewController.router = router
+        interactor.presenter = presenter
+        presenter.viewController = viewController
+        router.viewController = viewController
+        router.dataStore = interactor
+    }
+    
+    // MARK: Routing
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
+        if let scene = segue.identifier {
+            let selector = NSSelectorFromString("routeTo\(scene)WithSegue:")
+            if let router = router, router.responds(to: selector) {
+                router.perform(selector, with: segue)
+            }
+        }
+    }
+    
+    // MARK: View lifecycle
+    
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        self.tabBarController?.heroTabBarAnimationType = .selectBy(presenting: .slide(direction: .right), dismissing: .slide(direction: .left))
+        panGR = UIPanGestureRecognizer(target: self, action: #selector(handlePan(gestureRecognizer:)))
+        view.addGestureRecognizer(panGR)
+        doSomething()
+        //    self.view.bringSubview(toFront: self.menuView)
+        setupMenu()
+    }
+    
+    // MARK: Do something
+    
+    //    @IBOutlet weak var menuView: UIView!
+    //    @IBOutlet weak var menuBarButton: UIBarButtonItem!
     @IBOutlet weak var topLeftButton: UIButton!
-  
+    
     @IBAction func back() {
+        self.tabBarController?.heroTabBarAnimationType = .slide(direction: .left)
         self.tabBarController?.selectedIndex = 0
     }
     @IBAction func clearPortfolio() {
@@ -97,20 +102,23 @@ class ShowAccountViewController: UIViewController, ShowAccountDisplayLogic
         //        self.menuView.isHidden = false
         //        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: self.menuView)
         //        self.navigationController?.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: self.menuView)
-//        var view = menuBarButton.customView!
-//        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44, height: 44)
-//        
-//        view.layer.cornerRadius = 22.0
-        self.topLeftButton.setImage(#imageLiteral(resourceName: "close-black"), for: .normal)
-        self.view.setNeedsLayout()
-        self.view.layoutIfNeeded()
+        //        var view = menuBarButton.customView!
+        //        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44, height: 44)
+        //
+        //        view.layer.cornerRadius = 22.0
+        //        self.topLeftButton.setImage(#imageLiteral(resourceName: "close-black"), for: .normal)
+        //        self.view.setNeedsLayout()
+        //        self.view.layoutIfNeeded()
         
     }
     var tapToCloseGesture: UITapGestureRecognizer?
     @IBAction func menu() {
-        self.dismiss(animated: true, completion: nil)
+        //        self.dismiss(animated: true, completion: nil)
+        self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+        self.tabBarController?.selectedIndex = 1
+        
         return
-        //        self.tabBarController?.selectedIndex = 1
+        
         if self.navigationController?.navigationBar.layer.zPosition == -1 {
             //            self.menuView.isHidden = true
             self.navigationController?.navigationBar.layer.zPosition = 0
@@ -132,44 +140,44 @@ class ShowAccountViewController: UIViewController, ShowAccountDisplayLogic
         
     }
     func expandMenu() {
-        var view = menuBarButton.customView!
-        
-        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
-        
-        view.backgroundColor = UIColor.groupTableViewBackground
-        
-        UIView.animate(withDuration: 19.0, animations: {
-            self.menuBarButton.customView!.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
-            //            self.menuBarButton.customView!.addInnerShadow(onSide: .all, shadowColor: .darkGray, shadowSize: 1.0, shadowOpacity: 0.5)
-            let innerShadow: YIInnerShadowView = YIInnerShadowView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
-            innerShadow.layer.cornerRadius = 22
-            innerShadow.cornerRadius = 22
-            innerShadow.shadowRadius = 2
-            innerShadow.shadowOpacity = 0.4
-            innerShadow.shadowColor = UIColor.lightGray
-            innerShadow.shadowMask = YIInnerShadowMaskAll
-            innerShadow.tag = 11
-            //            self.menuBarButton.customView!.addSubview(innerShadow)
-            self.menuBarButton.customView?.setNeedsLayout()
-            self.menuBarButton.customView?.layoutIfNeeded()
-            
-            self.view.setNeedsLayout()
-            self.view.layoutIfNeeded()
-        }, completion: { (f) in
-            
-        })
+        //        var view = menuBarButton.customView!
+        //
+        //        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
+        //
+        //        view.backgroundColor = UIColor.groupTableViewBackground
+        //
+        //        UIView.animate(withDuration: 19.0, animations: {
+        //            self.menuBarButton.customView!.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
+        //            //            self.menuBarButton.customView!.addInnerShadow(onSide: .all, shadowColor: .darkGray, shadowSize: 1.0, shadowOpacity: 0.5)
+        //            let innerShadow: YIInnerShadowView = YIInnerShadowView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
+        //            innerShadow.layer.cornerRadius = 22
+        //            innerShadow.cornerRadius = 22
+        //            innerShadow.shadowRadius = 2
+        //            innerShadow.shadowOpacity = 0.4
+        //            innerShadow.shadowColor = UIColor.lightGray
+        //            innerShadow.shadowMask = YIInnerShadowMaskAll
+        //            innerShadow.tag = 11
+        //            //            self.menuBarButton.customView!.addSubview(innerShadow)
+        //            self.menuBarButton.customView?.setNeedsLayout()
+        //            self.menuBarButton.customView?.layoutIfNeeded()
+        //
+        //            self.view.setNeedsLayout()
+        //            self.view.layoutIfNeeded()
+        //        }, completion: { (f) in
+        //
+        //        })
         
     }
     func collapseMenu() {
-        var view = menuBarButton.customView!
-        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44.0, height: 44.0)
-        view.backgroundColor = UIColor.white
-        view.viewWithTag(11)?.removeFromSuperview()
-        menuBarButton.customView = view
-        
-        
-        self.view.setNeedsLayout()
-        self.view.layoutIfNeeded()
+        //        var view = menuBarButton.customView!
+        //        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44.0, height: 44.0)
+        //        view.backgroundColor = UIColor.white
+        //        view.viewWithTag(11)?.removeFromSuperview()
+        //        menuBarButton.customView = view
+        //
+        //
+        //        self.view.setNeedsLayout()
+        //        self.view.layoutIfNeeded()
     }
     func closeMenu(_ sender: UITapGestureRecognizer) {
         self.view.removeGestureRecognizer(sender)
@@ -182,15 +190,67 @@ class ShowAccountViewController: UIViewController, ShowAccountDisplayLogic
         self.tabBarController?.selectedIndex = sender.tag - 1
         self.menu()
     }
+    var panGR: UIPanGestureRecognizer!
     
-  func doSomething()
-  {
-    let request = ShowAccount.Something.Request()
-    interactor?.doSomething(request: request)
-  }
-  
-  func displaySomething(viewModel: ShowAccount.Something.ViewModel)
-  {
-    //nameTextField.text = viewModel.name
-  }
+    func handlePan(gestureRecognizer:UIPanGestureRecognizer) {
+        let translation = panGR.translation(in: nil)
+        var progress = translation.x / 2 / view.bounds.width
+        
+        switch panGR.state {
+        case .began:
+            // begin the transition as normal
+            self.tabBarController?.heroTabBarAnimationType = .selectBy(presenting: .slide(direction: .right), dismissing: .slide(direction: .left))
+            self.tabBarController?.selectedIndex = 0
+            Hero.shared.update(progress * -1)
+            Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+            if progress <= 0 {
+                
+            } else {
+                //                self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+                //                self.tabBarController?.selectedIndex = 0
+            }
+        case .changed:
+            // calculate the progress based on how far the user moved
+            if progress < 0 {
+                progress *= -1
+            } else if progress > 0 {
+                progress = 0
+            }
+            //            let translation = panGR.translation(in: nil)
+            //            let progress = translation.x / 2 / view.bounds.width
+            
+            Hero.shared.update(progress)
+            Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+//            Hero.shared.apply(modifiers: [.position(translation)], to: self.view)
+        //            Hero.shared.update(Double(progress))
+        default:
+            
+            // end or cancel the transition based on the progress and user's touch velocity
+            if progress + self.panGR.velocity(in: nil).x / self.view.bounds.width > 0.4 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+                    Hero.shared.finish()
+                })
+                
+            } else if progress + self.panGR.velocity(in: nil).x / self.view.bounds.width < -0.4 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+                    Hero.shared.finish()
+                })
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+                    Hero.shared.cancel()
+                })
+            }
+        }
+    }
+    
+    func doSomething()
+    {
+        let request = ShowAccount.Something.Request()
+        interactor?.doSomething(request: request)
+    }
+    
+    func displaySomething(viewModel: ShowAccount.Something.ViewModel)
+    {
+        //nameTextField.text = viewModel.name
+    }
 }

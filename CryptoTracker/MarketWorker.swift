@@ -23,6 +23,32 @@ class MarketWorker
     
     let exchangeInfoGroup = DispatchGroup()
     
+    func fetchCoinIDs(completion: (() -> Void)?) {
+        let realm = try! Realm()
+        bigService.fetchCoinList { (json) in
+            let data = json.dictionaryValue["Data"]!.dictionaryValue
+            try! realm.write {
+                for each in data {
+//                    print(each.value)
+                    var coin = Coin()
+                    let coinData = each.value.dictionaryValue
+                    coin.setSymbol(sym: each.value.dictionaryValue["Symbol"]!.stringValue.lowercased())
+                    coin.name = coinData["CoinName"]!.stringValue.lowercased()
+                    if let u = realm.object(ofType: Coin.self, forPrimaryKey: coin.symbol) {
+                        coin = u
+                    }
+                    coin.id = Int(coinData["Id"]!.stringValue)!
+                    
+                    realm.add(coin, update: true)
+                    
+                }
+            }
+            
+            
+            
+            
+        }
+    }
     
     func retrieveCoins(completion: (() -> Void)?) {
         var realm = try! Realm()

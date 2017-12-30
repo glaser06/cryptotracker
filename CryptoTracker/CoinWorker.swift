@@ -101,20 +101,32 @@ class CoinWorker
             let prices = json.dictionaryValue
 //            print(prices)
             let realm = try! Realm()
+            if prices["RAW"] == nil {
+                completion()
+                return
+            }
             try! realm.write {
-                for each in prices {
+                for each in prices["RAW"]!.dictionaryValue {
                     let base = each.key.lowercased()
                     for quote in each.value.dictionaryValue {
                         let quoteSymbol = quote.key.lowercased()
 //                        let data = quote.value.dictionaryValue
                         let pair = StorageManager.addPair(realm: realm, base: base, quote: quoteSymbol, exchange: excName)
-                        pair.price.value = quote.value.double
+                        let data: [String: JSON] = quote.value.dictionaryValue
+                        pair.price.value = data["PRICE"]!.doubleValue
                         
-                        if exchange.name == "CoinMarketCap" {
-                            let coin = realm.object(ofType: Coin.self, forPrimaryKey: base)
-                            let pair = coin!.defaultPair!
-                            
-                        }
+                        pair.high.value = data["HIGH24HOUR"]!.doubleValue
+                        pair.volume.value = data["VOLUME24HOURTO"]!.doubleValue
+                        pair.valueChange.value = data["CHANGE24HOUR"]!.doubleValue
+                        pair.percentChange.value = data["CHANGEPCT24HOUR"]!.doubleValue
+                        pair.low.value = data["LOW24HOUR"]!.doubleValue
+                        pair.marketCap.value = data["MKTCAP"]!.doubleValue
+                        
+//                        if exchange.name == "CoinMarketCap" {
+//                            let coin = realm.object(ofType: Coin.self, forPrimaryKey: base)
+//                            let pair = coin!.defaultPair!
+//                            
+//                        }
                         
 
                         
@@ -138,6 +150,39 @@ class CoinWorker
 //
 //        })
     }
+    
+    func fetchCoinDetails(of coin: Coin, completion: @escaping () -> Void) {
+        let realm = try! Realm()
+        bigService.fetchCoinDetails(id: coin.id) { (json) in
+//            print(json)
+            let data = json["Data"]["General"]
+//            print(data)
+            let tech = data["Technology"].stringValue
+            let features = data["Features"].stringValue
+            let twitter = data["Twitter"].stringValue
+            let details = data["Description"].stringValue
+            let link = data["Website"].stringValue
+            
+            let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+            var matches = detector.matches(in: link, options: [], range: NSMakeRange(0, link.characters.count))
+            for match in matches {
+                var url: String = match.url!.absoluteString
+                url = String(url.split(separator: "'")[0])
+                print(url)
+                try! realm.write {
+                    coin.website = url
+                    coin.details = details
+                    coin.features = features
+                    coin.technologies = tech
+                    coin.twitterHandle = twitter
+                }
+            }
+            completion()
+            
+//            print(link)
+        }
+    }
+    
     func fetchPrice(of base: String, and quote: String, from exchange: String, completion: @escaping () -> Void, error: @escaping () -> Void) {
         let quote = quote.lowercased()
         let base = base.lowercased()
@@ -153,39 +198,48 @@ class CoinWorker
             }
             let data = json["RAW"][base.uppercased()][quote.uppercased()]
             try! realm.write {
-                var key: String = Pair.keyFrom(base: base, quote: quote, exchange: exchange)
+                var key: String = Pair.keyFrom(base: base, quote: quote, exchange: exchangeName)
                 let pair = realm.object(ofType: Pair.self, forPrimaryKey: key)!
                 
-                if exchange == "CoinMarketCap" {
-                    pair.low.value = data["LOW24HOUR"].doubleValue
-                    pair.high.value = data["HIGH24HOUR"].doubleValue
-                    
-                    key = Pair.keyFrom(base: base, quote: quote, exchange: "CCCAGG")
-                    if let ccPair = realm.object(ofType: Pair.self, forPrimaryKey: key) {
-                        ccPair.price.value = data["PRICE"].doubleValue
-                        
-                        ccPair.high.value = data["HIGH24HOUR"].doubleValue
-                        ccPair.volume.value = data["VOLUME24HOURTO"].doubleValue
-                        ccPair.valueChange.value = data["CHANGE24HOUR"].doubleValue
-                        ccPair.percentChange.value = data["CHANGEPCT24HOUR"].doubleValue
-                        ccPair.low.value = data["LOW24HOUR"].doubleValue
-                        ccPair.marketCap.value = data["MKTCAP"].doubleValue
-                    } else {
-                        
-                    }
-                    
-                    
-                    
-                } else {
-                    pair.price.value = data["PRICE"].doubleValue
-                    
-                    pair.high.value = data["HIGH24HOUR"].doubleValue
-                    pair.volume.value = data["VOLUME24HOURTO"].doubleValue
-                    pair.valueChange.value = data["CHANGE24HOUR"].doubleValue
-                    pair.percentChange.value = data["CHANGEPCT24HOUR"].doubleValue
-                    pair.low.value = data["LOW24HOUR"].doubleValue
-                    pair.marketCap.value = data["MKTCAP"].doubleValue
-                }
+                pair.price.value = data["PRICE"].doubleValue
+                
+                pair.high.value = data["HIGH24HOUR"].doubleValue
+                pair.volume.value = data["VOLUME24HOURTO"].doubleValue
+                pair.valueChange.value = data["CHANGE24HOUR"].doubleValue
+                pair.percentChange.value = data["CHANGEPCT24HOUR"].doubleValue
+                pair.low.value = data["LOW24HOUR"].doubleValue
+                pair.marketCap.value = data["MKTCAP"].doubleValue
+                
+//                if exchange == "CoinMarketCap" {
+//                    pair.low.value = data["LOW24HOUR"].doubleValue
+//                    pair.high.value = data["HIGH24HOUR"].doubleValue
+//                    
+//                    key = Pair.keyFrom(base: base, quote: quote, exchange: "CCCAGG")
+//                    if let ccPair = realm.object(ofType: Pair.self, forPrimaryKey: key) {
+//                        ccPair.price.value = data["PRICE"].doubleValue
+//                        
+//                        ccPair.high.value = data["HIGH24HOUR"].doubleValue
+//                        ccPair.volume.value = data["VOLUME24HOURTO"].doubleValue
+//                        ccPair.valueChange.value = data["CHANGE24HOUR"].doubleValue
+//                        ccPair.percentChange.value = data["CHANGEPCT24HOUR"].doubleValue
+//                        ccPair.low.value = data["LOW24HOUR"].doubleValue
+//                        ccPair.marketCap.value = data["MKTCAP"].doubleValue
+//                    } else {
+//                        
+//                    }
+//                    
+//                    
+//                    
+//                } else {
+//                    pair.price.value = data["PRICE"].doubleValue
+//                    
+//                    pair.high.value = data["HIGH24HOUR"].doubleValue
+//                    pair.volume.value = data["VOLUME24HOURTO"].doubleValue
+//                    pair.valueChange.value = data["CHANGE24HOUR"].doubleValue
+//                    pair.percentChange.value = data["CHANGEPCT24HOUR"].doubleValue
+//                    pair.low.value = data["LOW24HOUR"].doubleValue
+//                    pair.marketCap.value = data["MKTCAP"].doubleValue
+//                }
             }
             
             
@@ -211,12 +265,12 @@ class CoinWorker
 
         bigService.fetchCharts(of: pair.baseSymbol.uppercased(), and: pair.quoteSymbol.uppercased(), from: exchangeName, for: duration, { (json) in
             
-            //            print(json)
+//                        print(json)
             var data: [(Int, Double, Double, Double, Double, Double)] = []
             for period in json["Data"].arrayValue {
                 let time = period["time"].intValue
                 let close = period["close"].doubleValue
-                let volume =  period["volumefrom"].doubleValue //+ period["volumeto"].doubleValue
+                let volume =  period["volumefrom"].doubleValue + period["volumeto"].doubleValue
                 let open = period["open"].doubleValue
                 let high = period["high"].doubleValue
                 let low = period["low"].doubleValue

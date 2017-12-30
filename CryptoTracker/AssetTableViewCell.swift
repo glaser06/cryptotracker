@@ -34,7 +34,7 @@ class AssetTableViewCell: UITableViewCell {
     @IBOutlet weak var capLabel: UILabel!
     @IBOutlet weak var holdingPercentLabel: UILabel!
     
-    @IBOutlet weak var amountLabel: UILabel!
+    @IBOutlet weak var volumeLabel: UILabel!
     @IBOutlet weak var valueLabel: UILabel!
     @IBOutlet weak var lineChart: LineChartView!
     @IBOutlet weak var pieChart: PieChartView!
@@ -43,7 +43,7 @@ class AssetTableViewCell: UITableViewCell {
     func setCell(asset: ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset,  color: UIColor, rotation: CGFloat, data: [(Int, Double, Double, Double, Double, Double)]) {
         
         self.totalValueLabel.text = asset.totalValue
-//        self.amountLabel.text = asset.amount
+        self.volumeLabel.text = asset.volume
         self.percentLabel.text = asset.change
         self.priceLabel.text = asset.price
         self.symbolLabel.text = asset.symbol.uppercased()
@@ -84,14 +84,14 @@ class AssetTableViewCell: UITableViewCell {
         pieChart.entryLabelColor = UIColor.clear
         //        pieChartView.centerText = "$76721"
         pieChart.holeRadiusPercent = 0.9
-        dataSet.selectionShift = 3.0
+        dataSet.selectionShift = 1
         pieChart.highlightValue(Highlight(x: 0, dataSetIndex: 0, stackIndex: 0))
-        dataSet.sliceSpace = 2.5
+        dataSet.sliceSpace = 2.0
         
         pieChart.chartDescription = nil
         pieChart.legend.enabled = false
         pieChart.rotationEnabled = false
-        pieChart.rotationAngle = rotation
+        pieChart.rotationAngle = rotation - 90
         //        pieChartView.isRotationEnabled = false
         
         //        pieChartView.drawSliceTextEnabled = false

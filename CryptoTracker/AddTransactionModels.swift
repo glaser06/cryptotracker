@@ -32,6 +32,7 @@ enum AddTransaction
         struct Request {
             var exchangeName: String?
             var quoteName: String?
+            var initialLoad: Bool
         }
         struct Response {
             var pair: Pair
@@ -74,6 +75,7 @@ enum AddTransaction
             var isBuying: Bool
             var amount: Double
             var price: Double
+            var totalCost: Double
             var notes: String?
         }
         struct Response {

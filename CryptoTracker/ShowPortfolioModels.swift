@@ -24,16 +24,20 @@ enum ShowPortfolio
     }
     struct Response
     {
+        
+        var name: String
         var value: Double
         
-        
-        
         var assets: List<Asset>
-        var watchlist: List<Coin>
+        var watchlist: List<Pair>
         var initialValue: Double
+        var change24H: Double
     }
     struct ViewModel
     {
+        
+        var name: String
+        
         var totalString: String
         
         var overallGainValue: String
@@ -42,13 +46,17 @@ enum ShowPortfolio
         
         var initialCost: String
         
+        var change24H: String
+        
+        
+        
         struct DisplayableAsset {
             
             var coinName: String
             
             var symbol: String
             
-            var amount: String
+            var amountString: String
             
             var totalValue: String
             
@@ -64,7 +72,11 @@ enum ShowPortfolio
             
             var cap: String
             
+            var volume: String
+            
             var portfolioValue: Double
+            
+            var amount: Double
             
             
             
@@ -74,6 +86,8 @@ enum ShowPortfolio
         struct DisplayableCoin {
             var name: String
             var symbol: String
+            var quoteSymbol: String
+            var exchange: String
             var change: String
             var isUp: Bool
             var price: String
@@ -81,6 +95,7 @@ enum ShowPortfolio
             var high: String
             var open: String
             var low: String
+            var volume: String
             
             
         }
@@ -104,10 +119,12 @@ enum ShowPortfolio
             
         }
         struct Response {
-            var data: [String: [(Int, Double, Double, Double, Double, Double)]]
+            var data: [String: [String: [(Int, Double, Double, Double, Double, Double)]]]
+            
         }
         struct ViewModel {
-            var data: [String: [(Int, Double, Double, Double, Double, Double)]]
+            var data: [String: [String: [(Int, Double, Double, Double, Double, Double)]]]
+            
         }
     }
     enum FetchPortFolioChart{

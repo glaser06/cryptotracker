@@ -73,28 +73,33 @@ class AddTransactionInteractor: AddTransactionBusinessLogic, AddTransactionDataS
         
         
         var pair: Pair
-        if request.quoteName != nil && request.exchangeName != nil {
-            let quotesInExchange = coin.pairs.filter("exchangeName = %@", request.exchangeName!).map({ (p) -> String in
-                p.quoteSymbol.uppercased()
-            })
-            let exchangesHasQuote = coin.pairs.filter("quoteSymbol = %@", request.quoteName!.lowercased())
-            let exchangeNames = Array(exchangesHasQuote.map({ (p) -> String in
-                p.exchangeName
-            }))
-            if let p = exchangesHasQuote.filter("exchangeName = %@", request.exchangeName!).first {
-                pair = p
-            } else {
-                pair = exchangesHasQuote.first!
-            }
-            
-            
-            
-            
-            
+        if request.initialLoad {
+            pair = self.pair!
         } else {
-            pair = coin.pairs.filter("quoteSymbol = %@ AND exchangeName = %@", "usd", "CoinMarketCap").first!
-            
+            if request.quoteName != nil && request.exchangeName != nil {
+                let quotesInExchange = coin.pairs.filter("exchangeName = %@", request.exchangeName!).map({ (p) -> String in
+                    p.quoteSymbol.uppercased()
+                })
+                let exchangesHasQuote = coin.pairs.filter("quoteSymbol = %@", request.quoteName!.lowercased())
+                let exchangeNames = Array(exchangesHasQuote.map({ (p) -> String in
+                    p.exchangeName
+                }))
+                if let p = exchangesHasQuote.filter("exchangeName = %@", request.exchangeName!).first {
+                    pair = p
+                } else {
+                    pair = exchangesHasQuote.first!
+                }
+                
+                
+                
+                
+                
+            } else {
+                pair = coin.pairs.filter("quoteSymbol = %@ AND exchangeName = %@", "usd", "CoinMarketCap").first!
+                
+            }
         }
+        
         
         
 //        if request.exchangeName == nil && request.quoteName == nil {
@@ -140,75 +145,17 @@ class AddTransactionInteractor: AddTransactionBusinessLogic, AddTransactionDataS
         
         var price: Double = 0.0
 //        coinWorker.fetchMultiple(bases: <#T##[String]#>, quotes: <#T##[String]#>, exchange: <#T##Exchange#>, completion: <#T##() -> Void#>)
+        let resp = AddTransaction.LoadTransaction.Response(pair: pair, exchange: self.exchange!, isBuy: buy, currentPrice: price, coin: coin, exchangeName: excName, quoteName: quoteName)
+        self.presenter?.presentTransaction(response: resp)
         coinWorker.fetchMultiple(bases: [coin.symbol], quotes: [quoteName, "btc", "usd"], exchange: self.exchange!, completion: { () in
             
-            price = pair.price.value!
+            price = pair.price.value ?? 0.0
             
             
             let resp = AddTransaction.LoadTransaction.Response(pair: pair, exchange: self.exchange!, isBuy: buy, currentPrice: price, coin: coin, exchangeName: excName, quoteName: quoteName)
             self.presenter?.presentTransaction(response: resp)
         })
-//        if let p = pair.price.value {
-//            price = p
-//        } else {
-//
-//        }
-//        let price = pair.price.value ?? 0.0
-        
-        
-//        let buy: Bool = self.transactionType == .Buy
-//        
-//        var exchangeIndex = 0
-//        var quoteIndex = 0
-//        
-//        
-//        
-//        
-//        if self.pair == nil {
-//            self.exchange = self.coin!.exchanges.first!.value
-//            if self.coin!.exchanges.count > 1 {
-//                self.exchange = Array(self.coin!.exchanges.values)[1]
-////                exchangeIndex = 1
-//            }
-//            
-//            self.pair = self.exchange!.pairs[self.coin!.symbol]!.first?.value
-//        }
-//        if request.exchangeName != nil {
-//            self.exchange = self.coin!.exchanges[request.exchangeName!]!
-//            self.pair = self.exchange!.pairs[self.coin!.symbol]!.first?.value
-//        }
-//        if request.quoteName != nil {
-//            
-//            for pairs in self.exchange!.pairs[self.coin!.symbol]! {
-//                if pairs.key == request.quoteName! {
-//                    self.pair = pairs.value
-//                }
-//            }
-////            for pairs in self.exchange!.pairs {
-////                for pair in pairs {
-////                    
-////                }
-////                
-////            }
-//            //            self.pair = self.exchange?.pairs.find
-//        }
-//        
-//        if self.pair!.price == nil {
-//            coinWorker.fetchPair(pair: self.pair!, exchange: self.exchange!, completion: { (newPair) in
-//                self.pair = newPair
-//                
-////                let exchangeNames: [String] = self.coin!.exchangeNames()
-////                
-////                let quotenames: [String] = self.coin!.quoteNames()
-//                
-//                let response = AddTransaction.LoadTransaction.Response(pair: self.pair!, exchange: self.exchange!, isBuy: buy, currentPrice: (self.pair?.price!)!, coin: self.coin!, exchangeName: self.exchange!.name, quoteName: self.pair!.quote )
-//                self.presenter?.presentTransaction(response: response)
-//            })
-//        } else {
-//            
-//            let response = AddTransaction.LoadTransaction.Response(pair: self.pair!, exchange: self.exchange!, isBuy: buy, currentPrice: (self.pair?.price!)!, coin: self.coin!, exchangeName: self.exchange!.name, quoteName: self.pair!.quote)
-//            presenter?.presentTransaction(response: response)
-//        }
+
         
     }
 }

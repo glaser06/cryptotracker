@@ -18,6 +18,7 @@ class PortfolioWorker
     static let sharedInstance = PortfolioWorker()
     
     var portfolio: Portfolio!
+    var allPortfolios: Results<Portfolio>!
     
     
     
@@ -33,25 +34,58 @@ class PortfolioWorker
             }
             self.portfolio = p
         }
+        var portfolios = realm.objects(Portfolio.self)
+        self.allPortfolios = portfolios
+        self.fetchAllPrices {
+            
+        }
         
-        self.portfolio.cleanWatchlist()
+        
+//        self.portfolio.cleanWatchlist()
     }
     
-    func addToWatchlist(coin: Coin) {
+    func addToWatchlist(pair: Pair) {
         let realm = try! Realm()
-        if !portfolio.watchlist.contains(coin) {
+        if portfolio.watchlist.filter("id = %@", pair.id).first == nil{
             try! realm.write {
-                portfolio.watchlist.append(coin)
+                portfolio.watchlist.append(pair)
             }
         }
-        self.portfolio.cleanWatchlist()
+//        self.portfolio.cleanWatchlist()
     }
-    func removeFromWatchlist(coin: Coin) {
-        self.portfolio.removeFromWatchlist(coin: coin)
+    func removeFromWatchlist(pair: Pair) {
+        self.portfolio.removeFromWatchlist(pair: pair)
+    }
+    
+    var allPricesWaitGroup: DispatchGroup = DispatchGroup()
+    
+    func fetchAllPrices(completion: @escaping () -> Void) {
+        for p in self.allPortfolios {
+            
+            let quotes = ["usd", "btc"] + p.watchlist.map({ (c) -> String in
+                c.quoteSymbol
+            })
+            let bases: [String] = p.assets.filter("coin.coinType != 'fiat'").map { (a) -> String in
+                a.coin!.symbol
+                } + p.watchlist.map({ (c) -> String in
+                    c.baseSymbol
+                })
+            let exchange = Exchange()
+            exchange.name = "CCCAGG"
+            let coinWorker = CoinWorker()
+            allPricesWaitGroup.enter()
+            coinWorker.fetchMultiple(bases: bases, quotes: quotes, exchange: exchange, completion: {
+                
+                completion()
+                
+                self.allPricesWaitGroup.leave()
+            })
+        }
+        
     }
     
     func marketValue() -> Double {
-        return portfolio.value
+        return portfolio.marketValue
         let market = MarketWorker.sharedInstance
         var val = 0.0
         for asset in self.portfolio.assets {
@@ -85,7 +119,7 @@ class PortfolioWorker
         
         transaction.amount = amount
         transaction.orderType = type.rawValue
-        
+        transaction.date = Date()
         let total = price * amount
         
         let realm = try! Realm()
@@ -148,9 +182,9 @@ class PortfolioWorker
                         //                        tempTransac.btcPrice = pair.quote!.btcPair(on: "CoinMarketCap")!.price.value!
                     } else {
                         tempTransac.fiatPrice = pair.quote!.defaultPair!.price.value!
-                        tempTransac.btcPrice = pair.quote!.btcPair(on: "CoinMarketCap")!.price.value!
+                        tempTransac.btcPrice = pair.quote!.btcPair(on: "CCCAGG")!.price.value!
                     }
-                    tempTransac.btcPrice = pair.base!.btcPair(on: "CoinMarketCap")!.price.value!
+                    tempTransac.btcPrice = pair.base!.btcPair(on: "CCCAGG")!.price.value!
                     tempTransac.isInitialFunding = true
                     baseAsset.buys.append(tempTransac)
                     realm.add(tempTransac)
@@ -186,153 +220,84 @@ class PortfolioWorker
         
     }
     
-//    func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool, exchange: String) {
-//        var type: Transaction.OrderType = .Buy
-//        if !isBuy {
-//            type = .Sell
-//        }
-//        
-//        let transaction = Transaction(pair: pair, price: price, amount: amount, type: type, exchange: exchange)
-//        let sellTransaction = Transaction(pair: pair, price: price, amount: price*amount, type: isBuy ? .Sell : .Buy, exchange: exchange)
-//        let base = MarketWorker.sharedInstance.coinCollection[pair.base]!
-//        var found = false
-//        var quoteFound = false
-//        for each in self.portfolio.assets {
-//            if each.coin.symbol == base.symbol {
-////                let asset = each
-//                if transaction.orderType == .Sell {
-//                    if each.amountHeld - transaction.amount < 0 {
-//                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-transaction.amount) * -1, type: .Buy, exchange: exchange)
-////                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-transaction.amount) * -1
-//                        tempTrans.notes = "Capital Injection"
-//                        tempTrans.isInitialFunding = true
-//                        each.addTransaction(transaction: tempTrans)
-//                        
-//                    }
-//                }
-//                
-//                each.addTransaction(transaction: transaction)
-//                found = true
-//                break
-//            }
-//            
-//        }
-//        for each in self.portfolio.assets {
-//            if each.coin.symbol == pair.quote {
-////                let asset = each
-//                if sellTransaction.orderType == .Sell {
-//                    if each.amountHeld - sellTransaction.amount < 0 {
-//                        let tempTrans = Transaction(pair: pair, price: price, amount: (each.amountHeld-sellTransaction.amount) * -1, type: .Buy, exchange: exchange)
-//                        tempTrans.notes = "Capital Injection"
-//                        tempTrans.isInitialFunding = true
-////                        PortfolioWorker.sharedInstance.portfolio.initialValue += (each.amountHeld-sellTransaction.amount) * -1
-//                        each.addTransaction(transaction: tempTrans)
-//                    }
-//                }
-//                each.addTransaction(transaction: sellTransaction)
-//                quoteFound = true
-//                break
-//            }
-//        }
-//        if !found {
-//            let asset = Asset(coin: base, type: .Crypto)
-//            
-//            if transaction.orderType == .Sell {
-//                if asset.amountHeld - transaction.amount < 0 {
-//                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-transaction.amount) * -1, type: .Buy, exchange: exchange)
-////                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-transaction.amount) * -1
-//                    tempTrans.notes = "Capital Injection"
-//                    tempTrans.isInitialFunding = true
-//                    asset.addTransaction(transaction: tempTrans)
-//                }
-//            }
-//            
-//            asset.addTransaction(transaction: transaction)
-//            self.portfolio.assets.append(asset)
-//        }
-//        if !quoteFound {
-//            let asset: Asset
-//            if MarketWorker.sharedInstance.coinCollection[pair.quote] != nil {
-//                let coin = MarketWorker.sharedInstance.coinCollection[pair.quote]!
-//                asset = Asset(coin: coin, type: .Crypto)
-//                
-//            }
-//            else {
-//                let coin = Coin(name: pair.quote, symbol: pair.quote)
-//                var temp: [String: [String: Pair]] = [:]
-//                temp[pair.quote] = [:]
-//                var pair = Pair(base: coin.symbol, quote: pair.quote, pair: "\(pair.quote)\(pair.quote)")
-//                pair.price = 1.0
-//                pair.percentChange24 = 0.0
-//                temp[pair.quote]![pair.quote] = pair
-//                let exchange = Exchange(pairs: temp, name: "CoinMarketCap")
-//                coin.exchanges["CoinMarketCap"] = exchange
-//                asset = Asset(coin: coin, type: .Fiat)
-//                
-//            }
-//            if sellTransaction.orderType == .Sell {
-//                if asset.amountHeld - sellTransaction.amount < 0 {
-//                    let tempTrans = Transaction(pair: pair, price: price, amount: (asset.amountHeld-sellTransaction.amount) * -1, type: .Buy, exchange: exchange)
-//                    tempTrans.notes = "Capital Injection"
-//                    tempTrans.isInitialFunding = true
-////                    PortfolioWorker.sharedInstance.portfolio.initialValue += (asset.amountHeld-sellTransaction.amount) * -1
-//                    asset.addTransaction(transaction: tempTrans)
-//                }
-//            } else {
-//                
-//            }
-//            
-//            asset.addTransaction(transaction: sellTransaction)
-//            self.portfolio.assets.append(asset)
-//            
-//        }
-//        do {
-//            try savePortfolio()
-//        } catch {
-//            print("not save")
-//        }
-        
-        
-//    }
+
     var chartDataWaitGroup: DispatchGroup = DispatchGroup()
     
-    func fetchWatchlistCharts(force: Bool, completion: @escaping (String, [(Int,Double, Double, Double, Double, Double)]) -> Void) {
+    func fetchWatchlistCharts(force: Bool, completion: @escaping (String, String, [(Int,Double, Double, Double, Double, Double)]) -> Void) {
         let coinWorker = CoinWorker()
         
         for (index, coin) in self.portfolio.watchlist.enumerated() {
-            
-            coinWorker.fetchChart(of: coin.defaultPair!, from: coin.defaultPair!.exchange!, for: .Day, completion: { (data) in
+            PortfolioWorker.sharedInstance.chartDataWaitGroup.enter()
+            coinWorker.fetchChart(of: coin, from: coin.exchange!, for: .Day, completion: { (data) in
                 var newArr: [(Int,Double, Double, Double, Double, Double)] = data
                 
-                
+                PortfolioWorker.sharedInstance.chartDataWaitGroup.leave()
                 let p = Pair()
                 let newData = p.time(newArr, duration: .Day)
-                completion(coin.symbol, newData)
+                completion(coin.baseSymbol, coin.quoteSymbol, newData)
+                
+                
             })
             
         }
     }
     
-    func fetchAssetCharts(force: Bool, completion: @escaping (String, [(Int,Double, Double, Double, Double, Double)]) -> Void) {
+    func fetchAssetCharts(force: Bool, completion: @escaping (String, String, [(Int,Double, Double, Double, Double, Double)]) -> Void) {
         let coinWorker = CoinWorker()
-
-        for (index, asset) in self.portfolio.assets.enumerated() {
-            if asset.coin?.coinType != Coin.CoinType.Fiat.rawValue {
+        let assets = self.portfolio.assets.filter("coin.coinType != %@", Coin.CoinType.Fiat.rawValue)
+        for asset in assets {
+            PortfolioWorker.sharedInstance.chartDataWaitGroup.enter()
+            coinWorker.fetchChart(of: asset.coin!.defaultPair!, from: asset.coin!.defaultPair!.exchange!, for: .Day, completion: { (data) in
+                var newArr: [(Int,Double, Double, Double, Double, Double)] = data
                 
-                    coinWorker.fetchChart(of: asset.coin!.defaultPair!, from: asset.coin!.defaultPair!.exchange!, for: .Day, completion: { (data) in
-                        var newArr: [(Int,Double, Double, Double, Double, Double)] = data
-
-
-                        let p = Pair()
-                        let newData = p.time(newArr, duration: .Day)
-                        completion(asset.coin!.symbol, newData)
-                    })
+                PortfolioWorker.sharedInstance.chartDataWaitGroup.leave()
+                let p = Pair()
+                let newData = p.time(newArr, duration: .Day)
+                completion(asset.coin!.symbol, "usd", newData)
                 
-
-
-            }
-
+            })
         }
+//        let objects = self.portfolio.assets.filter("coin.coinType != %@", Coin.CoinType.Fiat.rawValue).map({ (asset) -> DispatchWorkItem in
+//            return DispatchWorkItem(block: {
+//                PortfolioWorker.sharedInstance.chartDataWaitGroup.enter()
+//                coinWorker.fetchChart(of: asset.coin!.defaultPair!, from: asset.coin!.defaultPair!.exchange!, for: .Day, completion: { (data) in
+//                    var newArr: [(Int,Double, Double, Double, Double, Double)] = data
+//
+//                    PortfolioWorker.sharedInstance.chartDataWaitGroup.leave()
+//                    let p = Pair()
+//                    let newData = p.time(newArr, duration: .Day)
+//                    completion(asset.coin!.symbol, "usd", newData)
+//
+//                })
+//            })
+//        })
+//        objects.map { (d) -> Void in
+//            d.perform()
+//        }
+        
+            
+            
+        
+            
+        
+//        for (index, asset) in self.portfolio.assets.enumerated() {
+//            if asset.coin?.coinType != Coin.CoinType.Fiat.rawValue {
+//                PortfolioWorker.sharedInstance.chartDataWaitGroup.enter()
+//                coinWorker.fetchChart(of: asset.coin!.defaultPair!, from: asset.coin!.defaultPair!.exchange!, for: .Day, completion: { (data) in
+//                    var newArr: [(Int,Double, Double, Double, Double, Double)] = data
+//
+//                    PortfolioWorker.sharedInstance.chartDataWaitGroup.leave()
+//                    let p = Pair()
+//                    let newData = p.time(newArr, duration: .Day)
+//                    completion(asset.coin!.symbol, "usd", newData)
+//
+//                })
+//
+//
+//
+//            }
+//
+//        }
 
 
 //
@@ -343,7 +308,8 @@ class PortfolioWorker
 //        if self.portfolio.assets.count == 0 {
 //            return []
 //        }
-//        var totalData: [(Int, Double, Double, Double, Double, Double)] = Array(repeating: (0,0,0,0,0,0), count: self.portfolio.assets[0].coin.defaultChartData.day!.count)
+//        var totalData: [(Int, Double, Double, Double, Double, Double)] = Array(repeating: (0,0,0,0,0,0), count: self.portfolio.assets[0].coin?.defaultPair.
+//            defaultChartData.day!.count)
 ////        for asset in self.portfolio.assets {
 ////
 ////        }
@@ -368,16 +334,14 @@ class PortfolioWorker
 //        })
 //        return data.1
         return []
-        
+////
+////    }
+        return []
     }
     
     
     
     
     
-    init() {
-        
-        
-    }
     
 }

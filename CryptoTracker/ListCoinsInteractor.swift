@@ -52,7 +52,8 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
 //        })
         
         let resp = ListCoins.SearchCoin.Response(coins: results!.map({
-            ListCoins.SearchCoin.Response.Coin(name: $0.name, symbol: $0.symbol.uppercased(), cap: $0.defaultPair!.marketCapString, price: $0.defaultPair!.price.value!, percentage: $0.defaultPair!.percentChange.value!)
+            let cmc = $0.pair(with: "usd", on: "CoinMarketCap")
+            return ListCoins.SearchCoin.Response.Coin(name: $0.name, symbol: $0.symbol.uppercased(), cap: cmc?.marketCapString ?? "", price: cmc?.price.value ?? 0.0, percentage: cmc?.percentChange.value ?? 0.0)
         }))
         self.presenter?.presentResults(response: resp)
         
@@ -66,21 +67,28 @@ class ListCoinsInteractor: ListCoinsBusinessLogic, ListCoinsDataStore
     }
     
     func fetchCoins(request: ListCoins.FetchCoins.Request) {
-        let coins: Results<Coin> = MarketWorker.sharedInstance.topCoins!
+        let coins1: Results<Coin> = MarketWorker.sharedInstance.topCoins!
         
         //            completion(exchanges)
-        self.coins = coins
+        self.coins = coins1
         var responseCoins: [ListCoins.FetchCoins.Response.Coin] = []
         
         let start = Date()
-        responseCoins = coins.filter { (coin) -> Bool in
+        
+        var a = coins1.filter({ (coin) -> Bool in
             return coin.defaultPair != nil
-            }.map { (coin) -> ListCoins.FetchCoins.Response.Coin in
-                var statPair: Pair = coin.defaultPair!
+            })
+        var b = a.sorted(by: { (c1, c2) -> Bool in
+                let m1 = c1.pair(with: "usd", on: "CoinMarketCap")!
+                let m2 = c2.pair(with: "usd", on: "CoinMarketCap")!
+                return m1.marketCap.value! > m2.marketCap.value!
+            }).map { (coin) -> ListCoins.FetchCoins.Response.Coin in
+                var statPair: Pair = coin.pair(with: "usd", on: "CoinMarketCap")!
                 
-                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: statPair.marketCapString, price: statPair.price.value!, percentage: statPair.percentChange.value ?? 0.0)
+                let tempCoin = ListCoins.FetchCoins.Response.Coin(name: coin.name, symbol: coin.symbol, cap: statPair.marketCapString, price: statPair.price.value ?? 0.0, percentage: statPair.percentChange.value ?? 0.0)
                 return tempCoin
-        }
+            }
+        responseCoins = b
         let end = Date()
         let interval = end.timeIntervalSince(start)
         print(interval)

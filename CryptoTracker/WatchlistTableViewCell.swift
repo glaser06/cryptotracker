@@ -31,6 +31,8 @@ class WatchlistTableViewCell: UITableViewCell {
     @IBOutlet weak var priceLabel: UILabel!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var symbolLabel: UILabel!
+    @IBOutlet weak var quoteSymbolLabel: UILabel!
+    @IBOutlet weak var exchangeLabel: UILabel!
     @IBOutlet weak var colorIndicator: UIView!
     @IBOutlet weak var capLabel: UILabel!
     @IBOutlet weak var changeIndicator: UIView!
@@ -48,6 +50,8 @@ class WatchlistTableViewCell: UITableViewCell {
         priceLabel.text = coin.price
         nameLabel.text = "Bittrex" //coin.name.capitalized
         symbolLabel.text = "\(coin.symbol.uppercased())"
+        quoteSymbolLabel.text = "/ \(coin.quoteSymbol.uppercased())"
+        exchangeLabel.text = coin.exchange
         capLabel.text = coin.marketCap
         if coin.isUp {
             changeIndicator.backgroundColor = UIView.theGreen

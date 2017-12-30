@@ -12,6 +12,9 @@
 
 import UIKit
 import YIInnerShadowView
+import Hero
+import SnapKit
+
 
 protocol ListCoinsDisplayLogic: class
 {
@@ -83,12 +86,32 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        
         setupTable()
         setupMenu()
         fetchCoins(nil)
-//        self.view.bringSubview(toFront: self.menuView)
+        panGR = UIPanGestureRecognizer(target: self, action: #selector(handlePan(gestureRecognizer:)))
+        view.addGestureRecognizer(panGR)
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationController?.navigationBar.shadowImage = UIImage()
+//        self.tabBarController?.heroTabBarAnimationType = .fade
+        self.rightBarView.snp.makeConstraints { (make) in
+            make.height.equalTo(56)
+            make.width.equalTo(self.view.frame.width - 75)
+//            self.navigationItem
+//            make.center.equalTo((self.navigationBar.topItem?.titleView)!)
+//            make.centerX.equalTo((self.navigationController?.navigationBar.topItem?.titleView)!)
+        }
+//        let tap = UITapGestureRecognizer(target: self, action: #selector(menu))
+//        self.rightBarView.addGestureRecognizer(tap)
+//        self.searchBar.isUserInteractionEnabled = false
+        self.navigationController?.navigationBar.layoutIfNeeded()
+//        self.searchBar.heroModifiers = [HeroModifier.translate(CGPoint.zero), .size(CGSize(width: 1, height: 56)), ]
+//        self.coinTableView.heroModifiers = [.cascade(delta: 0.25, delayMatchedViews: true)]
+//        self.view.heroModifiers = [.fade]
+//        self.view.bringSubview(toFront: self.menuView)
+
+        
 //        do {
 //            try MarketWorker.sharedInstance.unpackCoins()
 //        } catch {
@@ -101,6 +124,22 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
         
         
     }
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.heroNavigationAnimationType = .auto
+//        var i = 1
+//        self.coinTableView.visibleCells.map { (cell) -> Void in
+//            if i < 11 {
+//                cell.heroModifiers = [.duration(0.075 * Double(i)), .fade]
+//
+//            }
+//            i += 1
+//        }
+
+        if self.coinsOnDisplay.count == 0 {
+            fetchCoins(nil)
+        }
+    }
+    
     
     func setupTable() {
 
@@ -122,6 +161,8 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
     @IBOutlet weak var coinTableView: UITableView!
 //    @IBOutlet weak var menuView: UIView!
     @IBOutlet weak var topLeftButton: UIButton!
+    @IBOutlet weak var rightBarView: UIView!
+
     
     
     
@@ -133,12 +174,87 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
 //    }
     @IBAction func close() {
         
-        if self.doSwitch {
-            self.tabBarController?.selectedIndex = 0
-        } else {
-            self.navigationController?.dismiss(animated: true, completion: nil)
-        }
+        self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+        self.tabBarController?.selectedIndex = 0
         
+    }
+    var panGR: UIPanGestureRecognizer!
+    var isAnimating: Bool = false
+    
+    
+    func handlePan(gestureRecognizer:UIPanGestureRecognizer) {
+        CodeTimer.finish("touch to rec")
+        CodeTimer.set()
+        let translation = panGR.translation(in: nil)
+        var progress = translation.x / view.bounds.width / 2
+//        print(translation)
+        print(progress)
+        switch panGR.state {
+        case .began:
+            // begin the transition as normal
+            
+            if progress > 0 {
+//                self.tabBarController?.heroTabBarAnimationType = .slide(direction: .left)
+//                self.tabBarController?.selectedIndex = 1
+                self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+                self.tabBarController?.selectedIndex = 0
+                Hero.shared.update(progress + 0.1)
+                
+//                Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+                isAnimating = true
+                
+            }
+        case .changed:
+            
+            // calculate the progress based on how far the user moved
+            if !isAnimating {
+                if progress > 0 {
+                    //                self.tabBarController?.heroTabBarAnimationType = .slide(direction: .left)
+                    //                self.tabBarController?.selectedIndex = 1
+                    self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+                    self.tabBarController?.selectedIndex = 0
+                    CodeTimer.set()
+                    isAnimating = true
+                }
+            }
+            if isAnimating {
+                if progress < 0 {
+                    progress = 0
+                }
+                //            let translation = panGR.translation(in: nil)
+                //            let progress = translation.x / 2 / view.bounds.width
+                
+                Hero.shared.update(progress + 0.1)
+//                CodeTimer.finish("asdfasdf")
+//                CodeTimer.set()
+//                Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+            }
+            
+//            Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+        //            Hero.shared.update(Double(progress))
+        default:
+            
+            // end or cancel the transition based on the progress and user's touch velocity
+            Hero.shared.update(progress + 0.1)
+            Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+            if progress + self.panGR.velocity(in: nil).x / self.view.bounds.width > 0.3 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+                    Hero.shared.finish()
+                })
+                
+            } else if progress + self.panGR.velocity(in: nil).x / self.view.bounds.width < -0.3 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+                    Hero.shared.finish()
+                })
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+                    Hero.shared.cancel()
+                })
+            }
+            isAnimating = false
+            
+            
+        }
     }
     func forceRefresh(_ refresher: UIRefreshControl?) {
         let req = ListCoins.FetchCoins.Request(completion: {
@@ -165,6 +281,14 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
         self.refresher.endRefreshing()
         
         self.coinTableView.reloadData()
+//        var i = 1
+//        self.coinTableView.visibleCells.map { (cell) -> Void in
+//            if i < 11 {
+//                cell.heroModifiers = [.duration(0.075 * Double(i)), .fade]
+//
+//            }
+//            i += 1
+//        }
         self.doSwitch = viewModel.doSwitch
         if !self.doSwitch  {
             self.topLeftButton.setImage(#imageLiteral(resourceName: "close-black"), for: .normal)
@@ -185,90 +309,92 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
 //        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44, height: 44)
 //        
 //        view.layer.cornerRadius = 22.0
-        self.topLeftButton.setImage(#imageLiteral(resourceName: "close-black"), for: .normal)
-        self.view.setNeedsLayout()
-        self.view.layoutIfNeeded()
+//        self.topLeftButton.setImage(#imageLiteral(resourceName: "close-black"), for: .normal)
+//        self.view.setNeedsLayout()
+//        self.view.layoutIfNeeded()
         
     }
     var tapToCloseGesture: UITapGestureRecognizer?
-    @IBAction func menu() {
-        
-        if !self.doSwitch {
-            self.dismiss(animated: true, completion: nil)
-            return
-        }
-        
-        //        self.tabBarController?.selectedIndex = 1
-        if self.navigationController?.navigationBar.layer.zPosition == -1 {
-            //            self.menuView.isHidden = true
-            self.navigationController?.navigationBar.layer.zPosition = 0
-            self.view.removeGestureRecognizer(self.tapToCloseGesture!)
-            collapseMenu()
-        } else {
-            
-            //            self.menuView.isHidden = false
-            
-            expandMenu()
-            
-            self.navigationController?.navigationBar.layer.zPosition = -1
-            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeMenu(_:)))
-            self.tapToCloseGesture = tapGesture
-            self.view.addGestureRecognizer(tapGesture)
-        }
-        
-        
-        
-    }
-    func expandMenu() {
-        var view = menuBarButton.customView!
-        
-        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
-        
-        view.backgroundColor = UIColor.groupTableViewBackground
-        
-        UIView.animate(withDuration: 19.0, animations: {
-            self.menuBarButton.customView!.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
-            //            self.menuBarButton.customView!.addInnerShadow(onSide: .all, shadowColor: .darkGray, shadowSize: 1.0, shadowOpacity: 0.5)
-            let innerShadow: YIInnerShadowView = YIInnerShadowView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
-            innerShadow.layer.cornerRadius = 22
-            innerShadow.cornerRadius = 22
-            innerShadow.shadowRadius = 2
-            innerShadow.shadowOpacity = 0.4
-            innerShadow.shadowColor = UIColor.lightGray
-            innerShadow.shadowMask = YIInnerShadowMaskAll
-            innerShadow.tag = 11
-            //            self.menuBarButton.customView!.addSubview(innerShadow)
-            self.menuBarButton.customView?.setNeedsLayout()
-            self.menuBarButton.customView?.layoutIfNeeded()
-            
-            self.view.setNeedsLayout()
-            self.view.layoutIfNeeded()
-        }, completion: { (f) in
-            
-        })
-        
-    }
-    func collapseMenu() {
-        var view = menuBarButton.customView!
-        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44.0, height: 44.0)
-        view.backgroundColor = UIColor.white
-        view.viewWithTag(11)?.removeFromSuperview()
-        menuBarButton.customView = view
-        
-        
-        self.view.setNeedsLayout()
-        self.view.layoutIfNeeded()
-    }
-    func closeMenu(_ sender: UITapGestureRecognizer) {
-        self.view.removeGestureRecognizer(sender)
-        if self.navigationController?.navigationBar.layer.zPosition == -1 {
-            self.menu()
-        }
-        
-    }
+//    @IBAction func menu() {
+//        self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+//        self.tabBarController?.selectedIndex = 0
+//        return
+//        if !self.doSwitch {
+////            self.dismiss(animated: true, completion: nil)
+//
+//        }
+//
+//        //        self.tabBarController?.selectedIndex = 1
+//        if self.navigationController?.navigationBar.layer.zPosition == -1 {
+//            //            self.menuView.isHidden = true
+//            self.navigationController?.navigationBar.layer.zPosition = 0
+//            self.view.removeGestureRecognizer(self.tapToCloseGesture!)
+//            collapseMenu()
+//        } else {
+//
+//            //            self.menuView.isHidden = false
+//
+//            expandMenu()
+//
+//            self.navigationController?.navigationBar.layer.zPosition = -1
+//            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeMenu(_:)))
+//            self.tapToCloseGesture = tapGesture
+//            self.view.addGestureRecognizer(tapGesture)
+//        }
+//
+//
+//
+//    }
+//    func expandMenu() {
+//        var view = menuBarButton.customView!
+//
+//        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
+//
+//        view.backgroundColor = UIColor.groupTableViewBackground
+//
+//        UIView.animate(withDuration: 19.0, animations: {
+//            self.menuBarButton.customView!.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
+//            //            self.menuBarButton.customView!.addInnerShadow(onSide: .all, shadowColor: .darkGray, shadowSize: 1.0, shadowOpacity: 0.5)
+//            let innerShadow: YIInnerShadowView = YIInnerShadowView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
+//            innerShadow.layer.cornerRadius = 22
+//            innerShadow.cornerRadius = 22
+//            innerShadow.shadowRadius = 2
+//            innerShadow.shadowOpacity = 0.4
+//            innerShadow.shadowColor = UIColor.lightGray
+//            innerShadow.shadowMask = YIInnerShadowMaskAll
+//            innerShadow.tag = 11
+//            //            self.menuBarButton.customView!.addSubview(innerShadow)
+//            self.menuBarButton.customView?.setNeedsLayout()
+//            self.menuBarButton.customView?.layoutIfNeeded()
+//
+//            self.view.setNeedsLayout()
+//            self.view.layoutIfNeeded()
+//        }, completion: { (f) in
+//
+//        })
+//
+//    }
+//    func collapseMenu() {
+//        var view = menuBarButton.customView!
+//        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44.0, height: 44.0)
+//        view.backgroundColor = UIColor.white
+//        view.viewWithTag(11)?.removeFromSuperview()
+//        menuBarButton.customView = view
+//
+//
+//        self.view.setNeedsLayout()
+//        self.view.layoutIfNeeded()
+//    }
+//    func closeMenu(_ sender: UITapGestureRecognizer) {
+//        self.view.removeGestureRecognizer(sender)
+//        if self.navigationController?.navigationBar.layer.zPosition == -1 {
+//            self.menu()
+//        }
+//
+//    }
     @IBAction func switchToView(sender: UIButton) {
         self.tabBarController?.selectedIndex = sender.tag - 1
-        self.menu()
+//        self.menu()
     }
     
     
@@ -320,6 +446,7 @@ extension ListCoinsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.selectedSymbol = self.coinsOnDisplay[indexPath.row].symbol.uppercased()
+//        tableView.dequeueReusableCell(withIdentifier: "CoinCell", for: indexPath).heroID = "bigView"
         if self.gotoTransaction {
             self.performSegue(withIdentifier: "AddTransaction", sender: tableView)
             

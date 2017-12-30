@@ -20,6 +20,8 @@ protocol ShowPortfolioPresentationLogic
     func presentCharts(response: ShowPortfolio.FetchAssetCharts.Response)
     
     func presentPortfolioChart(response: ShowPortfolio.FetchPortFolioChart.Response)
+    
+    func stopLoading() 
 }
 
 class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
@@ -40,11 +42,13 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
             if each.coin!.coinType != Coin.CoinType.Fiat.rawValue{
             
                 let statsPair: Pair = each.coin!.defaultPair!
-                let totalValue = String(format: "%.2f", each.amountHeld * (statsPair.price.value!))
-                let price = String(format: "%.2f", (statsPair.price.value!))
+                let price1 = statsPair.price.value ?? 0.0
+                let totalValue = String(format: "%.2f", each.amountHeld * (price1))
+                let price = String(format: "%.2f", (price1))
                 let percent = String(format: "%.2f", (statsPair.percentChange.value ?? 0.0))
                 let isUp = statsPair.percentChange.value ?? 0.0 >= 0
-                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin!.name, symbol: each.coin!.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp, total: each.amountHeld * (statsPair.price.value!), fiat: false, cap: statsPair.marketCapString, portfolioValue: response.value)
+                let volume = statsPair.toString(d: statsPair.volume.value)
+                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin!.name, symbol: each.coin!.symbol, amountString: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(price)", change: "\(percent)%", isUp: isUp, total: each.amountHeld * (price1), fiat: false, cap: statsPair.marketCapString, volume: volume, portfolioValue: response.value, amount: each.amountHeld)
                 tempAssets.append(a)
             } else {
 //                let statsPair: Pair = each.coin!.defaultPair!
@@ -52,13 +56,13 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
 //                let price = String(format: "%.2f", (statsPair.price.value!))
 //                let percent = String(format: "%.2f", (statsPair.percentChange.value!))
 //                let isUp = statsPair.percentChange.value! >= 0
-                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin!.name, symbol: each.coin!.symbol, amount: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(0.0)", change: "\(0.0)%", isUp: true, total: each.amountHeld , fiat: true, cap: "$0.0", portfolioValue: response.value)
+                let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset(coinName: each.coin!.name, symbol: each.coin!.symbol, amountString: "\(each.amountHeld)", totalValue: "$\(totalValue)", price: "$\(0.0)", change: "\(0.0)%", isUp: true, total: each.amountHeld , fiat: true, cap: "$0.0", volume: "", portfolioValue: response.value, amount: each.amountHeld)
                 tempAssets.append(a)
             }
             
         }
         let gainsValue = response.value - response.initialValue
-        var gainsPercent = response.value/response.initialValue * 100
+        var gainsPercent = response.value/response.initialValue * 100 - 100
         if response.initialValue == 0.0 {
             gainsPercent = 0.0
         }
@@ -72,25 +76,28 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
 //            c.defaultPair!
 //        })
         let watchlist = response.watchlist.sorted { (c1, c2) -> Bool in
-            let mcap1: Double = c1.defaultPair!.marketCap.value ?? 0.0
-            let mcap2: Double = c2.defaultPair!.marketCap.value ?? 0.0
+            let mcap1: Double = c1.marketCap.value ?? 0.0
+            let mcap2: Double = c2.marketCap.value ?? 0.0
 
             return mcap1 > mcap2
         }
         for each in watchlist {
-            let pair: Pair? = each.defaultPair
+            let pair: Pair? = each
+            
             let isUp = pair?.percentChange.value ?? 0.0 >= 0.0
-            let percent = displayDouble(each.defaultPair?.percentChange.value)
-            let price = "$\(displayDouble(each.defaultPair?.price.value))"
+            let percent = displayDouble(pair?.percentChange.value)
+            let price = "\(displayDouble(pair?.price.value))"
             let high = "$\(displayDouble(pair?.high.value))"
             let open = "$\(displayDouble(pair?.open.value))"
             let low = "$\(displayDouble(pair?.low.value))"
+            let volume = displayDouble(pair?.volume.value)
             
-            let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableCoin(name: each.name, symbol: each.symbol, change: percent, isUp: isUp, price: price , marketCap: each.defaultPair?.marketCapString ?? "", high: high, open: open, low: low)
+            let a = ShowPortfolio.FetchPortfolio.ViewModel.DisplayableCoin(name: each.base?.name ?? "", symbol: each.baseSymbol, quoteSymbol: each.quoteSymbol, exchange: each.exchangeName, change: percent, isUp: isUp, price: price , marketCap: each.marketCapString ?? "", high: high, open: open, low: low, volume: volume)
             tempList.append(a)
         }
-        
-        let vm = ShowPortfolio.FetchPortfolio.ViewModel(totalString: "$\(price)", overallGainValue: String(format: "$%.2f", gainsValue), overallGainPercent: String(format: "%.2f%", gainsPercent), initialCost: String(format: "$%.2f", response.initialValue), assets: tempAssets, watchlist: tempList)
+        let dayChange = String(format: "%.2f", response.change24H)
+        let percent = String(format: "%.2f", response.change24H/response.value * 100)
+        let vm = ShowPortfolio.FetchPortfolio.ViewModel(name: response.name, totalString: "$\(price)", overallGainValue: String(format: "$%.2f", gainsValue), overallGainPercent: String(format: "%.2f%", gainsPercent), initialCost: String(format: "$%.2f", response.initialValue), change24H: "\(percent)%", assets: tempAssets, watchlist: tempList)
         DispatchQueue.main.async {
             self.viewController?.displayPortfolio(viewModel: vm)
         }
@@ -104,5 +111,8 @@ class ShowPortfolioPresenter: ShowPortfolioPresentationLogic
     }
     func presentPortfolioChart(response: ShowPortfolio.FetchPortFolioChart.Response) {
         self.viewController?.displayPortfolioChart(viewModel: ShowPortfolio.FetchPortFolioChart.ViewModel(data: response.data))
+    }
+    func stopLoading() {
+        self.viewController?.stopLoading()
     }
 }

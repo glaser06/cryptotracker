@@ -34,6 +34,8 @@ enum ShowCoin
         {
             var price: Double?
             
+            var open: Double?
+            
             var percent: Double?
             
             var valueChanged: Double?
@@ -57,6 +59,12 @@ enum ShowCoin
             var exchanges: [String]
             
             var cap: String
+            
+            var url: String
+            var details: String
+            
+            var date: Date
+            var prevDate: Date?
             
             
         }
@@ -89,6 +97,10 @@ enum ShowCoin
             var exchanges: [String]
             
             var cap: String
+            
+            var url: String
+            var details: String
+            var date: String
             
             struct Data {
                 var open: Double
@@ -159,6 +171,7 @@ enum ShowCoin
 //            var change24H: Double
             var amount: Double
             var totalGain: Double
+            var totalPortfolioValue: Double
             
             var exists: Bool
             var watchlist: Bool
@@ -170,6 +183,8 @@ enum ShowCoin
 //            var change24H: String
             var amount: String
             var totalGain: String
+            
+            var percentHoldings: Double
             
             var exists: Bool
             

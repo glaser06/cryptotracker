@@ -95,12 +95,19 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
         let highFormatted = String(format: "%.2f", response.high24 ?? 0.0)
         let lowFormatted = String(format: "%.2f", response.low24 ?? 0.0)
         
-        let open: Double = response.price! - changeValue
+        let open: Double = response.open!
         let openFormatted = String(format: "%.2f", open)
         
         let data = ShowCoin.ShowCoin.ViewModel.Data(open: open, high: response.high24 ?? 0.0, low: response.low24 ?? 0.0, close: response.price!)
         
-        let vm = ShowCoin.ShowCoin.ViewModel(price: formattedPrice, open: openFormatted, percent: "\(formattedChange) (\(formattedPercent)%)", volume: "\(cap)",high24: highFormatted, low24: lowFormatted, name: response.name, symbol: response.symbol, didIncrease: didIncrease, quote: response.quote.uppercased(), exchange: response.exchange, quotes: response.quotes, exchanges: response.exchanges, cap: response.cap, data: data)
+        var date: String = ""
+        if response.prevDate == nil {
+            date = "Loading..."
+        } else {
+            date = "\(response.date.offset(from: response.prevDate!))"
+        }
+        
+        let vm = ShowCoin.ShowCoin.ViewModel(price: formattedPrice, open: openFormatted, percent: "\(formattedChange) (\(formattedPercent)%)", volume: "\(cap)",high24: highFormatted, low24: lowFormatted, name: response.name, symbol: response.symbol, didIncrease: didIncrease, quote: response.quote.uppercased(), exchange: response.exchange, quotes: response.quotes, exchanges: response.exchanges, cap: response.cap, url: response.url, details: response.details, date: date, data: data)
         viewController?.displayCoin(viewModel: vm)
     }
     
@@ -115,16 +122,17 @@ class ShowCoinPresenter: ShowCoinPresentationLogic
 //    }
     func presentHoldings(response: ShowCoin.FetchHoldings.Response) {
         if !response.exists {
-            let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: "", initialValue: "", amount: "", totalGain: "", exists: false, watchlist: response.watchlist)
+            let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: "", initialValue: "", amount: "", totalGain: "", percentHoldings: 0.0, exists: false, watchlist: response.watchlist)
             self.viewController?.displayHoldings(viewModel: vm)
             return
         }
         let marketValue = String(format: "%.2f", response.marketValue)
         let initValue = String(format: "%.2f", response.initialValue)
+        let percentHolding = response.marketValue / response.totalPortfolioValue
         let amount = "\(response.amount)"
         let gain = String(format: "$%.2f", response.totalGain)
         let percentage = String(format: "%.2f", response.totalGain/response.initialValue) + "%"
-        let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: marketValue, initialValue: initValue, amount: amount, totalGain: "\(gain) (\(percentage))", exists: true, watchlist: response.watchlist)
+        let vm = ShowCoin.FetchHoldings.ViewModel(marketValue: marketValue, initialValue: initValue, amount: amount, totalGain: "\(gain) (\(percentage))", percentHoldings: percentHolding, exists: true, watchlist: response.watchlist)
         self.viewController?.displayHoldings(viewModel: vm)
     }
 }

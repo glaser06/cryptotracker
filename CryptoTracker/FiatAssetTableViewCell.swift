@@ -38,7 +38,8 @@ class FiatAssetTableViewCell: UITableViewCell {
     func setCell(asset: ShowPortfolio.FetchPortfolio.ViewModel.DisplayableAsset, color: UIColor) {
         nameLabel.text = asset.coinName
         symbolLabel.text = asset.symbol.uppercased()
-        totalValueLabel.text = asset.totalValue
+        
+        totalValueLabel.text = asset.total > 0 ? asset.totalValue : "$0.0"
         colorIndicator.backgroundColor = color
     }
     

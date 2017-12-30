@@ -28,6 +28,8 @@ class Asset: Object {
         return portfolios.first!
     }
     
+    
+    
     var initialValue: Double {
         var initTotal = 0.0
         var amount = 0.0
@@ -68,6 +70,7 @@ class Asset: Object {
         }
         return initTotal
     }
+    
     func updateAmount() {
         var total: Double = 0.0
         for transaction in self.buys {

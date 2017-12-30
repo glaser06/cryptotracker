@@ -14,7 +14,7 @@ class Portfolio: Object {
     
     dynamic var name: String = ""
     let assets = List<Asset>()
-    let watchlist = List<Coin>()
+    let watchlist = List<Pair>()
     
     override static func primaryKey() -> String? {
         return "name"
@@ -23,7 +23,7 @@ class Portfolio: Object {
         return ["name"]
     }
     
-    var value: Double {
+    var marketValue: Double {
         get {
             var val = 0.0
             
@@ -35,13 +35,34 @@ class Portfolio: Object {
                 if asset.coin!.coinType == Coin.CoinType.Crypto.rawValue {
 //                    print(asset.amountHeld)
                     
-                    val += asset.amountHeld * asset.coin!.defaultPair!.price.value!
+                    val += asset.amountHeld * (asset.coin!.defaultPair!.price.value ?? 0.0)
                 }
                 
             }
 //            print(val)
             return val
         }
+    }
+    var marketValue24hAgo: Double {
+        get {
+            var val = 0.0
+            
+            for asset in self.assets {
+                if asset.coin!.coinType == Coin.CoinType.Crypto.rawValue {
+                    //                    print(asset.amountHeld)
+                    
+                    val += asset.amountHeld * ((asset.coin!.defaultPair!.price.value ?? 0.0) - (asset.coin?.defaultPair?.valueChange.value ?? 0.0))
+                }
+                
+            }
+            //            print(val)
+            return val
+            
+        }
+    }
+    
+    var marketValueChange: Double {
+        return self.marketValue - self.marketValue24hAgo
     }
     
     var initialValue: Double {
@@ -80,7 +101,7 @@ class Portfolio: Object {
             a.coin!.symbol.lowercased()
         }
         
-        let tempList = Array(self.watchlist.filter("NOT (symbol IN %@)", assets))
+        let tempList = Array(self.watchlist.filter("NOT (quoteSymbol IN %@)", assets))
 //        let b: [String] = tempList.map { (c) -> String in
 //            c.symbol
 //        }
@@ -102,9 +123,10 @@ class Portfolio: Object {
         }
         
     }
-    func removeFromWatchlist(coin: Coin) {
+    
+    func removeFromWatchlist(pair: Pair) {
         let realm = try! Realm()
-        let tempList = Array(self.watchlist.filter("symbol != %@", coin.symbol))
+        let tempList = Array(self.watchlist.filter("id != %@", pair.id))
         try! realm.write {
             
             self.watchlist.removeAll()
@@ -113,11 +135,11 @@ class Portfolio: Object {
             }
         }
     }
-    func addToWatchlist(coin: Coin) {
+    func addToWatchlist(pair: Pair) {
         let realm = try! Realm()
         
         try! realm.write {
-            self.watchlist.append(coin)
+            self.watchlist.append(pair)
         }
     }
     

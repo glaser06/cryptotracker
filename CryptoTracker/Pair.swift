@@ -107,6 +107,11 @@ class Pair: Object {
     var marketCapString: String {
         return toString(d: self.marketCap.value)
     }
+//    func priceBefore24H() -> Double {
+//        if self.valueChange.value == nil || self.valueChange.value! == 0 {
+//            self.valueChange.value = se
+//        }
+//    }
     
     func toString(d: Double?) -> String {
         if d == nil {
@@ -154,9 +159,11 @@ class Pair: Object {
     func time(_ data: [(Int, Double, Double, Double, Double, Double)], duration: ShowCoin.Duration) -> [(Int, Double, Double, Double, Double, Double)] {
         switch duration {
         case .Day:
-            return condense(data, constant: 15)
-        case .Month:
+            return condense(data, constant: 30)
+        case .Week:
             return condense(data, constant: 3)
+        case .Month:
+            return condense(data, constant: 12)
         default:
             return data
         }
@@ -170,6 +177,10 @@ class Pair: Object {
 //            return d
 //        }
         
+        
+        if d.count == 0 {
+            return []
+        }
         var inInterval = false
         var newData: [(Int, Double, Double, Double, Double, Double)] = []
         var open = 0.0

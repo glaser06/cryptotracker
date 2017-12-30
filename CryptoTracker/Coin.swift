@@ -21,6 +21,15 @@ class Coin: Object {
         
     }
     
+    dynamic var website: String = ""
+    dynamic var details: String = ""
+    dynamic var features: String = ""
+    dynamic var technologies: String = ""
+    dynamic var twitterHandle: String = ""
+    dynamic var id: Int = 0
+    
+    
+    
     dynamic var name: String = ""
 //    func setName(name: String) {
 //        self.name = name
@@ -59,7 +68,7 @@ class Coin: Object {
     
     
     var defaultSource: String {
-        return "CoinMarketCap"
+        return "CCCAGG"
     }
     var _defaultPair: Results<Pair>!
     var defaultPair: Pair? {
@@ -67,7 +76,7 @@ class Coin: Object {
 //        let realm = try! Realm()
 //        if self.pairs.fil
 //        realm.objects(Coin.self).filter("ANY pairs.exchangeName = %@", "CoinMarketCap")
-        let a = self.pairs.filter("exchangeName = %@", "CoinMarketCap")
+        let a = self.pairs.filter("exchangeName = %@", "CCCAGG")
         if a.count > 0 {
             return a.first!
         } else {
@@ -121,6 +130,7 @@ class Coin: Object {
             p.quoteSymbol
         })))
     }
+    
     
     
     

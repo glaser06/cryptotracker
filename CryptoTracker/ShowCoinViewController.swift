@@ -12,6 +12,7 @@
 
 import UIKit
 import Charts
+import SafariServices
 //import SwiftCharts
 
 protocol ShowCoinDisplayLogic: class
@@ -79,23 +80,27 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        CodeTimer.set()
         transactionButtonsView.isHidden = false
         
-        
-        
+        navigationController?.heroNavigationAnimationType = .auto
+//        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationController?.navigationBar.shadowImage = UIImage()
+//        navigationController?.heroNavigationAnimationType = .pull(direction: .left)
+        
         
         setupButtons()
         setupQuoteCollection()
         setupBottomView()
         setupInfoView()
         setupCharts()
+        setupRefresher()
         
         self.collectionHeight.constant = 0
         self.view.layoutIfNeeded()
         fetchHoldings()
-        fetchCoin()
+//        fetchCoin()
         
 
         
@@ -108,6 +113,21 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         self.bottomArrows.map({
             $0.transform = $0.transform.rotated(by: CGFloat(Double.pi))
         })
+        CodeTimer.finish()
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        fetchCoin()
+        navigationController?.heroNavigationAnimationType = .auto
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        self.refresher.didMoveToSuperview()
+//        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+//        self.navigationController?.heroNavigationAnimationType = .auto
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+//        navigationController?.heroNavigationAnimationType = .pull(direction: .right)
     }
     
     
@@ -117,6 +137,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     @IBOutlet weak var currencyButton: UIButton!
     @IBOutlet weak var exchangeButton: UIButton!
     @IBOutlet weak var quoteBarButton: UIBarButtonItem!
+    @IBOutlet weak var timeLabel: UILabel!
 //    @IBOutlet weak var otherExchangesButton: UIButton!
 //    @IBOutlet weak var overallCoinButton: UIButton!
 
@@ -130,19 +151,23 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     @IBOutlet weak var low24Label: UILabel!
     @IBOutlet weak var mktCapLabel: UILabel!
     
-//    @IBOutlet weak var holdingValueLabel: UILabel!
-    @IBOutlet weak var holdingInitialLabel: UILabel!
-    @IBOutlet weak var profitLossButton: UIButton!
+    @IBOutlet weak var holdingValueLabel: UILabel!
+    @IBOutlet weak var holdingPercentLabel: UILabel!
+//    @IBOutlet weak var holdingInitialLabel: UILabel!
+//    @IBOutlet weak var profitLossButton: UIButton!
 //    @IBOutlet weak var holdingChangeLabel: UILabel!
-    @IBOutlet weak var holdingAmountLabel: UILabel!
+//    @IBOutlet weak var holdingAmountLabel: UILabel!
     @IBOutlet weak var holdingsView: UIView!
-    @IBOutlet weak var holdingsPieChart: PieChartView!
+    @IBOutlet weak var holdingButton: UIButton!
+//    @IBOutlet weak var holdingsPieChart: PieChartView!
     
     @IBOutlet weak var quotesCollectionView: UICollectionView!
     
     @IBOutlet weak var collectionHeight: NSLayoutConstraint!
     @IBOutlet weak var holdingsHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var chartHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var volumeChartOffset: NSLayoutConstraint!
+    @IBOutlet weak var descriptionHeightConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var chartHighLabel: UILabel!
     @IBOutlet weak var chartLowLabel: UILabel!
@@ -167,6 +192,8 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     @IBOutlet weak var buyButton: UIButton!
     @IBOutlet weak var sellButton: UIButton!
     @IBOutlet weak var watchButton: UIButton!
+    @IBOutlet weak var websiteButton: UIButton!
+    @IBOutlet weak var readMoreButton: UIButton!
 //    @IBOutlet weak var addButton: UIButton!
     
     
@@ -181,6 +208,8 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
 //    @IBOutlet weak var openLeftConstraint: NSLayoutConstraint!
 //    @IBOutlet weak var openRightConstraint: NSLayoutConstraint!
     
+    @IBOutlet weak var descriptionLabel: UILabel!
+    
 //    @IBOutlet weak var overallIndicatorView: UIView!
 //    @IBOutlet weak var exchangeIndicatorView: UIView!
     
@@ -193,7 +222,10 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     var quotes: [String] = []
     var exchanges: [String] = []
     
+    var refresher: UIRefreshControl!
+    
     var displayed: ShowCoin.ShowCoin.ViewModel?
+    var displayingHoldingValue: Bool = true
     
     var displayedSelections: [String] = []
     
@@ -212,9 +244,18 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
 //        currencyButton.layer.shadowRadius = 3
 //        currencyButton.layer.shadowOpacity = 0.7
     }
+    func setupRefresher() {
+        self.refresher = UIRefreshControl()
+        refresher.addTarget(self, action: #selector(fetchCoin), for: .valueChanged)
+        self.scrollView.refreshControl = refresher
+        self.scrollView.isScrollEnabled = true
+        self.scrollView.alwaysBounceVertical = true
+        
+    }
     func setupBottomView() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissSelectionView))
         self.scrollView.addGestureRecognizer(tap)
+//        self.view.addGestureRecognizer(tap)
         
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(dismissSelectionView))
         let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(bringUpSelectionView))
@@ -256,7 +297,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             let request = ShowCoin.ShowCoin.Request(exchange: self.displayedExchange, quote: self.displayedQuote)
             interactor?.fetchCoin(request: request)
         } else {
-            let request = ShowCoin.ShowCoin.Request(exchange: "CoinMarketCap", quote: "usd")
+            let request = ShowCoin.ShowCoin.Request(exchange: "CCCAGG", quote: "usd")
             interactor?.fetchCoin(request: request)
         }
         
@@ -265,9 +306,28 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         let req = ShowCoin.FetchExchangesAndPair.Request()
         interactor?.fetchExchangesAndPair(request: req, completion: fetchCoin)
     }
+    @IBAction func readMore() {
+        if self.descriptionHeightConstraint.constant == 2000 {
+            UIView.animate(withDuration: 0.3) {
+                self.descriptionHeightConstraint.constant = 200
+                self.readMoreButton.setTitle("Show more", for: .normal)
+                self.view.setNeedsLayout()
+                self.view.layoutIfNeeded()
+            }
+        } else {
+            UIView.animate(withDuration: 0.3) {
+                self.descriptionHeightConstraint.constant = 2000
+                self.readMoreButton.setTitle("Show less", for: .normal)
+                self.view.setNeedsLayout()
+                self.view.layoutIfNeeded()
+            }
+        }
+        
+    }
     @IBAction func back() {
 //        self.navigationController?.dismiss(animated: true, completion: nil)
 //        self.dismiss(animated: true, completion: nil)
+        navigationController?.heroNavigationAnimationType = .auto
         self.navigationController?.popViewController(animated: true)
     }
     
@@ -278,6 +338,15 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             self.transactionType = .Sell
         }
         self.performSegue(withIdentifier: "AddTransaction", sender: self)
+    }
+    @IBAction func showWebsite() {
+        if let url = URL(string: self.displayed?.url ?? "") {
+            let svc = SFSafariViewController(url: url)
+            self.present(svc, animated: true, completion: nil)
+        }
+//        print(self.displayed!.url)
+//        print(URL(string: self.displayed?.url ?? "What1") ?? "What2")
+        
     }
     @IBAction func addToWatchlist() {
         if self.watchButton.title(for: .normal) == "Watch" {
@@ -300,7 +369,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     }
     
     @IBAction func displayQuoteSelection() {
-        if self.isSelectionViewUp && self.currencyButton.backgroundColor == UIColor.clear {
+        if self.isSelectionViewUp && self.currencyButton.backgroundColor == UIView.theBlue {
             self.dismissSelectionView()
             return
         }
@@ -316,6 +385,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         
         self.displayedSelections = self.quotes
         self.quotesCollectionView.reloadData()
+        self.quotesCollectionView.setContentOffset(CGPoint.zero, animated: false)
         if self.collectionHeight.constant == 303 {
             UIView.animate(withDuration: 0.2, animations: {
                 
@@ -324,7 +394,10 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             bringUpSelectionView()
         }
         self.exchangeButton.backgroundColor = UIColor.groupTableViewBackground
-            self.currencyButton.backgroundColor = UIColor.clear
+        self.currencyButton.backgroundColor = UIView.theBlue
+        self.currencyButton.setTitleColor(UIColor.white, for: .normal)
+        self.exchangeButton.setTitleColor(UIColor.black, for: .normal)
+        
     }
     
     var isSelectionViewUp: Bool {
@@ -336,6 +409,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         if self.collectionHeight.constant != 450 {
             self.quotesCollectionView.reloadData()
             UIView.animate(withDuration: 0.2, animations: {
+                self.scrollView.alpha = 0.4
                 self.collectionHeight.constant = 450
                 
                 self.view.layoutIfNeeded()
@@ -345,18 +419,21 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     }
     func dismissSelectionView() {
         self.view.endEditing(true)
-        self.currencyButton.backgroundColor = UIColor.clear
-        self.exchangeButton.backgroundColor = UIColor.clear
+        self.currencyButton.backgroundColor = UIView.theBlue
+        self.exchangeButton.backgroundColor = UIColor.groupTableViewBackground
+        self.quotesCollectionView.setContentOffset(CGPoint.zero, animated: false)
         UIView.animate(withDuration: 0.2, animations: {
+            self.scrollView.alpha = 1.0
             self.collectionHeight.constant = 0
             self.view.layoutIfNeeded()
         })
     }
     @IBAction func displayExchangeSelection() {
-        if self.isSelectionViewUp && self.exchangeButton.backgroundColor == UIColor.clear {
+        if self.isSelectionViewUp && self.exchangeButton.backgroundColor == UIView.theBlue {
             self.dismissSelectionView()
             return
         }
+        
         self.pairSearchBar.placeholder = "Search exchanges that trade \(self.displayedQuote.uppercased())"
 //        self.filterSelectionButtons.map({
 //            if $0.tag == 1 {
@@ -369,6 +446,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         
         self.displayedSelections = self.exchanges
         self.quotesCollectionView.reloadData()
+        self.quotesCollectionView.setContentOffset(CGPoint.zero, animated: false)
         if self.collectionHeight.constant == 303 {
             UIView.animate(withDuration: 0.2, animations: {
                 
@@ -377,7 +455,10 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             bringUpSelectionView()
         }
         self.currencyButton.backgroundColor = UIColor.groupTableViewBackground
-        self.exchangeButton.backgroundColor = UIColor.clear
+        self.exchangeButton.backgroundColor = UIView.theBlue
+        self.currencyButton.setTitleColor(UIColor.black, for: .normal)
+        self.exchangeButton.setTitleColor(UIColor.white, for: .normal)
+        
         
     }
     
@@ -464,19 +545,31 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     @IBAction func changeExchange() {
 //        print("here")
     }
+    @IBAction func changeHoldingDisplay() {
+        if displayingHoldingValue {
+            self.holdingValueLabel.text = (self.holdingModel?.amount)!
+            displayingHoldingValue = false
+        } else {
+            displayingHoldingValue = true
+            self.holdingValueLabel.text = "$\((self.holdingModel?.marketValue)!)"
+        }
+    }
     
     func displayAddToWatchlist() {
         self.watchButton.setTitle("", for: .normal)
-        self.watchButton.setImage(#imageLiteral(resourceName: "down-round"), for: .normal)
+        self.watchButton.setImage(#imageLiteral(resourceName: "checkmark-white"), for: .normal)
     }
     func displayRemoveFromWatchlist() {
         self.watchButton.setTitle("Watch", for: .normal)
         self.watchButton.setImage(nil, for: .normal)
     }
-    
+    var holdingModel: ShowCoin.FetchHoldings.ViewModel?
     func displayHoldings(viewModel: ShowCoin.FetchHoldings.ViewModel) {
+        self.holdingModel = viewModel
         if viewModel.watchlist {
             displayAddToWatchlist()
+        } else {
+            displayRemoveFromWatchlist()
         }
         if !viewModel.exists {
             
@@ -484,54 +577,75 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             self.holdingsHeightConstraint.constant = 0
             return
         }
-        self.setupPiechart()
-        
-        self.holdingsHeightConstraint.constant = 128
+//        self.setupPiechart()
+        self.holdingsView.isHidden = false
+        self.holdingValueLabel.text = "$\(viewModel.marketValue)"
+        self.holdingPercentLabel.text = "\(String(format: "%.2f", viewModel.percentHoldings * 100))% of portfolio"
+        self.displayHoldingsBar()
+//        self.holdingsHeightConstraint.constant = 128
 //        self.holdingValueLabel.text = viewModel.marketValue
-        self.holdingInitialLabel.text = "$100.23"
+//        self.holdingInitialLabel.text = "$100.23"
 //        self.holdingChangeLabel.text = viewModel.change24H
 //        self.holdingAmountLabel.text = viewModel.amount
         
-        self.profitLossButton.setTitle("$1232.10", for: .normal)
+//        self.profitLossButton.setTitle("$1232.10", for: .normal)
+        
     }
-    func setupPiechart() {
-        let allColors = UIView.allColors
-        let entry1 = PieChartDataEntry(value: 30.0)
-        let entry2 = PieChartDataEntry(value: 70.0)
-        var entries: [PieChartDataEntry] = [entry1, entry2]
+    @IBOutlet weak var holdingWidthConstraint: NSLayoutConstraint!
+    func displayHoldingsBar() {
+        let totalWidth: Double = Double(self.view.bounds.width - 40)
+        let percent: Double = (self.holdingModel?.percentHoldings)!
+        let holdingWidth: Double = percent * totalWidth
         
-        let dataSet = PieChartDataSet(values: entries, label: nil)
-        
-        let data = PieChartData(dataSet: dataSet)
-        
-        dataSet.drawValuesEnabled = false
-        dataSet.colors = [allColors[1], UIColor.lightGray]
-        dataSet.valueColors = [UIColor.black]
-        holdingsPieChart.data = data
-        //All other additions to this function will go here
-        holdingsPieChart.backgroundColor = UIColor.clear
-        holdingsPieChart.holeColor = UIColor.clear
-        holdingsPieChart.entryLabelColor = UIColor.clear
-        //        pieChartView.centerText = "$76721"
-        holdingsPieChart.holeRadiusPercent = 0.93
-        dataSet.selectionShift = 0.0
-        holdingsPieChart.chartDescription = nil
-        holdingsPieChart.legend.enabled = false
-        holdingsPieChart.rotationEnabled = false
-        //        pieChartView.isRotationEnabled = false
-        
-        //        pieChartView.drawSliceTextEnabled = false
-        //        pieChartView.drawSlicesUnderHoleEnabled = true
-        //        pieChartView
+        self.holdingWidthConstraint.constant = CGFloat(holdingWidth)
         
         
-        //This must stay at end of function
-        holdingsPieChart.notifyDataSetChanged()
     }
+//    func setupPiechart() {
+//        let allColors = UIView.allColors
+//        let entry1 = PieChartDataEntry(value: 30.0)
+//        let entry2 = PieChartDataEntry(value: 70.0)
+//        var entries: [PieChartDataEntry] = [entry1, entry2]
+//
+//        let dataSet = PieChartDataSet(values: entries, label: nil)
+//
+//        let data = PieChartData(dataSet: dataSet)
+//
+//        dataSet.drawValuesEnabled = false
+//        dataSet.colors = [allColors[1], UIColor.lightGray]
+//        dataSet.valueColors = [UIColor.black]
+//        holdingsPieChart.data = data
+//        //All other additions to this function will go here
+//        holdingsPieChart.backgroundColor = UIColor.clear
+//        holdingsPieChart.holeColor = UIColor.clear
+//        holdingsPieChart.entryLabelColor = UIColor.clear
+//        //        pieChartView.centerText = "$76721"
+//        holdingsPieChart.holeRadiusPercent = 0.93
+//        dataSet.selectionShift = 0.0
+//        holdingsPieChart.chartDescription = nil
+//        holdingsPieChart.legend.enabled = false
+//        holdingsPieChart.rotationEnabled = false
+//        //        pieChartView.isRotationEnabled = false
+//
+//        //        pieChartView.drawSliceTextEnabled = false
+//        //        pieChartView.drawSlicesUnderHoleEnabled = true
+//        //        pieChartView
+//
+//
+//        //This must stay at end of function
+//        holdingsPieChart.notifyDataSetChanged()
+//    }
     
     func displayCoin(viewModel: ShowCoin.ShowCoin.ViewModel)
     {
+        
         self.displayed = viewModel
+        
+        if viewModel.details.characters.count > 400 {
+            self.readMoreButton.isHidden = false
+        } else {
+            self.readMoreButton.isHidden = true
+        }
         
         self.nameLabel.text = "\(viewModel.name.capitalized) (\(viewModel.symbol.uppercased()))"
         self.volumeLabel.text = "\(viewModel.volume)"
@@ -550,7 +664,15 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         
         
 //        print(viewModel.quotes)
-        
+        if viewModel.url == "" {
+            self.websiteButton.isHidden = true
+        } else {
+            self.websiteButton.isHidden = false
+        }
+        self.timeLabel.text = viewModel.date
+        let font = self.descriptionLabel.font
+        self.descriptionLabel.attributedText = String.stringFromHtml(string: viewModel.details, font: self.descriptionLabel.font)
+        self.descriptionLabel.font = font
         self.exchangeButton.setTitle(viewModel.exchange, for: .normal)
         self.currencyButton.setTitle("\(viewModel.symbol.uppercased())/\(viewModel.quote)", for: .normal)
         self.quoteBarButton.title = viewModel.quote.uppercased()
@@ -561,10 +683,10 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         self.exchanges = viewModel.exchanges
         transactionButtonsView.isHidden = false
         
-        if self.isSelectionViewUp && self.currencyButton.backgroundColor == UIColor.clear {
+        if self.isSelectionViewUp && self.currencyButton.backgroundColor == UIView.theBlue {
             self.displayedSelections = self.quotes
             
-        } else if self.isSelectionViewUp && self.currencyButton.backgroundColor != UIColor.clear  {
+        } else if self.isSelectionViewUp && self.currencyButton.backgroundColor != UIView.theBlue  {
             self.displayedSelections = self.exchanges
         } else {
             self.displayedSelections = self.quotes
@@ -589,6 +711,13 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
 //    @IBOutlet weak var openArrow: UIImageView!
 //    @IBOutlet weak var closeArrow: UIImageView!
     func displayCandlestick(open: Double, high: Double, low: Double, close: Double) {
+        self.low24Label.text = String(format: "%.3f", low)
+        self.high24Label.text = String(format: "%.3f", high)
+        self.openLabel.text = String(format: "%.3f", open)
+        let formattedChange = String(format: "%.2f", (close - open))
+        let formattedPercent = String(format: "%.2f", (close - open)/open * 100)
+        self.percentLabel.text = "\(formattedChange) (\(formattedPercent)%)"
+//        self..text = "\(low)"
         let totalWidth: CGFloat = (self.view.frame.width) - 40.0
         var width: CGFloat = CGFloat((abs(open-close)/(high-low))) * totalWidth
         let a: CGFloat = CGFloat(abs(open-close)/(high-low))
@@ -718,7 +847,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         self.barChart.leftAxis.drawGridLinesEnabled = false
         self.barChart.leftAxis.enabled = false
         self.barChart.legend.enabled = false
-        self.barChart.rightAxis.enabled = true
+        self.barChart.rightAxis.enabled = false
         self.barChart.rightAxis.drawAxisLineEnabled = false
         self.barChart.rightAxis.labelTextColor = UIColor.clear
         
@@ -738,6 +867,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         self.lineChart.candleData?.highlightEnabled = false
         self.lineChart.highlightPerDragEnabled = false
         self.lineChart.highlightPerTapEnabled = false
+        self.lineChart.extraLeftOffset = 0.0
         let hold: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(enableGraph))
         hold.minimumPressDuration = 0.2
         self.lineChart.addGestureRecognizer(hold)
@@ -763,7 +893,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             self.high24Label.text = "\(self.displayed!.high24)"
             self.low24Label.text = "\(self.displayed!.low24)"
             self.openLabel.text = "\(self.displayed!.open)"
-//            self.volumeLabel.text = "\(self.displayed!.volume)"
+            self.volumeLabel.text = "\(self.displayed!.volume)"
             self.displayCandlestick(open: self.displayed!.data.open, high: self.displayed!.data.high, low: self.displayed!.data.low, close: self.displayed!.data.close)
 //            self.scrollView.isScrollEnabled = true
         } else {
@@ -785,7 +915,14 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
                 self.lineChart.highlightPerDragEnabled = true
                 self.lineChart.highlightPerTapEnabled = true
                 //            self.scrollView.isScrollEnabled = false
+//                print(ohlc.x)
+                
+                let volEntry: ChartDataEntry = self.barChart.data!.getDataSetByIndex(0).entryForIndex(Int(ohlc.x))!
+                let vol: String = Pair().toString(d: volEntry.y)
+                self.volumeLabel.text = vol
+                
             }
+            
 
         }
         
@@ -794,7 +931,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     }
 
     func displayCharts(viewModel: ShowCoin.FetchChart.ViewModel) {
-        
+        self.refresher.endRefreshing()
         var lineChartEntries: [CandleChartDataEntry] = []
         var barChartEntries: [BarChartDataEntry] = []
         
@@ -811,7 +948,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             
             let value =  CandleChartDataEntry(x: Double(index), shadowH: i.1, shadowL: i.2, open: i.3, close: i.4)
             
-            let bar = BarChartDataEntry(x: Double(i.0), y: i.2)
+            let bar = BarChartDataEntry(x: Double(i.0), y: i.5)
             lineChartEntries.append(value)
             barChartEntries.append(bar)
             
@@ -897,7 +1034,13 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         self.chartLowLabel.text = "L: \(ohlc.low)"
         self.chartCloseLabel.text = "C: \(ohlc.close)"
         
+        self.displayCandlestick(open: startPrice, high: max, low: min, close: endPrice)
         
+        let string: NSString = self.lineChart.rightAxis.getFormattedLabel(0) as NSString
+        let font = self.lineChart.rightAxis.labelFont
+        let width = string.size(attributes: [NSFontAttributeName: font]).width
+        self.volumeChartOffset.constant = -1 * width
+        self.view.layoutIfNeeded()
         
         
     }
@@ -927,6 +1070,9 @@ extension ShowCoinViewController: UIGestureRecognizerDelegate {
         } else {
             return true
         }
+    }
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }
 
@@ -998,3 +1144,4 @@ extension ShowCoinViewController: UIScrollViewDelegate {
     }
     
 }
+

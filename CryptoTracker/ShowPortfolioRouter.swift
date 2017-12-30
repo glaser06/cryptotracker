@@ -15,7 +15,8 @@ import RealmSwift
 
 @objc protocol ShowPortfolioRoutingLogic
 {
-  //func routeToSomewhere(segue: UIStoryboardSegue?)
+    func routeToShowCoin(segue: UIStoryboardSegue)
+    func routeToShowCoin()
 }
 
 protocol ShowPortfolioDataPassing
@@ -46,20 +47,48 @@ class ShowPortfolioRouter: NSObject, ShowPortfolioRoutingLogic, ShowPortfolioDat
         var destinationDS = destinationVC.router!.dataStore!
         passDataToShowCoin(source: dataStore!, destination: &destinationDS)
     }
+    func routeToShowCoin() {
+        let destinationVC: ShowCoinViewController = viewController!.storyboard!.instantiateViewController(withIdentifier: "ShowCoin") as! ShowCoinViewController
+        var destinationDS = destinationVC.router!.dataStore!
+        passDataToShowCoin(source: dataStore!, destination: &destinationDS)
+        viewController?.navigationController?.pushViewController(destinationVC, animated: true)
+    }
+    
     func passDataToShowCoin(source: ShowPortfolioDataStore, destination: inout ShowCoinDataStore) {
         let index = viewController!.assetTableView.indexPathForSelectedRow!.row
         var assetCoin: String
+        var quote: String
+        var exchange: String
         if viewController?.selectedAssets == 4 {
             assetCoin = viewController!.watchlist[index].symbol.lowercased()
+            quote = (viewController?.watchlist[index].quoteSymbol.lowercased())!
+            exchange = (viewController?.watchlist[index].exchange)!
         } else {
             assetCoin = viewController!.assetsOnDisplay[viewController!.assetTableView.indexPathForSelectedRow!.row].symbol.lowercased()
+            quote = ""
+            exchange = ""
         }
         
         let realm = try! Realm()
-        let coin = realm.object(ofType: Coin.self, forPrimaryKey: assetCoin)!
+        var coin: Coin
+        if let c: Coin = PortfolioWorker.sharedInstance.portfolio.find(coin: assetCoin)?.coin! {
+            coin = c
+        }  else {
+            coin = realm.object(ofType: Coin.self, forPrimaryKey: assetCoin)!
+        }
+        var pair: Pair?
+        if quote == "" {
+            pair = coin.defaultPair
+        } else {
+            pair = coin.pair(with: quote, on: exchange)
+        }
+        
 //            PortfolioWorker.sharedInstance.portfolio.assets.filter("coin.symbol = %@", assetCoin).first!.coin!
         destination.coin = coin
         destination.coinSymbol = coin.symbol
+        destination.pair = pair
+        
+        
         
 //        destination.coin = MarketWorker.sharedInstance.coinCollection[assetCoin]
 //        destination.exchange = coin.defaultExchange

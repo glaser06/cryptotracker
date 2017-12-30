@@ -71,8 +71,25 @@ class AddTransactionViewController: UIViewController, AddTransactionDisplayLogic
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.setupDismissTap()
+        self.amountField.adjustsFontSizeToFitWidth = true
+        self.amountField.minimumFontSize = 10.0
+        self.totalAmountField.adjustsFontSizeToFitWidth = true
+        self.totalAmountField.minimumFontSize = 10.0
+        
         self.loadTransaction()
+//        self.amountField.becomeFirstResponder()
     }
+    func setupDismissTap() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(forceEndEditing))
+        self.view.addGestureRecognizer(tap)
+    }
+    func forceEndEditing() {
+        self.view.endEditing(true)
+    }
+    
     
     var isBuying: Transaction.OrderType = .Buy
     
@@ -84,33 +101,63 @@ class AddTransactionViewController: UIViewController, AddTransactionDisplayLogic
     
     // MARK: Do something
     
+    @IBOutlet weak var scrollView: UIScrollView!
+    
     @IBOutlet weak var exchangeSelectionField: UITextField!
-    @IBOutlet weak var baseCurrencySelection: UITextField!
-    @IBOutlet weak var quoteCurrencySelection: UITextField!
-    @IBOutlet weak var currentPriceLabel: UILabel!
-    @IBOutlet weak var totalPriceLabel: UILabel!
+    @IBOutlet weak var pairNameLabel: UILabel!
+//    @IBOutlet weak var baseCurrencySelection: UITextField!
+//    @IBOutlet weak var quoteCurrencySelection: UITextField!
+    
+    @IBOutlet weak var totalAmountField: UITextField!
+//    @IBOutlet weak var currentPriceLabel: UILabel!
+//    @IBOutlet weak var totalPriceLabel: UILabel!
     @IBOutlet weak var amountField: UITextField!
     @IBOutlet weak var priceField: UITextField!
+    @IBOutlet var baseCurrencyLabels: [UILabel]!
+    @IBOutlet weak var quoteCurrencyLabel: UILabel!
     
-    @IBOutlet weak var buySellIndicator: NSLayoutConstraint!
+    @IBOutlet weak var buyButton: UIButton!
+    @IBOutlet weak var sellButton: UIButton!
+    @IBOutlet weak var buySellContainer: UIView!
+    @IBOutlet var transactionDirectionArrows: [UIImageView]!
+    
+//    @IBOutlet weak var buySellIndicator: NSLayoutConstraint!
     
     
     @IBAction func back() {
-        self.navigationController?.dismiss(animated: true, completion: nil)
+//        self.navigationController?.dismiss(animated: true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
     
     @IBAction func selectBuy() {
         UIView.animate(withDuration: 0.1, animations: {
-            self.buySellIndicator.constant = 0
-            self.view.layoutIfNeeded()
+            self.buyButton.backgroundColor = UIColor.clear
+            self.sellButton.backgroundColor = UIColor.clear
+            self.buyButton.setTitleColor(UIColor.white, for: .normal)
+            self.sellButton.setTitleColor(UIColor.white, for: .normal)
+            self.buySellContainer.backgroundColor = UIView.theGreen
+            self.transactionDirectionArrows.map({ (img) -> Void in
+                img.image = #imageLiteral(resourceName: "double_up-white")
+            })
+            self.buyButton.borderWidth = 1.0
+            self.sellButton.borderWidth = 0.0
         }, completion: { (finished) in
             self.isBuying = .Buy
         })
     }
     @IBAction func selectSell() {
         UIView.animate(withDuration: 0.1, animations: {
-            self.buySellIndicator.constant = self.view.bounds.width / 2
-            self.view.layoutIfNeeded()
+            self.buyButton.backgroundColor = UIColor.clear
+            self.sellButton.backgroundColor = UIColor.clear
+            self.buyButton.setTitleColor(UIColor.white, for: .normal)
+            self.sellButton.setTitleColor(UIColor.white, for: .normal)
+            self.buySellContainer.backgroundColor = UIView.theRed
+            self.transactionDirectionArrows.map({ (img) -> Void in
+                img.image = #imageLiteral(resourceName: "double_down-white")
+            })
+            self.buyButton.borderWidth = 0.0
+            self.sellButton.borderWidth = 1.0
+            
         }, completion: { (finished) in
             self.isBuying = .Sell
         })
@@ -118,30 +165,60 @@ class AddTransactionViewController: UIViewController, AddTransactionDisplayLogic
     
     @IBAction func confirm() {
         let isBuy: Bool = self.isBuying == .Buy
-        let req = AddTransaction.SaveTransaction.Request(isBuying: isBuy, amount: Double(amountField.text!)!, price: Double(priceField.text!)!, notes: nil)
+        let priceText: String = (priceField.text == nil || priceField.text! == "") ? priceField.placeholder! : self.priceField.text!
+        let amountText = self.amountField.text == "" ? "0.0" : self.amountField.text!
+        let totalText = (totalAmountField.text == nil || totalAmountField.text! == "") ? totalAmountField.placeholder! : self.totalAmountField.text!
+        let req = AddTransaction.SaveTransaction.Request(isBuying: isBuy, amount: Double(amountText)!, price: Double(priceText) ?? 0.0, totalCost: Double(totalText)!, notes: nil)
         interactor?.saveTransaction(request: req)
     }
-    @IBAction func updatePrice() {
+    @IBAction func updatePrice(sender: UITextField?) {
         let amountText = self.amountField.text == "" ? "0.0" : self.amountField.text!
-        let priceText = self.priceField.text == "" ? "0.0" : self.priceField.text!
-        let amount: Double = Double(amountText)!
-        let price: Double = Double(priceText)!
+        var priceText: String
+        if totalAmountField.text == "" {
+            priceText = (priceField.text == nil || priceField.text! == "") ? priceField.placeholder! : self.priceField.text!
+            let amount: Double = Double(amountText) ?? 0.0
+            let price: Double = Double(priceText) ?? 0.0
+            
+            let total = amount * price
+            self.totalAmountField.placeholder = "\(total)"
+            
+        } else {
+            let amount: Double = Double(amountText) ?? 0.0
+            let total: Double = Double(self.totalAmountField.text!) ?? 0.0
+            self.priceField.text = ""
+            if amount != 0 {
+                let price = total / amount
+                
+                self.priceField.placeholder = "\(price)"
+            }
+            
+        }
         
-        let total = amount * price
-        self.totalPriceLabel.text = "\(total)"
+//        let priceText = self.priceField.text == "" ? self.priceField.placeholder! : self.priceField.text!
+        
+        
+        self.amountField.resizeText()
+        self.totalAmountField.resizeText()
         
     }
     func loadTransaction() {
-        let req = AddTransaction.LoadTransaction.Request()
+        let req = AddTransaction.LoadTransaction.Request(exchangeName: nil, quoteName: nil, initialLoad: true)
         interactor?.loadTransaction(request: req)
     }
     func dismissCompletedTransaction(viewModel: AddTransaction.SaveTransaction.ViewModel) {
         
         var vc: UIViewController = self.presentingViewController!
-        while((vc.presentingViewController) != nil) {
-            vc = vc.presentingViewController!
-        }
-        vc.dismiss(animated: true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
+//        while((vc.presentingViewController) != nil && !(vc.presentingViewController! is ShowCoinViewController)) {
+//            vc = vc.presentingViewController!
+////            if vc.presentingViewController! is ShowPortfolioViewController {
+////                break
+////            } else {
+////
+////            }
+//            
+//        }
+//        vc.dismiss(animated: true, completion: nil)
         
 //        self.navigationController?.dismiss(animated: true, completion: nil)
     }
@@ -149,12 +226,16 @@ class AddTransactionViewController: UIViewController, AddTransactionDisplayLogic
         self.exchangeNames = viewModel.exchangeNames
         self.quoteNames = viewModel.quoteNames
         
+        self.pairNameLabel.text = viewModel.coinName.uppercased() + " / " + viewModel.quoteName.uppercased()
         self.exchangeSelectionField.text = viewModel.exchangeName
-        self.baseCurrencySelection.text = viewModel.coinName
-        self.quoteCurrencySelection.text = viewModel.quoteName
+        self.baseCurrencyLabels.map { (l) -> Void in
+            l.text = viewModel.coinName.uppercased()
+        }
+//        self.quoteCurrencySelection.text = viewModel.quoteName.uppercased()
+        self.quoteCurrencyLabel.text = viewModel.quoteName.uppercased()
         
-        self.priceField.text = viewModel.currentPrice
-        self.currentPriceLabel.text = viewModel.currentPrice
+        self.priceField.placeholder = viewModel.currentPrice
+//        self.currentPriceLabel.text = viewModel.currentPrice
         
         if viewModel.isBuy {
             self.selectBuy()
@@ -162,7 +243,7 @@ class AddTransactionViewController: UIViewController, AddTransactionDisplayLogic
             self.selectSell()
         }
         
-        self.updatePrice()
+        self.updatePrice(sender: nil)
         
         let exchangePicker = UIPickerView()
         exchangePicker.tag = 1
@@ -174,13 +255,14 @@ class AddTransactionViewController: UIViewController, AddTransactionDisplayLogic
         basePicker.tag = 2
         basePicker.delegate = self
         basePicker.dataSource = self
-        self.baseCurrencySelection.inputView = basePicker
+//        self.baseCurrencySelection.inputView = basePicker
         
         let quotePicker = UIPickerView()
         quotePicker.tag = 2
         quotePicker.delegate = self
         quotePicker.dataSource = self
-        self.quoteCurrencySelection.inputView = quotePicker
+//        self.quoteCurrencySelection.inputView = quotePicker
+        
         
         
 //        self.totalPriceLabel.text =
@@ -189,11 +271,11 @@ class AddTransactionViewController: UIViewController, AddTransactionDisplayLogic
     
     
     func loadnewExchange() {
-        let req = AddTransaction.LoadTransaction.Request(exchangeName: self.exchangeSelectionField.text, quoteName: self.quoteCurrencySelection.text?.lowercased())
+        let req = AddTransaction.LoadTransaction.Request(exchangeName: self.exchangeSelectionField.text, quoteName: self.quoteCurrencyLabel.text!.lowercased(), initialLoad: false)
         self.interactor?.loadTransaction(request: req)
     }
     func loadNewPair() {
-        let req = AddTransaction.LoadTransaction.Request(exchangeName: self.exchangeSelectionField.text, quoteName: self.quoteCurrencySelection.text?.lowercased())
+        let req = AddTransaction.LoadTransaction.Request(exchangeName: self.exchangeSelectionField.text, quoteName: self.quoteCurrencyLabel.text!.lowercased(), initialLoad: false)
         self.interactor?.loadTransaction(request: req)
     }
     
@@ -224,9 +306,9 @@ extension AddTransactionViewController: UIPickerViewDataSource, UIPickerViewDele
         case 1:
             return exchangeNames[row]
         case 2:
-            return quoteNames[row]
+            return quoteNames[row].uppercased()
         case 3:
-            return quoteNames[row]
+            return quoteNames[row].uppercased()
         default:
             return ""
         }
@@ -244,7 +326,7 @@ extension AddTransactionViewController: UIPickerViewDataSource, UIPickerViewDele
             if quoteNames.count == 0 {
                 return
             }
-            self.quoteCurrencySelection.text = quoteNames[row]
+//            self.quoteCurrencySelection.text = quoteNames[row]
             self.loadNewPair()
         default:
             return
@@ -252,3 +334,26 @@ extension AddTransactionViewController: UIPickerViewDataSource, UIPickerViewDele
 //        self.view.endEditing(true)
     }
 }
+extension AddTransactionViewController: UITextFieldDelegate {
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        UIView.animate(withDuration: 0.2) {
+            self.scrollView.contentOffset = CGPoint(x: self.scrollView.contentOffset.x, y: self.scrollView.contentOffset.y + 100)
+        }
+        
+    }
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        UIView.animate(withDuration: 0.2) {
+            self.scrollView.contentOffset = CGPoint(x: self.scrollView.contentOffset.x, y: self.scrollView.contentOffset.y - 100)
+        }
+        
+    }
+    
+}
+
+
+
+
+
+
+

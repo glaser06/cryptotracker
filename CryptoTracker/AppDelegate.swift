@@ -20,13 +20,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let config = Realm.Configuration(
             // Set the new schema version. This must be greater than the previously used
             // version (if you've never set a schema version before, the version is 0).
-            schemaVersion: 2,
+            schemaVersion: 5,
             
             // Set the block which will be called automatically when opening a Realm with
             // a schema version lower than the one set above
             migrationBlock: { migration, oldSchemaVersion in
                 // We haven’t migrated anything yet, so oldSchemaVersion == 0
-                if (oldSchemaVersion < 2) {
+                if (oldSchemaVersion < 5) {
                     // Nothing to do!
                     // Realm will automatically detect new properties and removed properties
                     // And will update the schema on disk automatically
@@ -43,14 +43,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        MarketWorker.sharedInstance.fetchAllExchangesAndPairs(completion: nil)
         
         PortfolioWorker.sharedInstance.setup()
+        
         // Now that we've told Realm how to handle the schema change, opening the file
         // will automatically perform the migration
         
-        
+//        (self.window?.rootViewController as! UITabBarController).viewControllers?.map({ (v) -> Void in
+//            print((v as! UINavigationController).viewControllers.first!.view)
+//        })
         return true
     }
     func setup() {
-        let realm = try! Realm()
+        let realm: Realm = try! Realm()
+//        print(realm.objects(Pair.self).count)
         MarketWorker.sharedInstance.setup()
         if realm.objects(Pair.self).count < 1000 {
             let start = Date()
@@ -65,9 +69,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 
             })
+            MarketWorker.sharedInstance.fetchCoinIDs(completion: nil)
         } else {
             MarketWorker.sharedInstance.retrieveCoins(completion: nil)
         }
+        
     }
     func clearData() {
         let realm = try! Realm()

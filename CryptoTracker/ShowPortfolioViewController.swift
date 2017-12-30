@@ -12,13 +12,15 @@
 
 import UIKit
 import Charts
-import YIInnerShadowView
+import Hero
+
 
 protocol ShowPortfolioDisplayLogic: class
 {
     func displayPortfolio(viewModel: ShowPortfolio.FetchPortfolio.ViewModel)
     func displayCharts(viewModel: ShowPortfolio.FetchAssetCharts.ViewModel)
     func displayPortfolioChart(viewModel: ShowPortfolio.FetchPortFolioChart.ViewModel)
+    func stopLoading()
 }
 
 class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
@@ -74,42 +76,113 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
 //    var allColors: [NSUIColor] = ChartColorTemplates.joyful() + ChartColorTemplates.liberty() + ChartColorTemplates.pastel() + ChartColorTemplates.vordiplom() + ChartColorTemplates.material() + ChartColorTemplates.colorful()
     var colorsForAssets: [NSUIColor] = []
     var anglesForAssets: [String: CGFloat] = [:]
+    var chartData: [String:  [String:  [(Int, Double, Double, Double, Double, Double)]]] = [:]
+    
+    var canUpdateCharts: Bool = true
+    
+    var refresher: UIRefreshControl!
+    
+    var isLoading: Bool = true
     
     // MARK: View lifecycle
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        panGR = UIPanGestureRecognizer(target: self, action: #selector(handlePan(gestureRecognizer:)))
+        
+        view.addGestureRecognizer(panGR)
+
 //        let p = PortfolioWorker.sharedInstance
+        if #available(iOS 11.0, *) {
+            self.scrollView.contentInsetAdjustmentBehavior = .never
+        } else {
+            // Fallback on earlier versions
+            self.automaticallyAdjustsScrollViewInsets = false
+        }
         self.view.bringSubview(toFront: self.menuView)
         self.lineChart.delegate = self
-            
+        self.navBarView.heroModifiers = [.fade]
+        self.navBarView.snp.makeConstraints { (make) in
+            make.height.equalTo(56)
+//            make.width.equalTo(self.view.frame.width - 95)
+        }
+//        self.rightBarView.snp.makeConstraints { (make) in
+//            make.height.equalTo(56)
+//            make.width.equalTo(self.view.frame.width - 75)
+//        }
+        let tap = UITapGestureRecognizer(target: self, action: #selector(close))
+        self.navBarView.addGestureRecognizer(tap)
+//        self.rightBarView.addGestureRecognizer(tap)
+//        self.searchBar.isUserInteractionEnabled = false
+        self.navigationController?.navigationBar.layoutIfNeeded()
+        
 //        self.getAllCoins()
         
-        
-        
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        
+
+        navigationController?.heroNavigationAnimationType = .none
+        navigationController?.clearShadow()
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+//        self.view.heroModifiers = [.fade]
+//        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+        setupRefresher()
         setupAssetTable()
         setupMenu()
-        self.reload()
-        self.fetchCharts()
-//        fetchPortfolio()
-//        pieChartUpdate()
-        
-        
-        
-        
+        self.pieChartView.heroID = "pieChart0"
         self.menuView.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
+        self.reload()
+        self.fetchCharts(true)
+        //        fetchPortfolio()
+        self.pieChartUpdate()
+//        DispatchQueue.global(qos: .userInteractive).async {
+//
+//        }
+        
+        
+        
+        
+        
+        
         
         
     }
+    override func viewWillDisappear(_ animated: Bool) {
+//        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
-        reload()
+//        navigationController?.heroNavigationAnimationType = .none
+        
+//        navigationController?.heroNavigationAnimationType = .auto
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+
+//        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+//        navigationController?.interactivePopGestureRecognizer?.delegate = self
+        
+        
+        
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        self.reload()
+        
+//        self.fetchCharts()
+        
+        navigationController?.heroNavigationAnimationType = .selectBy(presenting:.push(direction: .left), dismissing:.pull(direction: .right))
     }
     
     @IBOutlet weak var menuBarButton: UIBarButtonItem!
+    
+    
+    
+    func setupRefresher() {
+        self.refresher = UIRefreshControl()
+        self.refresher.addTarget(self, action: #selector(reload), for: .valueChanged)
+        self.scrollView.refreshControl = self.refresher
+        self.scrollView.isScrollEnabled = true
+        self.scrollView.alwaysBounceVertical = true
+        self.refresher.didMoveToSuperview()
+    }
     func setupMenu() {
 //        self.menuView.isHidden = false
 //        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: self.menuView)
@@ -159,6 +232,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         assetTableView.register(UINib(nibName: "AssetTableViewCell", bundle: nil), forCellReuseIdentifier: "AssetCell")
         assetTableView.register(UINib(nibName: "FiatAssetTableViewCell", bundle: nil), forCellReuseIdentifier: "FiatAssetCell")
         assetTableView.register(UINib(nibName: "WatchlistTableViewCell", bundle: nil), forCellReuseIdentifier: "WatchlistCell")
+        assetTableView.register(UINib(nibName: "LoadingTableCell", bundle: nil), forCellReuseIdentifier: "LoadingCell")
         
         assetTableView.rowHeight = UITableViewAutomaticDimension
         assetTableView.estimatedRowHeight = 200
@@ -166,11 +240,13 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     
     // MARK: Do something
     
+    @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var assetTableView: UITableView!
     @IBOutlet weak var transactionButton: UIButton!
     
     @IBOutlet weak var totalValueLabel: UILabel!
     @IBOutlet weak var chartValueLabel: UILabel!
+    @IBOutlet weak var changeValueButton: UIButton!
     
     
     @IBOutlet weak var tableHeight: NSLayoutConstraint!
@@ -187,14 +263,106 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     
     @IBOutlet weak var menuView: UIView!
     
+    @IBOutlet weak var searchBarButton: UIButton!
+//    @IBOutlet weak var searchBar: UISearchBar!
+//    @IBOutlet weak var rightBarView: UIView!
+    @IBOutlet weak var navBarView: UIView!
+    @IBOutlet weak var titleLabel: UILabel!
+    
     var theBlue: UIColor {
         return self.selectorViews[0].backgroundColor!
     }
     var selectedAssets: Int = 1
+    var panGR: UIPanGestureRecognizer!
+    var isAnimating: Bool = false
+    
+    func handlePan(gestureRecognizer:UIPanGestureRecognizer) {
+        let translation = panGR.translation(in: nil)
+        var progress = translation.x / view.bounds.width / 2
+        print(translation)
+        print(progress)
+        switch panGR.state {
+        case .began:
+            // begin the transition as normal
+            
+            if progress < -0.01 {
+                self.tabBarController?.heroTabBarAnimationType = .slide(direction: .left)
+                self.tabBarController?.selectedIndex = 1
+                isAnimating = true
+                Hero.shared.update(progress)
+                Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+            } else if progress > 0.01{
+                self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+                self.tabBarController?.selectedIndex = 2
+                isAnimating = true
+                Hero.shared.update(progress)
+                Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+            }
+            
+        case .changed:
+            // calculate the progress based on how far the user moved
+            if !isAnimating {
+                if progress < -0.01 {
+                    self.tabBarController?.heroTabBarAnimationType = .slide(direction: .left)
+                    self.tabBarController?.selectedIndex = 1
+                    isAnimating = true
+                } else if progress > 0.01{
+                    self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+                    self.tabBarController?.selectedIndex = 2
+                    isAnimating = true
+                }
+            }
+            if isAnimating{
+                if self.tabBarController?.selectedIndex == 1 {
+                    if progress < 0 {
+                        progress *= -1
+                    } else {
+                        progress = 0
+                    }
+                } else {
+                    if progress < 0 {
+                        progress = 0
+                    }
+                }
+            }
+            
+            
+            //            let translation = panGR.translation(in: nil)
+            //            let progress = translation.x / 2 / view.bounds.width
+            
+            Hero.shared.update(progress + 0.1)
+//            Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+//            Hero.shared.apply(modifiers: [.position(translation)], to: self.view)
+        //            Hero.shared.update(Double(progress))
+        default:
+            
+            // end or cancel the transition based on the progress and user's touch velocity
+            let r = progress + self.panGR.velocity(in: nil).x / self.view.bounds.width
+            
+            if progress + self.panGR.velocity(in: nil).x / self.view.bounds.width > 0.3 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+                    Hero.shared.finish()
+                })
+            } else if progress + self.panGR.velocity(in: nil).x / self.view.bounds.width < -0.3 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+                    Hero.shared.finish()
+                })
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+                    Hero.shared.cancel()
+                })
+            }
+            self.isAnimating = false
+            
+            
+            
+        }
+    }
     
     @IBAction func reload() {
         
         fetchPortfolio()
+        
         pieChartUpdate()
 //        lineChartUpdate()
 //        fetchCharts()
@@ -204,8 +372,19 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     func fetchPortfolio() {
         interactor?.fetchPortfolio(request: ShowPortfolio.FetchPortfolio.Request())
     }
-    func fetchCharts() {
-        interactor?.fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request())
+    
+    
+    var lastChartUpdate: Date = Date()
+    func fetchCharts(_ force: Bool = false) {
+        let now = Date()
+        self.isLoading = true
+        let a = now.minutes(from: lastChartUpdate)
+        if a > 3 || force {
+            lastChartUpdate = Date()
+            interactor?.fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request())
+            
+        }
+        
     }
     
     func displayPortfolio(viewModel: ShowPortfolio.FetchPortfolio.ViewModel) {
@@ -218,33 +397,50 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
 //        self.lineChartUpdate()
         let tempButton = UIButton()
         tempButton.tag = self.selectedAssets
+        if self.assets.count == 0 {
+            tempButton.tag = 4
+        }
+        
         self.changeAssetsDisplayed(sender: tempButton)
         
         let price = viewModel.totalString
         self.totalValueLabel.text = price
         self.chartValueLabel.text = price
         
+        self.titleLabel.text = viewModel.name
+        
         self.returnLabel.text = "\(viewModel.overallGainPercent)%"
         self.costLabel.text = viewModel.initialCost
+        
+        self.changeValueButton.setTitle(viewModel.change24H, for: .normal)
         
         self.totalGainsLabel.text = "\(viewModel.overallGainValue)"
 //        (\(viewModel.overallGainPercent))
         self.assetTableView.reloadData()
         pieChartUpdate()
         
-        self.tableHeight.constant = assetTableView.contentSize.height
+        self.tableHeight.constant = assetTableView.contentSize.height + 20
         
         
+        self.refresher.endRefreshing()
         self.view.setNeedsLayout()
         self.view.layoutIfNeeded()
         
         
     }
-    var chartData: [String: [(Int, Double, Double, Double, Double, Double)]] = [:]
+    
     
     func displayCharts(viewModel: ShowPortfolio.FetchAssetCharts.ViewModel) {
+
+        
+        for asset in self.assetsOnDisplay {
+            asset.symbol
+        }
+//        self.assetsOnDisplay
+        let keys: [String] = Array(self.chartData.keys)
         self.chartData = viewModel.data
-        self.assetTableView.reloadData()
+
+        
     }
     
     
@@ -258,7 +454,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         if data.count == 0 {
             return
         }
-        var lineChartEntries: [ChartDataEntry] = data.map({ChartDataEntry(x: Double($0.0), y: $0.4)})
+        var lineChartEntries: [ChartDataEntry] = data.map({ChartDataEntry(x: Double($0.0), y: $0.1)})
         
         let start = lineChartEntries.first!.y
         let end = lineChartEntries.last!.y
@@ -294,6 +490,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         self.lineChart.xAxis.enabled = false
         self.lineChart.chartDescription = nil
         self.lineChart.extraTopOffset = 50.0
+        
 //        self.lineChart.extraBottomOffset = 10.0
         self.lineChart.data?.highlightEnabled = false
         self.lineChart.data = data
@@ -302,12 +499,25 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         let allColors = UIView.allColors
         self.colorsForAssets = []
         var entries: [PieChartDataEntry] = []
-        for (index,asset) in self.assets.enumerated() {
-            let entry = PieChartDataEntry(value: asset.total)
+        if self.totalValueLabel.text == "$0.00" {
+            let entry = PieChartDataEntry(value: 100)
             entries.append(entry)
-            self.colorsForAssets.append(allColors[index])
-            
+//            self.colorsForAssets.append(UIColor.lightGray)
+        } else {
+            var count = 0
+            for (index,asset) in self.assets.enumerated() {
+//                if asset.total > 0 {
+                
+                let entry = PieChartDataEntry(value: asset.total > 0 ? asset.total : 0)
+                entries.append(entry)
+                self.colorsForAssets.append(allColors[index])
+//                    count += 1
+//                }
+                
+                
+            }
         }
+        
         
 //        let entry1 = PieChartDataEntry(value: 20, label: nil)
 //        let entry2 = PieChartDataEntry(value: 30, label: nil)
@@ -323,15 +533,24 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         
 //        pieChartView.chartDescription?.text = "Share of Widgets by Type"
         dataSet.drawValuesEnabled = false
-        dataSet.colors = allColors
+        if self.totalValueLabel.text == "$0.00" {
+            dataSet.colors = [UIColor.lightGray]
+            //            self.colorsForAssets.append(UIColor.lightGray)
+        } else {
+            dataSet.colors = allColors
+        }
+        
         dataSet.valueColors = [UIColor.black]
         pieChartView.data = data
         
         //All other additions to this function will go here
         var angle: CGFloat = 0.0
         for (index, ang) in pieChartView.drawAngles.enumerated() {
-            self.anglesForAssets[self.assets[index].symbol.lowercased()] = angle
-            angle += ang
+            if self.assets.count > 0 {
+                self.anglesForAssets[self.assets[index].symbol.lowercased()] = angle
+                angle += ang
+            }
+            
         }
         
         pieChartView.backgroundColor = UIColor.clear
@@ -340,6 +559,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
 //        pieChartView.centerText = "$76721"
         pieChartView.holeRadiusPercent = 0.93
         dataSet.selectionShift = 0.0
+        dataSet.sliceSpace = 2.0
         pieChartView.chartDescription = nil
         pieChartView.legend.enabled = false
         pieChartView.rotationEnabled = false
@@ -415,93 +635,137 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         sender.setTitleColor(UIColor.white, for: .normal)
         self.assetsOnDisplay.sort(by: { $0.0.total > $0.1.total })
         self.assetTableView.reloadData()
-        if self.assetTableView.contentSize.height > prevHeight {
+        updateTableHeight()
+        
+        
+        
+        
+        
+        
+    }
+    func updateTableHeight() {
+        if self.assetTableView.contentSize.height > self.tableHeight.constant {
             self.tableHeight.constant = assetTableView.contentSize.height
-            self.view.setNeedsLayout()
-            self.view.layoutIfNeeded()
         }
-        
-        
-        
-        
-    }
-    var tapToCloseGesture: UITapGestureRecognizer?
-    @IBAction func menu() {
-        
-        self.performSegue(withIdentifier: "ShowAccount", sender: self)
-        return
-//        self.tabBarController?.selectedIndex = 1
-        if self.navigationController?.navigationBar.layer.zPosition == -1 {
-//            self.menuView.isHidden = true
-            self.navigationController?.navigationBar.layer.zPosition = 0
-            self.view.removeGestureRecognizer(self.tapToCloseGesture!)
-            collapseMenu()
-        } else {
-            
-//            self.menuView.isHidden = false
-            
-            expandMenu()
-            
-            self.navigationController?.navigationBar.layer.zPosition = -1
-            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeMenu(_:)))
-            self.tapToCloseGesture = tapGesture
-            self.view.addGestureRecognizer(tapGesture)
-        }
-        
-        
-        
-    }
-    func expandMenu() {
-        var view = menuBarButton.customView!
-        
-        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
-        
-        view.backgroundColor = UIColor.groupTableViewBackground
-        
-        UIView.animate(withDuration: 19.0, animations: {
-            self.menuBarButton.customView!.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
-//            self.menuBarButton.customView!.addInnerShadow(onSide: .all, shadowColor: .darkGray, shadowSize: 1.0, shadowOpacity: 0.5)
-            let innerShadow: YIInnerShadowView = YIInnerShadowView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
-            innerShadow.layer.cornerRadius = 22
-            innerShadow.cornerRadius = 22
-            innerShadow.shadowRadius = 2
-            innerShadow.shadowOpacity = 0.4
-            innerShadow.shadowColor = UIColor.lightGray
-            innerShadow.shadowMask = YIInnerShadowMaskAll
-            innerShadow.tag = 11
-//            self.menuBarButton.customView!.addSubview(innerShadow)
-            self.menuBarButton.customView?.setNeedsLayout()
-            self.menuBarButton.customView?.layoutIfNeeded()
-            
-            self.view.setNeedsLayout()
-            self.view.layoutIfNeeded()
-        }, completion: { (f) in
-            
-        })
-        
-    }
-    func collapseMenu() {
-        var view = menuBarButton.customView!
-        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44.0, height: 44.0)
-        view.backgroundColor = UIColor.white
-        view.viewWithTag(11)?.removeFromSuperview()
-        menuBarButton.customView = view
-        
-        
         self.view.setNeedsLayout()
         self.view.layoutIfNeeded()
     }
+    var tapToCloseGesture: UITapGestureRecognizer?
+//    @IBAction func menu() {
+//
+//        self.performSegue(withIdentifier: "ShowAccount", sender: self)
+//        return
+////        self.tabBarController?.selectedIndex = 1
+//        if self.navigationController?.navigationBar.layer.zPosition == -1 {
+////            self.menuView.isHidden = true
+//            self.navigationController?.navigationBar.layer.zPosition = 0
+//            self.view.removeGestureRecognizer(self.tapToCloseGesture!)
+//            collapseMenu()
+//        } else {
+//
+////            self.menuView.isHidden = false
+//
+//            expandMenu()
+//
+//            self.navigationController?.navigationBar.layer.zPosition = -1
+//            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeMenu(_:)))
+//            self.tapToCloseGesture = tapGesture
+//            self.view.addGestureRecognizer(tapGesture)
+//        }
+//
+//
+//
+//    }
+    
     func closeMenu(_ sender: UITapGestureRecognizer) {
         self.view.removeGestureRecognizer(sender)
         if self.navigationController?.navigationBar.layer.zPosition == -1 {
-            self.menu()
+//            self.menu()
         }
         
         
     }
-    @IBAction func switchToView(sender: UIButton) {
-        self.tabBarController?.selectedIndex = sender.tag - 1
-        self.menu()
+//    @IBAction func switchToView(sender: UIButton) {
+//        self.tabBarController?.selectedIndex = sender.tag - 1
+//        self.menu()
+//    }
+    
+    @IBAction func switchToSearch(sender: Any?) {
+//        let view1 = self.view
+//        let view2 = (self.tabBarController?.viewControllers![1] as! UINavigationController).viewControllers.first!.view
+        self.tabBarController?.heroTabBarAnimationType = .slide(direction: .left)
+        self.tabBarController?.selectedIndex = 1
+
+//        UIView.transition(from: view1!, to: view2!, duration: 0.1, options: .curveLinear, completion: { (b) in
+//            
+//        })
+        
+    }
+    @IBAction func switchToPortfolio(sender: Any?) {
+//        let view1 = self.view
+//        let view2 = (self.tabBarController?.viewControllers![2] as! UINavigationController).viewControllers.first!.view
+        self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+        self.tabBarController?.selectedIndex = 2
+//        UIView.transition(from: view1!, to: view2!, duration: 1.0, options: .curveLinear, completion: { (b) in
+//
+//            })
+
+    }
+    @IBAction func close() {
+//        self.navigationController?.popViewController(animated: true)
+        self.view.heroModifiers = [.fade]
+        self.navigationController?.popViewController(animated: true)
+//        self.navigationController?.popViewController(animated: true)
+    }
+    func stopLoading() {
+        print("charts loaded")
+        self.isLoading = false
+        self.refresher.endRefreshing()
+        self.assetTableView.reloadData()
+        self.updateTableHeight()
+        
+        
+//        for asset in self.assets {
+//            if asset.total > 0 && !asset.fiat {
+//                let charts = self.chartData[asset.symbol]?["usd"] ?? []
+//                
+//            }
+//        }
+        lineChartUpdate(data: calcPortfolioChart())
+        
+    }
+    func calcPortfolioChart() -> [(Int, Double, Double, Double, Double, Double)] {
+        let temp: [(Int, Double, Double, Double, Double, Double)] = Array(repeating: (0,0,0,0,0,0), count: self.chartData.first!.value.first!.value.count)
+        var totalData: [(Int, Double, Double, Double, Double, Double)] = temp
+//            defaultChartData.day!.count)
+        //        for asset in self.portfolio.assets {
+        //
+        //        }
+        
+        let coins = self.assets.filter { (asset) -> Bool in
+            return asset.total > 0 && !asset.fiat
+            
+        }
+        let amounts = coins.map({ $0.amount })
+        let charts = coins.map { (asset) -> [(Int, Double, Double, Double, Double, Double)] in
+            self.chartData[asset.symbol]?["usd"] ?? temp
+        }
+        let zipped = zip(amounts,charts)
+        let data = zipped.reduce((0.0,totalData), { (arg1:  (Double, [(Int, Double, Double, Double, Double, Double)]), arg2:  (Double, [(Int, Double, Double, Double, Double, Double)]) ) in
+            print(arg1.1.count, arg2.1.count)
+            return (arg2.0, zip(arg1.1, arg2.1).map({
+                
+                let x = $0.1.0
+                let price = $0.1.4
+                let amount = arg2.0
+                let y = $0.0.1 + price * amount
+                let data: (Int, Double, Double, Double, Double, Double) = (x,y,0.0,0.0,0.0,0.0)
+                return data
+            }))
+            //            zip($0.0, $1)
+            
+        })
+        return data.1
     }
     
     
@@ -514,6 +778,9 @@ extension ShowPortfolioViewController: UITableViewDataSource {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if self.isLoading {
+            return 1
+        }
         if self.selectedAssets == 4 {
             return self.watchlist.count
         } else {
@@ -523,28 +790,49 @@ extension ShowPortfolioViewController: UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        
+        if self.isLoading {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "LoadingCell") as! LoadingTableCell
+            cell.refresher.startAnimating()
+            return cell
+        }
 
         let row = indexPath.row
         
         var cell: UITableViewCell = UITableViewCell()
+        
         if self.selectedAssets == 4 {
             let coin = self.watchlist[row]
             let c = tableView.dequeueReusableCell(withIdentifier: "WatchlistCell") as! WatchlistTableViewCell
-            c.setCell(coin: coin, data: self.chartData[coin.symbol.lowercased()] ?? [])
+            if self.chartData[coin.symbol.lowercased()]?[coin.quoteSymbol.lowercased()] == nil && self.canUpdateCharts{
+                self.canUpdateCharts = false
+                self.interactor?.fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request())
+            }
+            c.setCell(coin: coin, data: self.chartData[coin.symbol.lowercased()]?[coin.quoteSymbol.lowercased()] ?? [])
             cell = c
         } else {
+            
             let asset = self.assetsOnDisplay[row]
+            if self.chartData[asset.symbol.lowercased()]?["usd"] == nil && self.canUpdateCharts{
+                self.canUpdateCharts = false
+                self.interactor?.fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request())
+            }
             for (index, each) in self.assets.enumerated() {
                 if each.coinName == asset.coinName {
-                    let color = self.colorsForAssets[index]
+                    var color: UIColor
+                    if index < colorsForAssets.count {
+                     color = self.colorsForAssets[index]
+                    } else {
+                        color = UIColor.lightGray
+                    }
+                    
                     if !each.fiat {
                         let c = tableView.dequeueReusableCell(withIdentifier: "AssetCell") as! AssetTableViewCell
-                        var rotation: CGFloat = self.anglesForAssets[asset.symbol]! - 90
+                        
+                        var rotation: CGFloat = self.anglesForAssets[asset.symbol] ?? 0.0
                         
                         
                         
-                        c.setCell(asset: self.assetsOnDisplay[indexPath.row],  color: color, rotation: rotation, data: self.chartData[asset.symbol] ?? [])
+                        c.setCell(asset: self.assetsOnDisplay[indexPath.row],  color: color, rotation: rotation, data: self.chartData[asset.symbol]?["usd"] ?? [])
                         cell = c
                     } else {
                         
@@ -563,7 +851,7 @@ extension ShowPortfolioViewController: UITableViewDataSource {
                 }
             }
         }
-        
+        cell.heroID = ""
         
         
         return cell
@@ -571,9 +859,17 @@ extension ShowPortfolioViewController: UITableViewDataSource {
 }
 extension ShowPortfolioViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if self.isLoading {
+            return
+        }
         let row = indexPath.row
+//        self.navigationController!.heroNavigationAnimationType = HeroDefaultAnimationType.auto
         if self.selectedAssets == 4 {
-            self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
+//            self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
+//            tableView.dequeueReusableCell(withIdentifier: "WatchlistCell", for: indexPath).heroID = "bigView"
+            self.router?.routeToShowCoin()
+            
+//            self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
             tableView.deselectRow(at: indexPath, animated: true)
             return
         }
@@ -583,7 +879,8 @@ extension ShowPortfolioViewController: UITableViewDelegate {
             return
         }
 //        print(PortfolioWorker.sharedInstance.portfolio.assets[row].coin.name)
-        self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
+        self.router?.routeToShowCoin()
+//            self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
@@ -593,4 +890,8 @@ extension ShowPortfolioViewController: ChartViewDelegate {
         self.chartValueLabel.text = "$\(price)"
     }
 }
-
+extension ShowPortfolioViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return false
+    }
+}

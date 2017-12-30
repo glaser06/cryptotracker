@@ -19,6 +19,16 @@ class CryptocompareAPI {
         
         
     }
+    
+    func fetchCoinList(_ completion: @escaping (JSON) -> Void) {
+        let url = "https://min-api.cryptocompare.com/data/all/coinlist"
+        self.request(reqUrl: url, completion)
+    }
+    func fetchCoinDetails(id: Int, _ completion: @escaping (JSON) -> Void) {
+        let url = "https://www.cryptocompare.com/api/data/coinsnapshotfullbyid/?id=\(id)"
+        self.request(reqUrl: url, completion)
+    }
+    
     func request(reqUrl: String, _ completion: @escaping (JSON) -> Void) {
         Alamofire.request(reqUrl).responseJSON(completionHandler: { (response) in
             
@@ -57,7 +67,7 @@ class CryptocompareAPI {
             return p + "\(s.uppercased()),"
         }
         
-        let reqUrl = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=\(b)&tsyms=\(q)&e=\(exchange)"
+        let reqUrl = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=\(b)&tsyms=\(q)&e=\(exchange)"
         request(reqUrl: reqUrl, completion)
     }
     

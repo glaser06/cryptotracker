@@ -43,6 +43,9 @@ class ListCoinsRouter: NSObject, ListCoinsRoutingLogic, ListCoinsDataPassing
         let coin = source.coins!.filter("symbol = %@", self.viewController!.selectedSymbol.lowercased()).first!
         destination.coinSymbol = self.viewController!.selectedSymbol
         destination.coin = coin
+        
+        destination.pair = coin.defaultPair!
+        print(destination.pair?.exchangeName)
 //        destination.coin = coin
         
     }
