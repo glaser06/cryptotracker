@@ -82,7 +82,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     
     var refresher: UIRefreshControl!
     
-    var isLoading: Bool = true
+    var isLoading: Bool = false
     
     // MARK: View lifecycle
     
@@ -107,14 +107,9 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
             make.height.equalTo(56)
 //            make.width.equalTo(self.view.frame.width - 95)
         }
-//        self.rightBarView.snp.makeConstraints { (make) in
-//            make.height.equalTo(56)
-//            make.width.equalTo(self.view.frame.width - 75)
-//        }
-        let tap = UITapGestureRecognizer(target: self, action: #selector(close))
-        self.navBarView.addGestureRecognizer(tap)
-//        self.rightBarView.addGestureRecognizer(tap)
-//        self.searchBar.isUserInteractionEnabled = false
+//        let tap = UITapGestureRecognizer(target: self, action: #selector(close))
+//        self.navBarView.addGestureRecognizer(tap)
+
         self.navigationController?.navigationBar.layoutIfNeeded()
         
 //        self.getAllCoins()
@@ -130,10 +125,8 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         setupMenu()
         self.pieChartView.heroID = "pieChart0"
         self.menuView.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
-        self.reload()
-        self.fetchCharts(true)
-        //        fetchPortfolio()
         self.pieChartUpdate()
+//        self.fetchCharts(true)
 //        DispatchQueue.global(qos: .userInteractive).async {
 //
 //        }
@@ -165,7 +158,10 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     }
     override func viewDidAppear(_ animated: Bool) {
         self.reload()
+        //        lineChartUpdate()
         
+
+//        self.pieChartUpdate()
 //        self.fetchCharts()
         
         navigationController?.heroNavigationAnimationType = .selectBy(presenting:.push(direction: .left), dismissing:.pull(direction: .right))
@@ -292,11 +288,11 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
                 Hero.shared.update(progress)
                 Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
             } else if progress > 0.01{
-                self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
-                self.tabBarController?.selectedIndex = 2
-                isAnimating = true
-                Hero.shared.update(progress)
-                Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
+//                self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+//                self.tabBarController?.selectedIndex = 2
+//                isAnimating = true
+//                Hero.shared.update(progress)
+//                Hero.shared.apply(modifiers: [.translate(x: translation.x, y: 0, z: 0)], to: self.view)
             }
             
         case .changed:
@@ -307,9 +303,9 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
                     self.tabBarController?.selectedIndex = 1
                     isAnimating = true
                 } else if progress > 0.01{
-                    self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
-                    self.tabBarController?.selectedIndex = 2
-                    isAnimating = true
+//                    self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
+//                    self.tabBarController?.selectedIndex = 2
+//                    isAnimating = true
                 }
             }
             if isAnimating{
@@ -320,9 +316,9 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
                         progress = 0
                     }
                 } else {
-                    if progress < 0 {
-                        progress = 0
-                    }
+//                    if progress < 0 {
+//                        progress = 0
+//                    }
                 }
             }
             
@@ -340,9 +336,9 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
             let r = progress + self.panGR.velocity(in: nil).x / self.view.bounds.width
             
             if progress + self.panGR.velocity(in: nil).x / self.view.bounds.width > 0.3 {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
-                    Hero.shared.finish()
-                })
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
+//                    Hero.shared.finish()
+//                })
             } else if progress + self.panGR.velocity(in: nil).x / self.view.bounds.width < -0.3 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.0, execute: {
                     Hero.shared.finish()
@@ -365,7 +361,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         
         pieChartUpdate()
 //        lineChartUpdate()
-//        fetchCharts()
+        fetchCharts()
         
     }
     
@@ -374,13 +370,15 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
     }
     
     
-    var lastChartUpdate: Date = Date()
+    var lastChartUpdate: Date = Date(timeIntervalSinceNow: -240)
     func fetchCharts(_ force: Bool = false) {
         let now = Date()
-        self.isLoading = true
+        
         let a = now.minutes(from: lastChartUpdate)
         if a > 3 || force {
             lastChartUpdate = Date()
+            self.isLoading = true
+
             interactor?.fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request())
             
         }
@@ -413,6 +411,14 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         self.costLabel.text = viewModel.initialCost
         
         self.changeValueButton.setTitle(viewModel.change24H, for: .normal)
+        let change24 = viewModel.change24H.replacingOccurrences(of: "%", with: "")
+        let change = Double(change24) ?? 0.0
+        if change > 0 {
+            self.changeValueButton.backgroundColor = UIView.theGreen
+        } else {
+            self.changeValueButton.backgroundColor = UIView.theRed
+        }
+        
         
         self.totalGainsLabel.text = "\(viewModel.overallGainValue)"
 //        (\(viewModel.overallGainPercent))
@@ -505,6 +511,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
 //            self.colorsForAssets.append(UIColor.lightGray)
         } else {
             var count = 0
+            
             for (index,asset) in self.assets.enumerated() {
 //                if asset.total > 0 {
                 
@@ -583,7 +590,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         case 1:
             self.assetsOnDisplay = []
             for asset in self.assets {
-                if asset.total > 0 && !asset.fiat {
+                if asset.total > 0.000001 && !asset.fiat {
                     self.assetsOnDisplay.append(asset)
                 }
             }
@@ -721,6 +728,8 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         print("charts loaded")
         self.isLoading = false
         self.refresher.endRefreshing()
+//        self.assetTableView.isScrollEnabled = true
+//        self.assetTableView.refreshControl?.endRefreshing()
         self.assetTableView.reloadData()
         self.updateTableHeight()
         
@@ -735,7 +744,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         
     }
     func calcPortfolioChart() -> [(Int, Double, Double, Double, Double, Double)] {
-        let temp: [(Int, Double, Double, Double, Double, Double)] = Array(repeating: (0,0,0,0,0,0), count: self.chartData.first!.value.first!.value.count)
+        let temp: [(Int, Double, Double, Double, Double, Double)] = Array(repeating: (0,0,0,0,0,0), count: self.chartData.first?.value.first?.value.count ?? 0)
         var totalData: [(Int, Double, Double, Double, Double, Double)] = temp
 //            defaultChartData.day!.count)
         //        for asset in self.portfolio.assets {
@@ -752,7 +761,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         }
         let zipped = zip(amounts,charts)
         let data = zipped.reduce((0.0,totalData), { (arg1:  (Double, [(Int, Double, Double, Double, Double, Double)]), arg2:  (Double, [(Int, Double, Double, Double, Double, Double)]) ) in
-            print(arg1.1.count, arg2.1.count)
+//            print(arg1.1.count, arg2.1.count)
             return (arg2.0, zip(arg1.1, arg2.1).map({
                 
                 let x = $0.1.0

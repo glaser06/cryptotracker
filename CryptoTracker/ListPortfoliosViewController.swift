@@ -80,7 +80,7 @@ class ListPortfoliosViewController: UIViewController, ListPortfoliosDisplayLogic
         super.viewDidLoad()
         
         panGR = UIPanGestureRecognizer(target: self, action: #selector(handlePan(gestureRecognizer:)))
-        view.addGestureRecognizer(panGR)
+//        view.addGestureRecognizer(panGR)
         
 //        self.navigationController?.heroNavigationAnimationType = .fade
         self.navigationController?.clearShadow()
@@ -92,18 +92,20 @@ class ListPortfoliosViewController: UIViewController, ListPortfoliosDisplayLogic
 //        self.navBarView.heightAnchor.constraint(equalToConstant: 56).isActive = true
         
 //        self.navBarView.backgroundColor = UIColor.blue
-        self.portfolioTableView.tableFooterView = nil
-        setupTableView()
+//        self.portfolioTableView.tableFooterView = nil
+//        setupTableView()
+        setupCollectionView()
+        
         self.fetchPortfolios()
         
     }
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.heroNavigationAnimationType = .none
-        self.fetchPortfolios()
+//        self.fetchPortfolios()
         
     }
     override func viewDidAppear(_ animated: Bool) {
-        
+        self.fetchPortfolios()
         if isFirstLoad {
 //            self.animateTransitionToPortfolio()
             self.isFirstLoad = false
@@ -114,7 +116,10 @@ class ListPortfoliosViewController: UIViewController, ListPortfoliosDisplayLogic
     
     // MARK: Do something
     
-    @IBOutlet weak var portfolioTableView: UITableView!
+//    @IBOutlet weak var portfolioTableView: UITableView!
+    @IBOutlet weak var portfolioCollectionView: UICollectionView!
+    
+    var refresher: UIRefreshControl!
     
     func setupNavTitleView() {
 //        self.navBarView.snp.makeConstraints { (make) in
@@ -133,9 +138,33 @@ class ListPortfoliosViewController: UIViewController, ListPortfoliosDisplayLogic
         self.navigationController?.navigationBar.layoutIfNeeded()
     }
     func setupTableView() {
-        self.portfolioTableView.register(UINib(nibName: "PortfolioTableViewCell", bundle: nil), forCellReuseIdentifier: "PortfolioCell")
-        self.portfolioTableView.rowHeight = UITableViewAutomaticDimension
-        self.portfolioTableView.estimatedRowHeight = 120
+        self.refresher = UIRefreshControl()
+        self.refresher.addTarget(self, action: #selector(fetchPortfolios), for: .valueChanged)
+//        self.portfolioTableView.refreshControl = self.refresher
+//        self.portfolioTableView.alwaysBounceVertical = true
+        
+//        self.scrollView.refreshControl = self.refresher
+//        self.scrollView.isScrollEnabled = true
+//        self.scrollView.alwaysBounceVertical = true
+        self.refresher.didMoveToSuperview()
+        
+//        self.portfolioTableView.register(UINib(nibName: "PortfolioTableViewCell", bundle: nil), forCellReuseIdentifier: "PortfolioCell")
+//        self.portfolioTableView.rowHeight = UITableViewAutomaticDimension
+//        self.portfolioTableView.estimatedRowHeight = 120
+        
+        
+        
+    }
+    func setupCollectionView() {
+        self.refresher = UIRefreshControl()
+        self.refresher.addTarget(self, action: #selector(fetchPortfolios), for: .valueChanged)
+        self.portfolioCollectionView.refreshControl = self.refresher
+        self.portfolioCollectionView.alwaysBounceVertical = true
+        
+        self.refresher.didMoveToSuperview()
+        self.portfolioCollectionView.register(UINib(nibName: PortfolioCollectionCell.identifier, bundle: nil), forCellWithReuseIdentifier: PortfolioCollectionCell.identifier)
+        self.portfolioCollectionView.dataSource = self
+        self.portfolioCollectionView.delegate = self
     }
     
     func handlePan(gestureRecognizer:UIPanGestureRecognizer) {
@@ -187,7 +216,9 @@ class ListPortfoliosViewController: UIViewController, ListPortfoliosDisplayLogic
     
     func displayPortfolios(viewModel: ListPortfolios.FetchPortfolios.ViewModel) {
         self.portfolios = viewModel.portfolios
-        self.portfolioTableView.reloadData()
+//        self.portfolioTableView.reloadData()
+        self.portfolioCollectionView.reloadData()
+        self.refresher.endRefreshing()
     }
     
     func fetchPortfolios() {
@@ -208,6 +239,31 @@ class ListPortfoliosViewController: UIViewController, ListPortfoliosDisplayLogic
     
     
     
+}
+extension ListPortfoliosViewController: UICollectionViewDataSource {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
+        return self.portfolios.count
+    }
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PortfolioCollectionCell.identifier, for: indexPath) as! PortfolioCollectionCell
+        cell.setCell(portfolio: self.portfolios[indexPath.item])
+        return cell
+    }
+    
+}
+extension ListPortfoliosViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: self.view.frame.width / 2 - 16, height: 230)
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.navigationController?.heroNavigationAnimationType = .none
+        self.performSegue(withIdentifier: "ShowPortfolio", sender: self)
+    }
 }
 extension ListPortfoliosViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -260,21 +316,21 @@ extension ListPortfoliosViewController: UITableViewDelegate {
     }
     func animateTransitionToPortfolio() {
         DispatchQueue.main.async {
-            let indexPath = IndexPath(row: 0, section: 0)
-            self.navigationController?.heroNavigationAnimationType = .none
-            var cell = self.portfolioTableView.dequeueReusableCell(withIdentifier: "PortfolioCell", for: indexPath) as! PortfolioTableViewCell
-            self.portfolioTableView.visibleCells.map { (c) -> Void in
-                c.heroModifiers = [.fade]
-                
-            }
-            self.view.heroModifiers = [.fade]
-            
-            
-            
-            
-            //        let vc = self.storyboard?.instantiateViewController(withIdentifier: "LoadingVC")
-            //        self.navigationController?.pushViewController(vc!, animated: true)
-            self.performSegue(withIdentifier: "ShowPortfolio", sender: self)
+//            let indexPath = IndexPath(row: 0, section: 0)
+//            self.navigationController?.heroNavigationAnimationType = .none
+//            var cell = self.portfolioTableView.dequeueReusableCell(withIdentifier: "PortfolioCell", for: indexPath) as! PortfolioTableViewCell
+//            self.portfolioTableView.visibleCells.map { (c) -> Void in
+//                c.heroModifiers = [.fade]
+//
+//            }
+//            self.view.heroModifiers = [.fade]
+//
+//
+//
+//
+//            //        let vc = self.storyboard?.instantiateViewController(withIdentifier: "LoadingVC")
+//            //        self.navigationController?.pushViewController(vc!, animated: true)
+//            self.performSegue(withIdentifier: "ShowPortfolio", sender: self)
         }
         
         

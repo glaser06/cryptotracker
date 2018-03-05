@@ -20,7 +20,7 @@ class QuoteCollectionViewCell: UICollectionViewCell {
     
     
     func setCell(quote: String) {
-        self.backView.layer.borderColor = color(from: 107, green: 185, blue: 240).cgColor
+//        self.backView.layer.borderColor = color(from: 107, green: 185, blue: 240).cgColor
         self.quoteLabel.text = quote
     }
     

@@ -18,15 +18,18 @@ class ShowPortfolioWorker
     let portfolioWorker = PortfolioWorker.sharedInstance
   
     func fetchAllPrices(completion: @escaping () -> Void) {
-        let quotes = ["usd", "btc"] + portfolioWorker.portfolio.watchlist.map({ (c) -> String in
+        let quotes = Array(Set(["usd", "btc"] + portfolioWorker.portfolio.watchlist.map({ (c) -> String in
             c.quoteSymbol
-        })
-        let bases: [String] = portfolioWorker.portfolio.assets.filter("coin.coinType != 'fiat'").map { (a) -> String in
+        })))
+        var bases: [String] = portfolioWorker.portfolio.assets.filter("coin.coinType != 'fiat'").map { (a) -> String in
             a.coin!.symbol
             } + portfolioWorker.portfolio.watchlist.map({ (c) -> String in
                 c.baseSymbol
             })
+        bases = Array(Set(bases))
         let exchange = Exchange()
+        print(bases)
+        print(quotes)
         exchange.name = "CCCAGG"
         coinWorker.fetchMultiple(bases: bases, quotes: quotes, exchange: exchange, completion: completion)
     }

@@ -45,6 +45,9 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
     // MARK: Do something
     
     func fetchPortfolio(request: ShowPortfolio.FetchPortfolio.Request) {
+        
+        
+        
         self.assets = self.portfolioWorker.portfolio.assets
         let resp = ShowPortfolio.FetchPortfolio.Response(name: self.portfolioWorker.portfolio.name , value: self.portfolioWorker.marketValue(), assets: self.portfolioWorker.portfolio.assets, watchlist: self.portfolioWorker.portfolio.watchlist, initialValue: self.portfolioWorker.portfolio.initialValue, change24H: self.portfolioWorker.portfolio.marketValueChange)
         
@@ -64,6 +67,7 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
 //            let resp = ShowPortfolio.FetchPortfolio.Response(value: self.portfolioWorker.marketValue(), assets: self.portfolioWorker.portfolio.assets, initialValue: self.portfolioWorker.portfolio.initialValue)
 //            self.presenter?.presentPortfolio(response: resp)
 //        })
+        
         
     }
     func fetchAllCoins(_ completion: @escaping () -> Void) {

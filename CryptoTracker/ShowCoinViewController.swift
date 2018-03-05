@@ -179,7 +179,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
 //    @IBOutlet var filterSelectionButtons: [UIButton]!
 //    @IBOutlet var filterSelectionIndicators: [UIView]!
     
-    @IBOutlet var pairSearchBar: UISearchBar!
+    
     
     
     
@@ -290,8 +290,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     
     
     
-    func fetchCoin()
-    {
+    func fetchCoin() {
         if self.displayedExchange != "" && self.displayedQuote != "" {
 //            print(self.displayedQuote)
             let request = ShowCoin.ShowCoin.Request(exchange: self.displayedExchange, quote: self.displayedQuote)
@@ -373,7 +372,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             self.dismissSelectionView()
             return
         }
-        self.pairSearchBar.placeholder = "Search All Quotes..."
+
 //        self.filterSelectionButtons.map({
 //            if $0.tag == 1 {
 //                $0.setTitle("All Quotes", for: .normal)
@@ -434,7 +433,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
             return
         }
         
-        self.pairSearchBar.placeholder = "Search exchanges that trade \(self.displayedQuote.uppercased())"
+
 //        self.filterSelectionButtons.map({
 //            if $0.tag == 1 {
 //                $0.setTitle("All Exchanges", for: .normal)
@@ -464,6 +463,7 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
     
     
     func changeQuoteAndExchange(info: String) {
+        
         if self.quotes.contains(info) {
             self.currencyButton.setTitle(info, for: .normal)
             self.displayedQuote = info
@@ -671,7 +671,10 @@ class ShowCoinViewController: UIViewController, ShowCoinDisplayLogic
         }
         self.timeLabel.text = viewModel.date
         let font = self.descriptionLabel.font
-        self.descriptionLabel.attributedText = String.stringFromHtml(string: viewModel.details, font: self.descriptionLabel.font)
+        let a = String.stringFromHtml(string: viewModel.details, font: self.descriptionLabel.font)
+        let b = a?.string.replacingOccurrences(of: "Â", with: "")
+        
+        self.descriptionLabel.text = b
         self.descriptionLabel.font = font
         self.exchangeButton.setTitle(viewModel.exchange, for: .normal)
         self.currencyButton.setTitle("\(viewModel.symbol.uppercased())/\(viewModel.quote)", for: .normal)
@@ -1090,16 +1093,21 @@ extension ShowCoinViewController: UICollectionViewDataSource {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "QuoteCell", for: indexPath) as! QuoteCollectionViewCell
         
         let index = indexPath.item
+        
         cell.setCell(quote: self.displayedSelections[index])
         return cell
     }
     
+    
+    
 }
+
 extension ShowCoinViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         changeQuoteAndExchange(info: self.displayedSelections[indexPath.item])
         
     }
+    
 }
 
 extension ShowCoinViewController: ChartViewDelegate {

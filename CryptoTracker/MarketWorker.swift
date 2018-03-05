@@ -23,6 +23,25 @@ class MarketWorker
     
     let exchangeInfoGroup = DispatchGroup()
     
+    
+    
+    var lastUpdate: Date {
+        get {
+            let defaults = UserDefaults.standard
+            if let d = defaults.object(forKey: "LastUpdateDate") {
+                return d as! Date
+            } else {
+                
+                return Date(timeIntervalSince1970: 20)
+            }
+//            return defaults.object(forKey: "LastUpdateDate")
+        }
+        set {
+            let defaults = UserDefaults.standard
+            defaults.set(newValue, forKey: "LastUpdateDate")
+        }
+    }
+    
     func fetchCoinIDs(completion: (() -> Void)?) {
         let realm = try! Realm()
         bigService.fetchCoinList { (json) in
@@ -84,7 +103,7 @@ class MarketWorker
                 realm.add(btc, update: true)
                 realm.add(cccagg, update: true)
                 realm.add(coinmarketcap, update: true)
-//                fix this
+                //                fix this
                 
                 for data in json {
                     let name: String = data.1["name"].stringValue.lowercased()
@@ -125,38 +144,40 @@ class MarketWorker
                         let btcPair = StorageManager.addPair(realm: realm, base: coin, quote: btc, exchange: coinmarketcap)
                         StorageManager.addPair(realm: realm, base: coin, quote: btc, exchange: cccagg)
                         btcPair.price.value = btcPrice
-//                        usdPair.marketCap.value = cap
-//                        usdPair.volume.value = volume
+                        //                        usdPair.marketCap.value = cap
+                        //                        usdPair.volume.value = volume
                         btcPair.percentChange.value = percent
                         
                     }
                     
-//                    let addPair: (Coin, Coin, Exchange) -> Void = { (base, quote, exc) in
-//                        var pair = Pair()
-//
-//                        pair.setAll(base: base, quote: quote, exc: coinmarketcap)
-//                        if let p = base.defaultPair {
-//                            pair = p
-//                        } else {
-//                            base.pairs.append(pair)
-//                            realm.add(pair, update: true)
-//                        }
-//
-//                        pair.price.value = price
-//                        pair.marketCap.value = cap
-//                        pair.volume.value = volume
-//                        pair.percentChange.value = percent
-//
-//                        quote.quotes.append(pair)
-//                        exc.pairs.append(pair)
-//                    }
-
+                    //                    let addPair: (Coin, Coin, Exchange) -> Void = { (base, quote, exc) in
+                    //                        var pair = Pair()
+                    //
+                    //                        pair.setAll(base: base, quote: quote, exc: coinmarketcap)
+                    //                        if let p = base.defaultPair {
+                    //                            pair = p
+                    //                        } else {
+                    //                            base.pairs.append(pair)
+                    //                            realm.add(pair, update: true)
+                    //                        }
+                    //
+                    //                        pair.price.value = price
+                    //                        pair.marketCap.value = cap
+                    //                        pair.volume.value = volume
+                    //                        pair.percentChange.value = percent
+                    //
+                    //                        quote.quotes.append(pair)
+                    //                        exc.pairs.append(pair)
+                    //                    }
+                    
                     
                     
                 }
                 
                 realm.add(coinmarketcap, update: true)
             }
+            
+            
 //            print(realm.objects(Coin.self).map({ (c) -> String in
 //                return c.name
 //            }))
@@ -493,6 +514,23 @@ class MarketWorker
     func setup() {
         realm = try! Realm()
         self.topCoins = realm.objects(Coin.self).filter("ANY pairs.exchangeName = %@", "CoinMarketCap")
+        print(self.lastUpdate.timeIntervalSinceNow)
+        if self.lastUpdate.timeIntervalSinceNow < -300000 {
+            CodeTimer.set()
+            self.retrieveCoins(completion: {
+                DispatchQueue.global(qos: .background).async {
+                    self.fetchAllExchangesAndPairs(completion: {
+                        
+                        let end = Date()
+//                        let interval = end.timeIntervalSince(start)
+                        CodeTimer.finish("finished setup")
+                        MarketWorker.sharedInstance.lastUpdate = end
+                    })
+                }
+                
+            })
+            MarketWorker.sharedInstance.fetchCoinIDs(completion: nil)
+        }
 //        realm.objects(Coin.self).filter { (coin) -> Bool in
 //            //            return coin.defaultPair != nil
 //            coin.defaultPair == nil

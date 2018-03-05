@@ -36,8 +36,8 @@ class ListPortfoliosRouter: NSObject, ListPortfoliosRoutingLogic, ListPortfolios
         var a = destinationVC.view
         var destinationDS = destinationVC.router!.dataStore!
         print(destinationVC.pieChartView.heroID)
-        print(viewController!.portfolioTableView)
-        destinationVC.pieChartView.heroID = "pieChart\(viewController!.portfolioTableView.indexPathForSelectedRow!.row)"
+        print(viewController!.portfolioCollectionView)
+        destinationVC.pieChartView.heroID = "pieChart\((viewController!.portfolioCollectionView.indexPathsForSelectedItems?.first?.item)!)"
         passDataToShowPortfolio(source: dataStore!, destination: &destinationDS)
         
     }
@@ -53,6 +53,6 @@ class ListPortfoliosRouter: NSObject, ListPortfoliosRoutingLogic, ListPortfolios
     
     func passDataToShowPortfolio(source: ListPortfoliosDataStore, destination: inout ShowPortfolioDataStore)
     {
-        PortfolioWorker.sharedInstance.portfolio = source.portfolios[(viewController?.portfolioTableView.indexPathForSelectedRow?.row)!]
+        PortfolioWorker.sharedInstance.portfolio = source.portfolios[(viewController?.portfolioCollectionView.indexPathsForSelectedItems?.first?.item)!]
     }
 }

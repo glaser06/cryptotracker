@@ -36,7 +36,7 @@ class ListPortfoliosInteractor: ListPortfoliosBusinessLogic, ListPortfoliosDataS
         let realm = try! Realm()
         let portfolios = realm.objects(Portfolio.self)
         self.portfolios = portfolios
-        print(portfolios.count)
+//        print(portfolios.count)
         let resp = ListPortfolios.FetchPortfolios.Response(portfolios: portfolios)
         self.presenter?.presentPortfolios(response: resp)
     }

@@ -76,6 +76,10 @@
 		E37950C51F6D056400C3338A /* UsefulExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37950C41F6D056400C3338A /* UsefulExtensions.swift */; };
 		E37AAB6B1F699634001546BD /* QuoteCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37AAB691F699634001546BD /* QuoteCollectionViewCell.swift */; };
 		E37AAB6C1F699634001546BD /* QuoteCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E37AAB6A1F699634001546BD /* QuoteCollectionViewCell.xib */; };
+		E3856BF0204CACB300FECBD1 /* TransactionTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3856BEE204CACB300FECBD1 /* TransactionTableCell.swift */; };
+		E3856BF1204CACB300FECBD1 /* TransactionTableCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3856BEF204CACB300FECBD1 /* TransactionTableCell.xib */; };
+		E3856BF5204D21E400FECBD1 /* PortfolioCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3856BF3204D21E400FECBD1 /* PortfolioCollectionCell.swift */; };
+		E3856BF6204D21E400FECBD1 /* PortfolioCollectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3856BF4204D21E400FECBD1 /* PortfolioCollectionCell.xib */; };
 		E38689C51F6772E0004E98D7 /* CryptocompareAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E38689C41F6772E0004E98D7 /* CryptocompareAPI.swift */; };
 		E3A6C6731F83A2F8004FBB9A /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3A6C6721F83A2F8004FBB9A /* StorageManager.swift */; };
 		E3ABCE401FF472BF00D2FE14 /* SharePortfolioInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3ABCE3A1FF472BE00D2FE14 /* SharePortfolioInteractor.swift */; };
@@ -85,6 +89,12 @@
 		E3ABCE441FF472BF00D2FE14 /* SharePortfolioViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3ABCE3E1FF472BF00D2FE14 /* SharePortfolioViewController.swift */; };
 		E3ABCE451FF472BF00D2FE14 /* SharePortfolioWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3ABCE3F1FF472BF00D2FE14 /* SharePortfolioWorker.swift */; };
 		E3B0D35D1F94389700D710E2 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B0D35C1F94389600D710E2 /* UIViewExtensions.swift */; };
+		E3B714F51FFB07DD0085DB60 /* ListTransactionsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B714EF1FFB07DD0085DB60 /* ListTransactionsInteractor.swift */; };
+		E3B714F61FFB07DD0085DB60 /* ListTransactionsModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B714F01FFB07DD0085DB60 /* ListTransactionsModels.swift */; };
+		E3B714F71FFB07DD0085DB60 /* ListTransactionsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B714F11FFB07DD0085DB60 /* ListTransactionsPresenter.swift */; };
+		E3B714F81FFB07DD0085DB60 /* ListTransactionsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B714F21FFB07DD0085DB60 /* ListTransactionsRouter.swift */; };
+		E3B714F91FFB07DD0085DB60 /* ListTransactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B714F31FFB07DD0085DB60 /* ListTransactionsViewController.swift */; };
+		E3B714FA1FFB07DD0085DB60 /* ListTransactionsWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B714F41FFB07DD0085DB60 /* ListTransactionsWorker.swift */; };
 		E3B9A5381FACFF0700311273 /* LoadingTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B9A5361FACFF0700311273 /* LoadingTableCell.swift */; };
 		E3B9A5391FACFF0700311273 /* LoadingTableCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3B9A5371FACFF0700311273 /* LoadingTableCell.xib */; };
 		E3B9A5411FAD478700311273 /* AddPortfolioInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B9A53B1FAD478700311273 /* AddPortfolioInteractor.swift */; };
@@ -205,6 +215,10 @@
 		E37950C41F6D056400C3338A /* UsefulExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UsefulExtensions.swift; path = ../UsefulExtensions.swift; sourceTree = "<group>"; };
 		E37AAB691F699634001546BD /* QuoteCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuoteCollectionViewCell.swift; sourceTree = "<group>"; };
 		E37AAB6A1F699634001546BD /* QuoteCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = QuoteCollectionViewCell.xib; sourceTree = "<group>"; };
+		E3856BEE204CACB300FECBD1 /* TransactionTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTableCell.swift; sourceTree = "<group>"; };
+		E3856BEF204CACB300FECBD1 /* TransactionTableCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TransactionTableCell.xib; sourceTree = "<group>"; };
+		E3856BF3204D21E400FECBD1 /* PortfolioCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioCollectionCell.swift; sourceTree = "<group>"; };
+		E3856BF4204D21E400FECBD1 /* PortfolioCollectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PortfolioCollectionCell.xib; sourceTree = "<group>"; };
 		E38689C41F6772E0004E98D7 /* CryptocompareAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptocompareAPI.swift; sourceTree = "<group>"; };
 		E3A6C6721F83A2F8004FBB9A /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		E3ABCE3A1FF472BE00D2FE14 /* SharePortfolioInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePortfolioInteractor.swift; sourceTree = "<group>"; };
@@ -214,6 +228,12 @@
 		E3ABCE3E1FF472BF00D2FE14 /* SharePortfolioViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePortfolioViewController.swift; sourceTree = "<group>"; };
 		E3ABCE3F1FF472BF00D2FE14 /* SharePortfolioWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePortfolioWorker.swift; sourceTree = "<group>"; };
 		E3B0D35C1F94389600D710E2 /* UIViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
+		E3B714EF1FFB07DD0085DB60 /* ListTransactionsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListTransactionsInteractor.swift; sourceTree = "<group>"; };
+		E3B714F01FFB07DD0085DB60 /* ListTransactionsModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListTransactionsModels.swift; sourceTree = "<group>"; };
+		E3B714F11FFB07DD0085DB60 /* ListTransactionsPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListTransactionsPresenter.swift; sourceTree = "<group>"; };
+		E3B714F21FFB07DD0085DB60 /* ListTransactionsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListTransactionsRouter.swift; sourceTree = "<group>"; };
+		E3B714F31FFB07DD0085DB60 /* ListTransactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListTransactionsViewController.swift; sourceTree = "<group>"; };
+		E3B714F41FFB07DD0085DB60 /* ListTransactionsWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListTransactionsWorker.swift; sourceTree = "<group>"; };
 		E3B9A5361FACFF0700311273 /* LoadingTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingTableCell.swift; sourceTree = "<group>"; };
 		E3B9A5371FACFF0700311273 /* LoadingTableCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingTableCell.xib; sourceTree = "<group>"; };
 		E3B9A53B1FAD478700311273 /* AddPortfolioInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPortfolioInteractor.swift; sourceTree = "<group>"; };
@@ -354,6 +374,7 @@
 		6D0ED8F01F4DF5FC00D5146D /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				E3B714EE1FFB07BE0085DB60 /* ListTransactions */,
 				E3ABCE391FF4729F00D2FE14 /* SharePortfolio */,
 				E3B9A53A1FAD477900311273 /* AddPortfolio */,
 				E3F323841F5DC229000B1CE1 /* ShowAccount */,
@@ -495,6 +516,7 @@
 		E32F3B361FA674400060AC00 /* ListPortfolios */ = {
 			isa = PBXGroup;
 			children = (
+				E3856BF2204D21CD00FECBD1 /* CollectionViewCells */,
 				E32F3B431FA693E10060AC00 /* Cells */,
 				E32F3B3B1FA674580060AC00 /* ListPortfoliosViewController.swift */,
 				E32F3B371FA674580060AC00 /* ListPortfoliosInteractor.swift */,
@@ -526,6 +548,24 @@
 			name = Cells;
 			sourceTree = "<group>";
 		};
+		E3856BED204CAC9A00FECBD1 /* TableViewCells */ = {
+			isa = PBXGroup;
+			children = (
+				E3856BEE204CACB300FECBD1 /* TransactionTableCell.swift */,
+				E3856BEF204CACB300FECBD1 /* TransactionTableCell.xib */,
+			);
+			name = TableViewCells;
+			sourceTree = "<group>";
+		};
+		E3856BF2204D21CD00FECBD1 /* CollectionViewCells */ = {
+			isa = PBXGroup;
+			children = (
+				E3856BF3204D21E400FECBD1 /* PortfolioCollectionCell.swift */,
+				E3856BF4204D21E400FECBD1 /* PortfolioCollectionCell.xib */,
+			);
+			name = CollectionViewCells;
+			sourceTree = "<group>";
+		};
 		E3ABCE391FF4729F00D2FE14 /* SharePortfolio */ = {
 			isa = PBXGroup;
 			children = (
@@ -537,6 +577,20 @@
 				E3ABCE3F1FF472BF00D2FE14 /* SharePortfolioWorker.swift */,
 			);
 			name = SharePortfolio;
+			sourceTree = "<group>";
+		};
+		E3B714EE1FFB07BE0085DB60 /* ListTransactions */ = {
+			isa = PBXGroup;
+			children = (
+				E3856BED204CAC9A00FECBD1 /* TableViewCells */,
+				E3B714F31FFB07DD0085DB60 /* ListTransactionsViewController.swift */,
+				E3B714EF1FFB07DD0085DB60 /* ListTransactionsInteractor.swift */,
+				E3B714F11FFB07DD0085DB60 /* ListTransactionsPresenter.swift */,
+				E3B714F01FFB07DD0085DB60 /* ListTransactionsModels.swift */,
+				E3B714F21FFB07DD0085DB60 /* ListTransactionsRouter.swift */,
+				E3B714F41FFB07DD0085DB60 /* ListTransactionsWorker.swift */,
+			);
+			name = ListTransactions;
 			sourceTree = "<group>";
 		};
 		E3B9A53A1FAD477900311273 /* AddPortfolio */ = {
@@ -690,7 +744,9 @@
 				E30E86731F75B89B00AC5C2B /* FiatAssetTableViewCell.xib in Resources */,
 				6D0ED8CA1F4CE0A700D5146D /* Assets.xcassets in Resources */,
 				E33BBC071F91AA6B00D89EE7 /* Empty.xib in Resources */,
+				E3856BF6204D21E400FECBD1 /* PortfolioCollectionCell.xib in Resources */,
 				E3D9C01D1FF59F0B00E55BCC /* EmptyTableViewCell.xib in Resources */,
+				E3856BF1204CACB300FECBD1 /* TransactionTableCell.xib in Resources */,
 				E3CB098C1FAC7B6E0021BBB0 /* AssetNameCollectionViewCell.xib in Resources */,
 				6D0ED9041F4E058600D5146D /* CoinTableViewCell.xib in Resources */,
 				E3D4B93E1F70D7B2005FCDB8 /* TempStorage.xib in Resources */,
@@ -889,7 +945,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E3B714F61FFB07DD0085DB60 /* ListTransactionsModels.swift in Sources */,
 				E3B9A5451FAD478700311273 /* AddPortfolioViewController.swift in Sources */,
+				E3856BF0204CACB300FECBD1 /* TransactionTableCell.swift in Sources */,
 				6D6203741F509EFD00054A44 /* ShowPortfolioModels.swift in Sources */,
 				6D6203731F509EFD00054A44 /* ShowPortfolioInteractor.swift in Sources */,
 				E37950C51F6D056400C3338A /* UsefulExtensions.swift in Sources */,
@@ -926,15 +984,18 @@
 				E318527F1FA6A46600546627 /* LoadingViewController.swift in Sources */,
 				6D6825F61F502BA200A25873 /* CoinWorker.swift in Sources */,
 				6D0ED8FB1F4DF94700D5146D /* ListCoinsInteractor.swift in Sources */,
+				E3B714FA1FFB07DD0085DB60 /* ListTransactionsWorker.swift in Sources */,
 				E30E86721F75B89B00AC5C2B /* FiatAssetTableViewCell.swift in Sources */,
 				E38689C51F6772E0004E98D7 /* CryptocompareAPI.swift in Sources */,
 				E32F3B421FA674580060AC00 /* ListPortfoliosWorker.swift in Sources */,
+				E3B714F51FFB07DD0085DB60 /* ListTransactionsInteractor.swift in Sources */,
 				6D6203871F51009300054A44 /* AddTransactionInteractor.swift in Sources */,
 				E32F3B3E1FA674580060AC00 /* ListPortfoliosModels.swift in Sources */,
 				E3A6C6731F83A2F8004FBB9A /* StorageManager.swift in Sources */,
 				E3B9A5431FAD478700311273 /* AddPortfolioPresenter.swift in Sources */,
 				E3F3238D1F5DC236000B1CE1 /* ShowAccountPresenter.swift in Sources */,
 				E34ADD441F78CFD2006B1088 /* Transaction.swift in Sources */,
+				E3856BF5204D21E400FECBD1 /* PortfolioCollectionCell.swift in Sources */,
 				6D0ED9071F4E3EF800D5146D /* CoinMarketCapAPI.swift in Sources */,
 				6D6825F21F5016DB00A25873 /* ShowCoinWorker.swift in Sources */,
 				6D6825F81F502BBE00A25873 /* CryptowatchAPI.swift in Sources */,
@@ -942,7 +1003,9 @@
 				6D6825ED1F5016DB00A25873 /* ShowCoinInteractor.swift in Sources */,
 				E32F3B461FA69AA20060AC00 /* PortfolioTableViewCell.swift in Sources */,
 				6D0ED8C31F4CE0A700D5146D /* AppDelegate.swift in Sources */,
+				E3B714F71FFB07DD0085DB60 /* ListTransactionsPresenter.swift in Sources */,
 				E3CB098B1FAC7B6E0021BBB0 /* AssetNameCollectionViewCell.swift in Sources */,
+				E3B714F81FFB07DD0085DB60 /* ListTransactionsRouter.swift in Sources */,
 				6D6825EE1F5016DB00A25873 /* ShowCoinModels.swift in Sources */,
 				6D6203771F509EFD00054A44 /* ShowPortfolioViewController.swift in Sources */,
 				6D62037A1F50A9EB00054A44 /* PortfolioWorker.swift in Sources */,
@@ -957,6 +1020,7 @@
 				6D0ED9091F4E3F0A00D5146D /* MarketWorker.swift in Sources */,
 				6D6203881F51009300054A44 /* AddTransactionModels.swift in Sources */,
 				E32F3B3D1FA674580060AC00 /* ListPortfoliosInteractor.swift in Sources */,
+				E3B714F91FFB07DD0085DB60 /* ListTransactionsViewController.swift in Sources */,
 				E318527A1FA6A25600546627 /* LoadingView.swift in Sources */,
 				E3B9A5421FAD478700311273 /* AddPortfolioModels.swift in Sources */,
 				E3ABCE431FF472BF00D2FE14 /* SharePortfolioRouter.swift in Sources */,

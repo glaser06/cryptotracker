@@ -15,6 +15,7 @@ import UIKit
 @objc protocol ShowCoinRoutingLogic
 {
     //func routeToSomewhere(segue: UIStoryboardSegue?)
+    func routeToListTransactions(segue: UIStoryboardSegue)
 }
 
 protocol ShowCoinDataPassing
@@ -48,6 +49,17 @@ class ShowCoinRouter: NSObject, ShowCoinRoutingLogic, ShowCoinDataPassing
         destinationVC.url = dataStore!.coin!.website
     }
     
+    func routeToListTransactions(segue: UIStoryboardSegue) {
+        let destinationVC = segue.destination as! ListTransactionsViewController
+        var destinationDS = destinationVC.router!.dataStore!
+        passDataToListTransactions(source: dataStore!, destination: &destinationDS)
+    }
+    func passDataToListTransactions(source: ShowCoinDataStore, destination: inout ListTransactionsDataStore)
+    {
+        destination.asset = PortfolioWorker.sharedInstance.portfolio.find(coin: source.coinSymbol)
+        
+        
+    }
     //func routeToSomewhere(segue: UIStoryboardSegue?)
     //{
     //  if let segue = segue {

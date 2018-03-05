@@ -25,18 +25,17 @@ class Portfolio: Object {
     
     var marketValue: Double {
         get {
+            
             var val = 0.0
             
-//            self.assets.map { (a) -> Double in
-//                return a.amountHeld * a.coin!.defaultPair!.price.value!
-//            }.reduce(<#T##initialResult: Result##Result#>, <#T##nextPartialResult: (Result, Double) throws -> Result##(Result, Double) throws -> Result#>)
-//            print(self.assets.count)
+
             for asset in self.assets {
-                if asset.coin!.coinType == Coin.CoinType.Crypto.rawValue {
-//                    print(asset.amountHeld)
-                    
+                if asset.coin!.coinType == Coin.CoinType.Fiat.rawValue {
+                    val += asset.amountHeld
+                } else {
                     val += asset.amountHeld * (asset.coin!.defaultPair!.price.value ?? 0.0)
                 }
+                
                 
             }
 //            print(val)

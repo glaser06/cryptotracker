@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
         <array key="AvenirNext.ttc">
-            <string>AvenirNext-Medium</string>
             <string>AvenirNext-Regular</string>
         </array>
     </customFonts>
@@ -32,14 +31,8 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="23.2M" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dmv-9j-CMG">
-                                <rect key="frame" x="23" y="41" width="44.5" height="20.5"/>
-                                <fontDescription key="fontDescription" name="AvenirNext-Medium" family="Avenir Next" pointSize="15"/>
-                                <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalCompressionResistancePriority="749" text="USD" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="11" translatesAutoresizingMaskIntoConstraints="NO" id="vSt-os-BmQ">
-                                <rect key="frame" x="25.5" y="16" width="39" height="21"/>
+                                <rect key="frame" x="25.5" y="26" width="39" height="26"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="19"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -47,14 +40,22 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="vSt-os-BmQ" firstAttribute="centerX" secondItem="Dmv-9j-CMG" secondAttribute="centerX" id="2OI-Z6-ENJ"/>
                             <constraint firstItem="vSt-os-BmQ" firstAttribute="centerX" secondItem="a7i-Ce-3zE" secondAttribute="centerX" id="3GC-Bi-sRA"/>
-                            <constraint firstAttribute="bottom" secondItem="Dmv-9j-CMG" secondAttribute="bottom" constant="16" id="DDn-Kf-EZa"/>
+                            <constraint firstItem="vSt-os-BmQ" firstAttribute="centerY" secondItem="a7i-Ce-3zE" secondAttribute="centerY" id="CD6-5v-eXG"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="vSt-os-BmQ" secondAttribute="trailing" constant="2" id="OHC-cu-MKK"/>
-                            <constraint firstItem="vSt-os-BmQ" firstAttribute="top" secondItem="a7i-Ce-3zE" secondAttribute="top" constant="16" id="RoK-ci-6rs"/>
-                            <constraint firstItem="Dmv-9j-CMG" firstAttribute="top" secondItem="vSt-os-BmQ" secondAttribute="bottom" constant="4" id="hSk-Gb-i2L"/>
                             <constraint firstItem="vSt-os-BmQ" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="a7i-Ce-3zE" secondAttribute="leading" constant="2" id="hoh-hf-kgh"/>
                         </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                <real key="value" value="1"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                <color key="value" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                <real key="value" value="5"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
                         <variation key="default">
                             <mask key="subviews">
                                 <exclude reference="6PD-mD-sW1"/>

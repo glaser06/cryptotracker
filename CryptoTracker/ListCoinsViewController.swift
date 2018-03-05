@@ -315,83 +315,8 @@ class ListCoinsViewController: UIViewController, ListCoinsDisplayLogic
         
     }
     var tapToCloseGesture: UITapGestureRecognizer?
-//    @IBAction func menu() {
-//        self.tabBarController?.heroTabBarAnimationType = .slide(direction: .right)
-//        self.tabBarController?.selectedIndex = 0
-//        return
-//        if !self.doSwitch {
-////            self.dismiss(animated: true, completion: nil)
-//
-//        }
-//
-//        //        self.tabBarController?.selectedIndex = 1
-//        if self.navigationController?.navigationBar.layer.zPosition == -1 {
-//            //            self.menuView.isHidden = true
-//            self.navigationController?.navigationBar.layer.zPosition = 0
-//            self.view.removeGestureRecognizer(self.tapToCloseGesture!)
-//            collapseMenu()
-//        } else {
-//
-//            //            self.menuView.isHidden = false
-//
-//            expandMenu()
-//
-//            self.navigationController?.navigationBar.layer.zPosition = -1
-//            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeMenu(_:)))
-//            self.tapToCloseGesture = tapGesture
-//            self.view.addGestureRecognizer(tapGesture)
-//        }
-//
-//
-//
-//    }
-//    func expandMenu() {
-//        var view = menuBarButton.customView!
-//
-//        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
-//
-//        view.backgroundColor = UIColor.groupTableViewBackground
-//
-//        UIView.animate(withDuration: 19.0, animations: {
-//            self.menuBarButton.customView!.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 200.0, height: 44.0)
-//            //            self.menuBarButton.customView!.addInnerShadow(onSide: .all, shadowColor: .darkGray, shadowSize: 1.0, shadowOpacity: 0.5)
-//            let innerShadow: YIInnerShadowView = YIInnerShadowView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
-//            innerShadow.layer.cornerRadius = 22
-//            innerShadow.cornerRadius = 22
-//            innerShadow.shadowRadius = 2
-//            innerShadow.shadowOpacity = 0.4
-//            innerShadow.shadowColor = UIColor.lightGray
-//            innerShadow.shadowMask = YIInnerShadowMaskAll
-//            innerShadow.tag = 11
-//            //            self.menuBarButton.customView!.addSubview(innerShadow)
-//            self.menuBarButton.customView?.setNeedsLayout()
-//            self.menuBarButton.customView?.layoutIfNeeded()
-//
-//            self.view.setNeedsLayout()
-//            self.view.layoutIfNeeded()
-//        }, completion: { (f) in
-//
-//        })
-//
-//    }
-//    func collapseMenu() {
-//        var view = menuBarButton.customView!
-//        view.frame = CGRect(x: view.frame.origin.x, y: view.frame.origin.y, width: 44.0, height: 44.0)
-//        view.backgroundColor = UIColor.white
-//        view.viewWithTag(11)?.removeFromSuperview()
-//        menuBarButton.customView = view
-//
-//
-//        self.view.setNeedsLayout()
-//        self.view.layoutIfNeeded()
-//    }
-//    func closeMenu(_ sender: UITapGestureRecognizer) {
-//        self.view.removeGestureRecognizer(sender)
-//        if self.navigationController?.navigationBar.layer.zPosition == -1 {
-//            self.menu()
-//        }
-//
-//    }
+
+
     @IBAction func switchToView(sender: UIButton) {
         self.tabBarController?.selectedIndex = sender.tag - 1
 //        self.menu()

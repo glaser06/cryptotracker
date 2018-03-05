@@ -24,12 +24,13 @@ class ListPortfoliosPresenter: ListPortfoliosPresentationLogic
     // MARK: Do something
     
     func presentPortfolios(response: ListPortfolios.FetchPortfolios.Response) {
-        for portfolio in response.portfolios {
-            
-        }
+//        for portfolio in response.portfolios {
+//
+//        }
         
         let portfolios: [ListPortfolios.FetchPortfolios.ViewModel.DisplayablePortfolio] = response.portfolios.map { (p) -> ListPortfolios.FetchPortfolios.ViewModel.DisplayablePortfolio in
-            let assets = p.assets.filter("amountHeld > %@", 0.0)
+            let assets = p.assets.filter("amountHeld > %@", 0.00000001)
+            
             return ListPortfolios.FetchPortfolios.ViewModel.DisplayablePortfolio(name: p.name, assetNames: assets.map({ (a) -> String in
 //                print(a.amountHeld)
                 return a.coin!.symbol
@@ -38,7 +39,8 @@ class ListPortfoliosPresenter: ListPortfoliosPresentationLogic
                 if let price = (a.coin?.defaultPair?.price.value) {
                     return a.amountHeld * price / p.marketValue
                 } else {
-                    return 100
+                    return a.amountHeld / p.marketValue
+                    
                 }
                 
                 

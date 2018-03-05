@@ -55,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func setup() {
         let realm: Realm = try! Realm()
 //        print(realm.objects(Pair.self).count)
-        MarketWorker.sharedInstance.setup()
+        
         if realm.objects(Pair.self).count < 1000 {
             let start = Date()
             MarketWorker.sharedInstance.retrieveCoins(completion: {
@@ -65,6 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         let end = Date()
                         let interval = end.timeIntervalSince(start)
                         print("finished setup, took \(interval) seconds")
+                        MarketWorker.sharedInstance.lastUpdate = end
                     })
                 }
                 
@@ -73,6 +74,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } else {
             MarketWorker.sharedInstance.retrieveCoins(completion: nil)
         }
+        MarketWorker.sharedInstance.setup()
         
     }
     func clearData() {

@@ -265,7 +265,7 @@ class CoinWorker
 
         bigService.fetchCharts(of: pair.baseSymbol.uppercased(), and: pair.quoteSymbol.uppercased(), from: exchangeName, for: duration, { (json) in
             
-//                        print(json)
+//            print(json)
             var data: [(Int, Double, Double, Double, Double, Double)] = []
             for period in json["Data"].arrayValue {
                 let time = period["time"].intValue

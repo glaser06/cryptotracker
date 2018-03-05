@@ -86,18 +86,7 @@ class PortfolioWorker
     
     func marketValue() -> Double {
         return portfolio.marketValue
-        let market = MarketWorker.sharedInstance
-        var val = 0.0
-        for asset in self.portfolio.assets {
-            if asset.coin!.coinType == Coin.CoinType.Fiat.rawValue {
-                val += asset.amountHeld
-            } else {
-//                let coin = market.coinCollection[]
-                val += asset.amountHeld * asset.coin!.defaultPair!.price.value!
-            }
-
-        }
-        return val
+        
     }
     
     func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool, exchange: String) {
@@ -228,7 +217,11 @@ class PortfolioWorker
         
         for (index, coin) in self.portfolio.watchlist.enumerated() {
             PortfolioWorker.sharedInstance.chartDataWaitGroup.enter()
-            coinWorker.fetchChart(of: coin, from: coin.exchange!, for: .Day, completion: { (data) in
+            if coin.exchange == nil {
+                print(coin.exchangeName)
+            }
+            let realm = try! Realm()
+            coinWorker.fetchChart(of: coin, from: coin.exchange ?? realm.objects(Exchange.self).filter("name = 'CCCAGG'").first!, for: .Day, completion: { (data) in
                 var newArr: [(Int,Double, Double, Double, Double, Double)] = data
                 
                 PortfolioWorker.sharedInstance.chartDataWaitGroup.leave()
