@@ -229,6 +229,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
         assetTableView.register(UINib(nibName: "FiatAssetTableViewCell", bundle: nil), forCellReuseIdentifier: "FiatAssetCell")
         assetTableView.register(UINib(nibName: "WatchlistTableViewCell", bundle: nil), forCellReuseIdentifier: "WatchlistCell")
         assetTableView.register(UINib(nibName: "LoadingTableCell", bundle: nil), forCellReuseIdentifier: "LoadingCell")
+        assetTableView.register(UINib(nibName: "EmptyTableViewCell", bundle: nil), forCellReuseIdentifier: "EmptyTableViewCell")
         
         assetTableView.rowHeight = UITableViewAutomaticDimension
         assetTableView.estimatedRowHeight = 200
@@ -791,9 +792,9 @@ extension ShowPortfolioViewController: UITableViewDataSource {
             return 1
         }
         if self.selectedAssets == 4 {
-            return self.watchlist.count
+            return self.watchlist.count > 0 ? watchlist.count : 1
         } else {
-            return self.assetsOnDisplay.count
+            return self.assetsOnDisplay.count > 0 ? assetsOnDisplay.count : 1
         }
         
     }
@@ -804,22 +805,34 @@ extension ShowPortfolioViewController: UITableViewDataSource {
             cell.refresher.startAnimating()
             return cell
         }
+        
 
         let row = indexPath.row
         
         var cell: UITableViewCell = UITableViewCell()
-        
+        cell.heroID = ""
         if self.selectedAssets == 4 {
-            let coin = self.watchlist[row]
-            let c = tableView.dequeueReusableCell(withIdentifier: "WatchlistCell") as! WatchlistTableViewCell
-            if self.chartData[coin.symbol.lowercased()]?[coin.quoteSymbol.lowercased()] == nil && self.canUpdateCharts{
-                self.canUpdateCharts = false
-                self.interactor?.fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request())
-            }
-            c.setCell(coin: coin, data: self.chartData[coin.symbol.lowercased()]?[coin.quoteSymbol.lowercased()] ?? [])
-            cell = c
-        } else {
+            if self.watchlist.count == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "EmptyTableViewCell")
+                return cell!
+            } else {
             
+                let coin = self.watchlist[row]
+                let c = tableView.dequeueReusableCell(withIdentifier: "WatchlistCell") as! WatchlistTableViewCell
+                if self.chartData[coin.symbol.lowercased()]?[coin.quoteSymbol.lowercased()] == nil && self.canUpdateCharts{
+                    self.canUpdateCharts = false
+                    self.interactor?.fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request())
+                }
+                c.setCell(coin: coin, data: self.chartData[coin.symbol.lowercased()]?[coin.quoteSymbol.lowercased()] ?? [])
+                cell = c
+                return cell
+            }
+            
+        } else {
+            if self.assetsOnDisplay.count == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "EmptyTableViewCell")
+                return cell!
+            }
             let asset = self.assetsOnDisplay[row]
             if self.chartData[asset.symbol.lowercased()]?["usd"] == nil && self.canUpdateCharts{
                 self.canUpdateCharts = false
@@ -860,7 +873,7 @@ extension ShowPortfolioViewController: UITableViewDataSource {
                 }
             }
         }
-        cell.heroID = ""
+        
         
         
         return cell
@@ -874,6 +887,12 @@ extension ShowPortfolioViewController: UITableViewDelegate {
         let row = indexPath.row
 //        self.navigationController!.heroNavigationAnimationType = HeroDefaultAnimationType.auto
         if self.selectedAssets == 4 {
+            if self.watchlist.count == 0 {
+                self.tabBarController?.heroTabBarAnimationType = .slide(direction: .left)
+                self.tabBarController?.selectedIndex = 1
+                tableView.deselectRow(at: indexPath, animated: true)
+                return
+            }
 //            self.performSegue(withIdentifier: "ShowCoin", sender: tableView)
 //            tableView.dequeueReusableCell(withIdentifier: "WatchlistCell", for: indexPath).heroID = "bigView"
             self.router?.routeToShowCoin()
@@ -882,11 +901,17 @@ extension ShowPortfolioViewController: UITableViewDelegate {
             tableView.deselectRow(at: indexPath, animated: true)
             return
         }
-        
+        if self.assetsOnDisplay.count == 0 {
+            self.tabBarController?.heroTabBarAnimationType = .slide(direction: .left)
+            self.tabBarController?.selectedIndex = 1
+            tableView.deselectRow(at: indexPath, animated: true)
+            return
+        }
         if self.assetsOnDisplay[row].fiat  {
             tableView.deselectRow(at: indexPath, animated: true)
             return
         }
+        
 //        print(PortfolioWorker.sharedInstance.portfolio.assets[row].coin.name)
         self.router?.routeToShowCoin()
 //            self.performSegue(withIdentifier: "ShowCoin", sender: tableView)

@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import Charts
 
 protocol SharePortfolioDisplayLogic: class
 {
@@ -66,9 +67,28 @@ class SharePortfolioViewController: UIViewController, SharePortfolioDisplayLogic
     
     // MARK: View lifecycle
     
+    @IBOutlet weak var pieChartView: PieChartView!
+    @IBOutlet weak var totalValueLabel: UILabel!
+    
+    @IBOutlet weak var assetCollectionView: UICollectionView!
+    
+    var tapGR: UITapGestureRecognizer!
+    
+    var assets: [SharePortfolio.FetchPortfolio.ViewModel.DisplayableAsset] = []
+    var colorsForAssets: [UIColor] = []
+    
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        
+        assetCollectionView.register(UINib(nibName: ShareAssetCollectionCell.identifier, bundle: nil), forCellWithReuseIdentifier: ShareAssetCollectionCell.identifier)
+        assetCollectionView.dataSource = self
+        assetCollectionView.delegate = self
+        
+        self.tapGR = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
+        self.view.addGestureRecognizer(tapGR)
+        self.fetchPortfolio()
+        self.navigationController?.clearShadow()
         
     }
     func fetchPortfolio() {
@@ -77,12 +97,168 @@ class SharePortfolioViewController: UIViewController, SharePortfolioDisplayLogic
     @IBAction func close() {
         self.navigationController?.dismiss(animated: true, completion: nil)
     }
-    
+    func closeKeyboard() {
+        self.view.endEditing(true)
+        
+    }
     // MARK: Do something
     
     //@IBOutlet weak var nameTextField: UITextField!
     
-    func displayPortfolio(vm: SharePortfolio.FetchPortfolio.ViewModel) {
+    
+    @IBAction func shareButtonClicked(_ sender: Any) {
+        //Set the default sharing message.
+        self.view.endEditing(true)
+        let message = "Checkout my portfolio"
+        let link = NSURL(string: "http://stackoverflow.com/")
+        // Screenshot:
+        let layer = UIApplication.shared.keyWindow!.layer
+        let scale = UIScreen.main.scale
+        UIGraphicsBeginImageContextWithOptions(layer.frame.size, false, scale);
+        
+        layer.render(in: UIGraphicsGetCurrentContext()!)
+        let img = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        //Set the link, message, image to share.
+        if let link = link, let img = img {
+            let objectsToShare = [message,link,img] as [Any]
+            let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
+            activityVC.excludedActivityTypes = [UIActivityType.airDrop, UIActivityType.addToReadingList]
+            self.present(activityVC, animated: true, completion: nil)
+        }
         
     }
+    
+    
+    func displayPortfolio(vm: SharePortfolio.FetchPortfolio.ViewModel) {
+        self.assets = vm.assets
+        self.assets.sort { (a, b) -> Bool in
+            a.total > b.total
+        }
+        self.assets = self.assets.filter { (a) -> Bool in
+            a.total > 0.0000001
+        }
+        self.assetCollectionView.reloadData()
+        pieChartUpdate()
+    }
+    func pieChartUpdate() {
+        let allColors = UIView.allColors
+        self.colorsForAssets = []
+        var entries: [PieChartDataEntry] = []
+//        if self.totalValueLabel.text == "$0.00" {
+//            let entry = PieChartDataEntry(value: 100)
+//            entries.append(entry)
+//            //            self.colorsForAssets.append(UIColor.lightGray)
+//        } else {
+            var count = 0
+            
+            for (index,asset) in self.assets.enumerated() {
+                //                if asset.total > 0 {
+                
+                let entry = PieChartDataEntry(value: asset.total > 0 ? asset.total : 0)
+                entries.append(entry)
+                self.colorsForAssets.append(allColors[index])
+                //                    count += 1
+                //                }
+                
+                
+            }
+//        }
+        
+        
+        //        let entry1 = PieChartDataEntry(value: 20, label: nil)
+        //        let entry2 = PieChartDataEntry(value: 30, label: nil)
+        //        let entry3 = PieChartDataEntry(value: 40, label: nil)
+        
+        
+        let dataSet = PieChartDataSet(values: entries, label: nil)
+        
+        let data = PieChartData(dataSet: dataSet)
+        
+        
+        
+        
+        //        pieChartView.chartDescription?.text = "Share of Widgets by Type"
+        dataSet.drawValuesEnabled = false
+        
+            dataSet.colors = allColors
+        
+        
+        dataSet.valueColors = [UIColor.black]
+        pieChartView.data = data
+        
+        //All other additions to this function will go here
+        var angle: CGFloat = 0.0
+//        for (index, ang) in pieChartView.drawAngles.enumerated() {
+//            if self.assets.count > 0 {
+////                self.anglesForAssets[self.assets[index].symbol.lowercased()] = angle
+//                angle += ang
+//            }
+//
+//        }
+        
+        pieChartView.backgroundColor = UIColor.clear
+        pieChartView.holeColor = UIColor.clear
+        pieChartView.entryLabelColor = UIColor.clear
+        //        pieChartView.centerText = "$76721"
+        pieChartView.holeRadiusPercent = 0.93
+        dataSet.selectionShift = 0.0
+        dataSet.sliceSpace = 2.0
+        pieChartView.chartDescription = nil
+        pieChartView.legend.enabled = false
+        pieChartView.rotationEnabled = false
+        //        pieChartView.isRotationEnabled = false
+        
+        //        pieChartView.drawSliceTextEnabled = false
+        //        pieChartView.drawSlicesUnderHoleEnabled = true
+        //        pieChartView
+        
+        
+        //This must stay at end of function
+        pieChartView.notifyDataSetChanged()
+    }
 }
+extension SharePortfolioViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return self.assets.count
+    }
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ShareAssetCollectionCell.identifier, for: indexPath) as! ShareAssetCollectionCell
+        cell.setCell(asset: self.assets[indexPath.item], color: self.colorsForAssets[indexPath.item])
+        return cell
+    }
+}
+extension SharePortfolioViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: self.view.frame.width/2, height: 60)
+    }
+}
+extension SharePortfolioViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        
+        return true
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

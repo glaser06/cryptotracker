@@ -8,6 +8,7 @@
 
 import UIKit
 import Hero
+import RealmSwift
 
 class LoadingViewController: UIViewController {
     
@@ -55,6 +56,12 @@ class LoadingViewController: UIViewController {
 //            self.loadingView.pieChart.heroModifiers = [.translate(x: 0, y: -660, z: 0)]
 //            self.loadingLabel.heroModifiers = [.translate(x: 0, y: 200, z: 0)]
 //            self.titleLabel.heroModifiers = [.translate(x: 0, y: -660, z: 0)]
+            let realm: Realm = try! Realm()
+            //        print(realm.objects(Pair.self).count)
+            
+            if realm.objects(Pair.self).count < 1000 {
+                self.loadingLabel.text = "First time setting up... May take a few minutes"
+            }
             PortfolioWorker.sharedInstance.allPricesWaitGroup.notify(queue: DispatchQueue.main, execute: {
                 self.performSegue(withIdentifier: "Load", sender: self)
             })

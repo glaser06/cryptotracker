@@ -37,9 +37,9 @@ class ListTransactionsInteractor: ListTransactionsBusinessLogic, ListTransaction
     
     
     func fetchAsset(request: ListTransactions.FetchAsset.Request) {
-        var a = Array(self.asset!.buys)
-        var b = Array(self.asset!.sells)
-        var resp = ListTransactions.FetchAsset.Response(buys: a, sells: b)
+        let a = Array(self.asset!.buys)
+        let b = Array(self.asset!.sells)
+        let resp = ListTransactions.FetchAsset.Response(buys: a, sells: b)
         presenter?.presentTransactions(response: resp)
     }
 }

@@ -80,6 +80,8 @@
 		E3856BF1204CACB300FECBD1 /* TransactionTableCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3856BEF204CACB300FECBD1 /* TransactionTableCell.xib */; };
 		E3856BF5204D21E400FECBD1 /* PortfolioCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3856BF3204D21E400FECBD1 /* PortfolioCollectionCell.swift */; };
 		E3856BF6204D21E400FECBD1 /* PortfolioCollectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3856BF4204D21E400FECBD1 /* PortfolioCollectionCell.xib */; };
+		E3856BFA204D647700FECBD1 /* ShareAssetCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3856BF8204D647700FECBD1 /* ShareAssetCollectionCell.swift */; };
+		E3856BFB204D647700FECBD1 /* ShareAssetCollectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3856BF9204D647700FECBD1 /* ShareAssetCollectionCell.xib */; };
 		E38689C51F6772E0004E98D7 /* CryptocompareAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E38689C41F6772E0004E98D7 /* CryptocompareAPI.swift */; };
 		E3A6C6731F83A2F8004FBB9A /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3A6C6721F83A2F8004FBB9A /* StorageManager.swift */; };
 		E3ABCE401FF472BF00D2FE14 /* SharePortfolioInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3ABCE3A1FF472BE00D2FE14 /* SharePortfolioInteractor.swift */; };
@@ -219,6 +221,8 @@
 		E3856BEF204CACB300FECBD1 /* TransactionTableCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TransactionTableCell.xib; sourceTree = "<group>"; };
 		E3856BF3204D21E400FECBD1 /* PortfolioCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioCollectionCell.swift; sourceTree = "<group>"; };
 		E3856BF4204D21E400FECBD1 /* PortfolioCollectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PortfolioCollectionCell.xib; sourceTree = "<group>"; };
+		E3856BF8204D647700FECBD1 /* ShareAssetCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareAssetCollectionCell.swift; sourceTree = "<group>"; };
+		E3856BF9204D647700FECBD1 /* ShareAssetCollectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShareAssetCollectionCell.xib; sourceTree = "<group>"; };
 		E38689C41F6772E0004E98D7 /* CryptocompareAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptocompareAPI.swift; sourceTree = "<group>"; };
 		E3A6C6721F83A2F8004FBB9A /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		E3ABCE3A1FF472BE00D2FE14 /* SharePortfolioInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePortfolioInteractor.swift; sourceTree = "<group>"; };
@@ -566,9 +570,19 @@
 			name = CollectionViewCells;
 			sourceTree = "<group>";
 		};
+		E3856BF7204D641B00FECBD1 /* CollectionViewCells */ = {
+			isa = PBXGroup;
+			children = (
+				E3856BF8204D647700FECBD1 /* ShareAssetCollectionCell.swift */,
+				E3856BF9204D647700FECBD1 /* ShareAssetCollectionCell.xib */,
+			);
+			name = CollectionViewCells;
+			sourceTree = "<group>";
+		};
 		E3ABCE391FF4729F00D2FE14 /* SharePortfolio */ = {
 			isa = PBXGroup;
 			children = (
+				E3856BF7204D641B00FECBD1 /* CollectionViewCells */,
 				E3ABCE3E1FF472BF00D2FE14 /* SharePortfolioViewController.swift */,
 				E3ABCE3A1FF472BE00D2FE14 /* SharePortfolioInteractor.swift */,
 				E3ABCE3C1FF472BE00D2FE14 /* SharePortfolioPresenter.swift */,
@@ -738,6 +752,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E3856BFB204D647700FECBD1 /* ShareAssetCollectionCell.xib in Resources */,
 				6D62037E1F50AA7500054A44 /* AssetTableViewCell.xib in Resources */,
 				6D0ED8CD1F4CE0A700D5146D /* LaunchScreen.storyboard in Resources */,
 				E35518211F8AF601005DBD9F /* WatchlistTableViewCell.xib in Resources */,
@@ -998,6 +1013,7 @@
 				E3856BF5204D21E400FECBD1 /* PortfolioCollectionCell.swift in Sources */,
 				6D0ED9071F4E3EF800D5146D /* CoinMarketCapAPI.swift in Sources */,
 				6D6825F21F5016DB00A25873 /* ShowCoinWorker.swift in Sources */,
+				E3856BFA204D647700FECBD1 /* ShareAssetCollectionCell.swift in Sources */,
 				6D6825F81F502BBE00A25873 /* CryptowatchAPI.swift in Sources */,
 				6D0ED9031F4E058600D5146D /* CoinTableViewCell.swift in Sources */,
 				6D6825ED1F5016DB00A25873 /* ShowCoinInteractor.swift in Sources */,

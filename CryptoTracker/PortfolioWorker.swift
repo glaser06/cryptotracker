@@ -33,8 +33,10 @@ class PortfolioWorker
                 realm.add(p, update: true)
             }
             self.portfolio = p
+//            self.portfolio.addToWatchlist(pair: realm.object(ofType: Pair.self, forPrimaryKey: "btc-usd-CCCAGG")!)
         }
         var portfolios = realm.objects(Portfolio.self)
+        
         self.allPortfolios = portfolios
         self.fetchAllPrices {
             

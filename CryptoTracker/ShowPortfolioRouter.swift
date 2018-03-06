@@ -17,6 +17,7 @@ import RealmSwift
 {
     func routeToShowCoin(segue: UIStoryboardSegue)
     func routeToShowCoin()
+//    func routeToSharePortfolio(segue: UIStoryboardSegue)
 }
 
 protocol ShowPortfolioDataPassing
@@ -30,6 +31,7 @@ class ShowPortfolioRouter: NSObject, ShowPortfolioRoutingLogic, ShowPortfolioDat
   var dataStore: ShowPortfolioDataStore?
   
   // MARK: Routing
+    
     
     func routeToAddTransaction(segue: UIStoryboardSegue) {
         let destinationVC = (segue.destination as! UINavigationController).viewControllers.first! as! ListCoinsViewController
@@ -59,7 +61,9 @@ class ShowPortfolioRouter: NSObject, ShowPortfolioRoutingLogic, ShowPortfolioDat
         var assetCoin: String
         var quote: String
         var exchange: String
+        
         if viewController?.selectedAssets == 4 {
+            
             assetCoin = viewController!.watchlist[index].symbol.lowercased()
             quote = (viewController?.watchlist[index].quoteSymbol.lowercased())!
             exchange = (viewController?.watchlist[index].exchange)!

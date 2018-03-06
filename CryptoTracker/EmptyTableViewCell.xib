@@ -47,6 +47,7 @@
                     <constraint firstItem="U85-c6-Phd" firstAttribute="centerX" secondItem="8EI-HP-jxq" secondAttribute="centerX" id="SMV-gX-1mg"/>
                     <constraint firstItem="U85-c6-Phd" firstAttribute="top" secondItem="8EI-HP-jxq" secondAttribute="bottom" constant="24" id="ZM6-Ok-g7Z"/>
                     <constraint firstItem="8EI-HP-jxq" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="24" id="oMr-nv-EsR"/>
+                    <constraint firstAttribute="bottom" secondItem="U85-c6-Phd" secondAttribute="bottom" constant="15.5" id="yod-Dh-W9T"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
