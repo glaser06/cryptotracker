@@ -72,6 +72,7 @@ class ShowAccountViewController: UIViewController, ShowAccountDisplayLogic
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        self.navigationController?.clearShadow()
         self.tabBarController?.heroTabBarAnimationType = .selectBy(presenting: .slide(direction: .right), dismissing: .slide(direction: .left))
         panGR = UIPanGestureRecognizer(target: self, action: #selector(handlePan(gestureRecognizer:)))
         view.addGestureRecognizer(panGR)

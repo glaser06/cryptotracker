@@ -69,6 +69,9 @@ class SharePortfolioViewController: UIViewController, SharePortfolioDisplayLogic
     
     @IBOutlet weak var pieChartView: PieChartView!
     @IBOutlet weak var totalValueLabel: UILabel!
+    @IBOutlet var rightButton: UIBarButtonItem!
+    @IBOutlet var leftButton: UIBarButtonItem!
+    @IBOutlet weak var field: UITextField!
     
     @IBOutlet weak var assetCollectionView: UICollectionView!
     
@@ -85,10 +88,12 @@ class SharePortfolioViewController: UIViewController, SharePortfolioDisplayLogic
         assetCollectionView.dataSource = self
         assetCollectionView.delegate = self
         
+        self.navigationController?.clearShadow()
+        
         self.tapGR = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
         self.view.addGestureRecognizer(tapGR)
         self.fetchPortfolio()
-        self.navigationController?.clearShadow()
+        self.field.becomeFirstResponder()
         
     }
     func fetchPortfolio() {
@@ -114,11 +119,15 @@ class SharePortfolioViewController: UIViewController, SharePortfolioDisplayLogic
         // Screenshot:
         let layer = UIApplication.shared.keyWindow!.layer
         let scale = UIScreen.main.scale
+        self.navigationItem.leftBarButtonItem = nil
+        self.navigationItem.rightBarButtonItem = nil
         UIGraphicsBeginImageContextWithOptions(layer.frame.size, false, scale);
         
         layer.render(in: UIGraphicsGetCurrentContext()!)
         let img = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
+        self.navigationItem.leftBarButtonItem = leftButton
+        self.navigationItem.rightBarButtonItem = rightButton
         
         //Set the link, message, image to share.
         if let link = link, let img = img {

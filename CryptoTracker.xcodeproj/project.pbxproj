@@ -710,7 +710,7 @@
 				TargetAttributes = {
 					6D0ED8BE1F4CE0A700D5146D = {
 						CreatedOnToolsVersion = 8.3.3;
-						DevelopmentTeam = C2R8DUWH2Y;
+						DevelopmentTeam = 8S68WWN3AK;
 						ProvisioningStyle = Automatic;
 					};
 					6D0ED8D21F4CE0A700D5146D = {
@@ -1199,11 +1199,11 @@
 			baseConfigurationReference = C2DFC567092D0555DF853086 /* Pods-CryptoTracker.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = C2R8DUWH2Y;
+				DEVELOPMENT_TEAM = 8S68WWN3AK;
 				INFOPLIST_FILE = CryptoTracker/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = zkcorp.CryptoTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = zzgllc.CrypticPortfolio;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -1214,11 +1214,11 @@
 			baseConfigurationReference = 0FFF8BBB9BC5A5273D81ADBC /* Pods-CryptoTracker.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = C2R8DUWH2Y;
+				DEVELOPMENT_TEAM = 8S68WWN3AK;
 				INFOPLIST_FILE = CryptoTracker/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = zkcorp.CryptoTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = zzgllc.CrypticPortfolio;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
