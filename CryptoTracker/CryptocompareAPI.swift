@@ -20,46 +20,51 @@ class CryptocompareAPI {
         
     }
     
-    func fetchCoinList(_ completion: @escaping (JSON) -> Void) {
+    func fetchCoinList(_ completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
         let url = "https://min-api.cryptocompare.com/data/all/coinlist"
-        self.request(reqUrl: url, completion)
+        self.request(reqUrl: url, completion, error)
     }
-    func fetchCoinDetails(id: Int, _ completion: @escaping (JSON) -> Void) {
+    func fetchCoinDetails(id: Int, _ completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
         let url = "https://www.cryptocompare.com/api/data/coinsnapshotfullbyid/?id=\(id)"
-        self.request(reqUrl: url, completion)
+        self.request(reqUrl: url, completion, error)
     }
     
-    func request(reqUrl: String, _ completion: @escaping (JSON) -> Void) {
+    func request(reqUrl: String, _ completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
         Alamofire.request(reqUrl).responseJSON(completionHandler: { (response) in
-            
+            print(response.result.value)
             if let value = response.result.value {
                 let json = JSON(value)
 //                print(json)
                 completion(json)
             
+            } else {
+                error()
             }
             
         })
     }
-    func fetchAllExchangesAndPairs(completion: @escaping (JSON) -> Void) {
+    func fetchAllExchangesAndPairs(completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
         
         let reqUrl = "\(url)/data/all/exchanges"
-        request(reqUrl: reqUrl, completion)
+        request(reqUrl: reqUrl, completion, error)
         
     }
-    func fetchPrice(for base: String, and quote: String, inExchange exchange: String, _ completion: @escaping (JSON) -> Void) {
-
+    func fetchPrice(for base: String, and quote: String, inExchange exchange: String, _ completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
+        var newBase = base
+        if base == "NANO" || base == "nano" {
+            newBase = "XRB"
+        }
 //        https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH&tsyms=USD&e=Coinbase&extraParams=your_app_name
 //        let reqUrl = "\(url)/data/generateAvg?fsym=\(base)&tsym=\(quote)&markets=\(exchange)"
-        let reqUrl = "\(url)/data/pricemultifull?fsyms=\(base)&tsyms=\(quote)&e=\(exchange)"
-        request(reqUrl: reqUrl, completion)
+        let reqUrl = "\(url)/data/pricemultifull?fsyms=\(newBase)&tsyms=\(quote)&e=\(exchange)"
+        request(reqUrl: reqUrl, completion, error)
     }
-    func fetchExchangesByVolumeFor(base: String, and quote: String, _ completion: @escaping (JSON) -> Void) {
+    func fetchExchangesByVolumeFor(base: String, and quote: String, _ completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
         //        let reqUrl = "\(url)/data/generateAvg?fsym=\(base)&tsym=\(quote)&markets=\(exchange)"
         let reqUrl = "\(url)/data/top/exchanges?fsym=\(base)&tsym=\(quote)&limit=20"
-        request(reqUrl: reqUrl, completion)
+        request(reqUrl: reqUrl, completion, error)
     }
-    func fetchPriceMulti(for bases: [String], and quotes: [String], in exchange: String, _ completion: @escaping (JSON) -> Void) {
+    func fetchPriceMulti(for bases: [String], and quotes: [String], in exchange: String, _ completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
         let b: String = bases.reduce("") { (p, s) -> String in
             return p + "\(s.uppercased()),"
         }
@@ -68,19 +73,19 @@ class CryptocompareAPI {
         }
         
         let reqUrl = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=\(b)&tsyms=\(q)&e=\(exchange)"
-        request(reqUrl: reqUrl, completion)
+        request(reqUrl: reqUrl, completion, error)
     }
     
-    func fetchMinutePrice(of base: String, and quote: String, from exchange: String, _ completion: @escaping (JSON) -> Void) {
+    func fetchMinutePrice(of base: String, and quote: String, from exchange: String, _ completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
         
 //        https://min-api.cryptocompare.com/data/histominute?fsym=ETH&tsym=USD&limit=60&aggregate=3&e=Kraken
         let reqUrl = "\(url)/data/histominute?fsym=\(base)&tsym=\(quote)&e=\(exchange)"
-        request(reqUrl: reqUrl, completion)
+        request(reqUrl: reqUrl, completion, error)
     
         
         
     }
-    func fetchCharts(of base: String, and quote: String, from exchange: String, for duration: ShowCoin.Duration, _ completion: @escaping (JSON) -> Void) {
+    func fetchCharts(of base: String, and quote: String, from exchange: String, for duration: ShowCoin.Duration, _ completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
         let urlMap: [ShowCoin.Duration: String] = [
             ShowCoin.Duration.Day : "\(url)/data/histominute?fsym=\(base)&tsym=\(quote)&e=\(exchange)",
             ShowCoin.Duration.Week : "\(url)/data/histohour?fsym=\(base)&tsym=\(quote)&e=\(exchange)&limit=\(7*24)",
@@ -90,7 +95,7 @@ class CryptocompareAPI {
             
         ]
         let reqUrl: String = urlMap[duration]!
-        request(reqUrl: reqUrl, completion)
+        request(reqUrl: reqUrl, completion, error)
     }
     
     

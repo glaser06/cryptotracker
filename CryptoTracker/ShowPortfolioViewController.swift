@@ -112,7 +112,7 @@ class ShowPortfolioViewController: UIViewController, ShowPortfolioDisplayLogic
 
         self.navigationController?.navigationBar.layoutIfNeeded()
         
-//        self.getAllCoins()
+
         
 
         navigationController?.heroNavigationAnimationType = .none

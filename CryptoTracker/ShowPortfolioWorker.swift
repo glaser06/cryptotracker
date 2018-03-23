@@ -31,6 +31,6 @@ class ShowPortfolioWorker
         print(bases)
         print(quotes)
         exchange.name = "CCCAGG"
-        coinWorker.fetchMultiple(bases: bases, quotes: quotes, exchange: exchange, completion: completion)
+        coinWorker.fetchMultiple(bases: bases, quotes: quotes, exchange: exchange, completion: completion, {})
     }
 }

@@ -14,7 +14,7 @@ class CoinMarketCapAPI {
     
     var url = "https://api.coinmarketcap.com/v1/ticker/?limit=200"
     
-    func getCoinInfo(completion: @escaping (JSON) -> Void) {
+    func getCoinInfo(completion: @escaping (JSON) -> Void, _ error: @escaping () -> Void) {
         Alamofire.request(url).responseJSON(completionHandler: { (response) in
 
             if let value = response.result.value {
@@ -22,6 +22,8 @@ class CoinMarketCapAPI {
                 
                 completion(json)
 //                print(json)
+            } else {
+                error()
             }
             
         })

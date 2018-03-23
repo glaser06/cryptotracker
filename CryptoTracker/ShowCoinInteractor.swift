@@ -141,7 +141,7 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
             let chart = self.pair!.time(newData, duration: request.duration)
             let resp = ShowCoin.FetchChart.Response(chartData: chart)
             self.presenter?.presentCharts(response: resp)
-        })
+        }, {})
     }
     
     func fetchCoin(request: ShowCoin.ShowCoin.Request) {
@@ -207,6 +207,7 @@ class ShowCoinInteractor: ShowCoinBusinessLogic, ShowCoinDataStore
         if coin.details == "" {
             let resp = ShowCoin.ShowCoin.Response(price: pair.price.value ?? 0.0, open: ((pair.price.value ?? 0.0) - (pair.valueChange.value ?? 0.0)), percent: pair.percentChange.value ?? 0.0, valueChanged: pair.valueChange.value ?? 0.0, volume: pair.volume.value ?? 0.0, high24: pair.high.value ?? 0.0, low24: pair.low.value ?? 0.0, name: coin.name, symbol: coin.symbol, quote: self.quoteSymbol!, exchange: self.exchangeName!, quotes: allQuotes, exchanges: exchangeNames, cap: pair.toString(d: pair.marketCap.value), url: "", details: "N/A", date: Date(), prevDate: nil)
             self.presenter?.presentCoin(response: resp)
+            
             self.coinWorker.fetchCoinDetails(of: self.coin!) {
                 self.coinWorker.fetchPrice(of: self.coinSymbol, and: self.quoteSymbol!, from: self.exchangeName!, completion: {
                     let current = Date()

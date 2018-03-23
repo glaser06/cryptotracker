@@ -69,10 +69,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     })
                 }
                 
-            })
+            }, error: {})
             MarketWorker.sharedInstance.fetchCoinIDs(completion: nil)
         } else {
-            MarketWorker.sharedInstance.retrieveCoins(completion: nil)
+            MarketWorker.sharedInstance.retrieveCoins(completion: nil, error: nil)
         }
         MarketWorker.sharedInstance.setup()
         

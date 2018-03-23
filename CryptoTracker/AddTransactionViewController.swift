@@ -16,6 +16,7 @@ import UIKit
 protocol AddTransactionDisplayLogic: class
 {
     func dismissCompletedTransaction(viewModel: AddTransaction.SaveTransaction.ViewModel)
+    func displayTransactionError()
     func displayTransaction(viewModel: AddTransaction.LoadTransaction.ViewModel)
 }
 
@@ -204,6 +205,12 @@ class AddTransactionViewController: UIViewController, AddTransactionDisplayLogic
     func loadTransaction() {
         let req = AddTransaction.LoadTransaction.Request(exchangeName: nil, quoteName: nil, initialLoad: true)
         interactor?.loadTransaction(request: req)
+    }
+    func displayTransactionError() {
+        let alert = UIAlertController(title: "Network Error", message: "Cannot determine fiat price", preferredStyle: .alert)
+        let dismiss = UIAlertAction(title: "Dismiss", style: .default, handler: nil)
+        alert.addAction(dismiss)
+        self.present(alert, animated: true, completion: nil)
     }
     func dismissCompletedTransaction(viewModel: AddTransaction.SaveTransaction.ViewModel) {
         

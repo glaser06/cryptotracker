@@ -114,8 +114,8 @@ class SharePortfolioViewController: UIViewController, SharePortfolioDisplayLogic
     @IBAction func shareButtonClicked(_ sender: Any) {
         //Set the default sharing message.
         self.view.endEditing(true)
-        let message = "Checkout my portfolio"
-        let link = NSURL(string: "http://stackoverflow.com/")
+        let message = "Checkout Cryptic Porftolio Tracker!"
+        let link = NSURL(string: "https://itunes.apple.com/us/app/cryptic-portfolio-tracker/id1356404461?ls=1&mt=8")
         // Screenshot:
         let layer = UIApplication.shared.keyWindow!.layer
         let scale = UIScreen.main.scale

@@ -74,12 +74,12 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
         self.marketWorker.retrieveCoins(completion: {(d) in
             completion()
             print("done?")
-        })
+        }, error: nil)
     }
     
     
     func fetchAssetCharts(request: ShowPortfolio.FetchAssetCharts.Request) {
-        self.portfolioWorker.fetchAssetCharts(force: true) { (base, quote, data) in
+        self.portfolioWorker.fetchAssetCharts(force: true, completion: { (base, quote, data) in
 //            let p = self.portfolioWorker.portfolio
 //            let b: [Asset] = p.assets.filter({
 //                $0.assetType != Asset.AssetType.Fiat
@@ -99,8 +99,8 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
             
 //            self.fetchPortfolioChart()
 
-        }
-        self.portfolioWorker.fetchWatchlistCharts(force: true) { (base, quote, data) in
+        }, {} )
+        self.portfolioWorker.fetchWatchlistCharts(force: true, completion: { (base, quote, data) in
             if self.charts[base.lowercased()] == nil {
                 self.charts[base.lowercased()] = [:]
             }
@@ -109,7 +109,7 @@ class ShowPortfolioInteractor: ShowPortfolioBusinessLogic, ShowPortfolioDataStor
             DispatchQueue.main.async {
                 self.presenter?.presentCharts(response: resp)
             }
-        }
+        }, {})
         portfolioWorker.chartDataWaitGroup.notify(queue: .main) {
             self.presenter?.stopLoading()
         }

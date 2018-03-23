@@ -38,9 +38,7 @@ class PortfolioWorker
         var portfolios = realm.objects(Portfolio.self)
         
         self.allPortfolios = portfolios
-        self.fetchAllPrices {
-            
-        }
+        self.fetchAllPrices(completion: {}, {})
         
         
 //        self.portfolio.cleanWatchlist()
@@ -61,7 +59,7 @@ class PortfolioWorker
     
     var allPricesWaitGroup: DispatchGroup = DispatchGroup()
     
-    func fetchAllPrices(completion: @escaping () -> Void) {
+    func fetchAllPrices(completion: @escaping () -> Void, _ error: @escaping () -> Void) {
         for p in self.allPortfolios {
             
             let quotes = ["usd", "btc"] + p.watchlist.map({ (c) -> String in
@@ -81,6 +79,9 @@ class PortfolioWorker
                 completion()
                 
                 self.allPricesWaitGroup.leave()
+            }, {
+                error()
+                self.allPricesWaitGroup.leave()
             })
         }
         
@@ -91,7 +92,7 @@ class PortfolioWorker
         
     }
     
-    func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool, exchange: String) {
+    func addTransaction(pair: Pair, price: Double, amount: Double, isBuy: Bool, exchange: String) -> Bool {
         var type: Transaction.OrderType = .Buy
         if !isBuy {
             type = .Sell
@@ -99,7 +100,12 @@ class PortfolioWorker
         let transaction = Transaction()
         transaction.pair = pair
         transaction.price = price
-        transaction.fiatPrice = pair.base!.defaultPair!.price.value!
+        if let fiatPrice = pair.base?.defaultPair?.price.value {
+            transaction.fiatPrice = fiatPrice
+        } else {
+            return false
+        }
+        
         
         if pair.quoteSymbol == "usd" {
             transaction.fiatPrice = price
@@ -208,13 +214,13 @@ class PortfolioWorker
 //        let exchange = realm.object(ofType: Exchange.self, forPrimaryKey: exchange)!
         
         
-        
+        return true
     }
     
 
     var chartDataWaitGroup: DispatchGroup = DispatchGroup()
     
-    func fetchWatchlistCharts(force: Bool, completion: @escaping (String, String, [(Int,Double, Double, Double, Double, Double)]) -> Void) {
+    func fetchWatchlistCharts(force: Bool, completion: @escaping (String, String, [(Int,Double, Double, Double, Double, Double)]) -> Void, _ error: @escaping () -> Void) {
         let coinWorker = CoinWorker()
         
         for (index, coin) in self.portfolio.watchlist.enumerated() {
@@ -232,12 +238,16 @@ class PortfolioWorker
                 completion(coin.baseSymbol, coin.quoteSymbol, newData)
                 
                 
+            }, {
+                PortfolioWorker.sharedInstance.chartDataWaitGroup.leave()
+                error()
+                
             })
             
         }
     }
     
-    func fetchAssetCharts(force: Bool, completion: @escaping (String, String, [(Int,Double, Double, Double, Double, Double)]) -> Void) {
+    func fetchAssetCharts(force: Bool, completion: @escaping (String, String, [(Int,Double, Double, Double, Double, Double)]) -> Void, _ error: @escaping () -> Void) {
         let coinWorker = CoinWorker()
         let assets = self.portfolio.assets.filter("coin.coinType != %@", Coin.CoinType.Fiat.rawValue)
         for asset in assets {
@@ -249,6 +259,10 @@ class PortfolioWorker
                 let p = Pair()
                 let newData = p.time(newArr, duration: .Day)
                 completion(asset.coin!.symbol, "usd", newData)
+                
+            }, {
+                PortfolioWorker.sharedInstance.chartDataWaitGroup.leave()
+                error()
                 
             })
         }

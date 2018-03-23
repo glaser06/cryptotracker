@@ -91,13 +91,13 @@ class CoinWorker
 //        }
     }
     
-    func fetchMultiple(bases: [String], quotes: [String], exchange: Exchange, completion: @escaping () -> Void) {
+    func fetchMultiple(bases: [String], quotes: [String], exchange: Exchange, completion: @escaping () -> Void, _ error: @escaping () -> Void) {
 //        print(bases)
         var excName = exchange.name
         if exchange.name == "CoinMarketCap" {
             excName = "CCCAGG"
         }
-        bigService.fetchPriceMulti(for: bases, and: quotes, in: excName) { (json) in
+        bigService.fetchPriceMulti(for: bases, and: quotes, in: excName, { (json) in
             let prices = json.dictionaryValue
 //            print(prices)
             let realm = try! Realm()
@@ -135,7 +135,9 @@ class CoinWorker
             }
             completion()
             
-        }
+        }, {
+            error()
+        })
     }
     
     func fetchPair(pair: Pair, exchange: Exchange, completion: @escaping (Pair) -> Void) {
@@ -153,7 +155,7 @@ class CoinWorker
     
     func fetchCoinDetails(of coin: Coin, completion: @escaping () -> Void) {
         let realm = try! Realm()
-        bigService.fetchCoinDetails(id: coin.id) { (json) in
+        bigService.fetchCoinDetails(id: coin.id, { (json) in
 //            print(json)
             let data = json["Data"]["General"]
 //            print(data)
@@ -180,23 +182,30 @@ class CoinWorker
             completion()
             
 //            print(link)
-        }
+        }, {})
     }
     
     func fetchPrice(of base: String, and quote: String, from exchange: String, completion: @escaping () -> Void, error: @escaping () -> Void) {
         let quote = quote.lowercased()
-        let base = base.lowercased()
+//        print(quote)
+        
+        var base = base.lowercased()
+        var newBase: String = base
+        if base == "nano" {
+            newBase = "xrb"
+        }
         var exchangeName: String = exchange
         if exchange == "CoinMarketCap" {
             exchangeName = "CCCAGG"
         }
         let realm = try! Realm()
-        bigService.fetchPrice(for: base.uppercased(), and: quote.uppercased(), inExchange: exchangeName, { (json) in
+        bigService.fetchPrice(for: newBase.uppercased(), and: quote.uppercased(), inExchange: exchangeName, { (json) in
             if json["Response"].stringValue == "Error" {
                 error()
                 return
             }
-            let data = json["RAW"][base.uppercased()][quote.uppercased()]
+            let data = json["RAW"][newBase.uppercased()][quote.uppercased()]
+            
             try! realm.write {
                 var key: String = Pair.keyFrom(base: base, quote: quote, exchange: exchangeName)
                 let pair = realm.object(ofType: Pair.self, forPrimaryKey: key)!
@@ -244,7 +253,7 @@ class CoinWorker
             
             
             completion()
-        })
+        }, error)
 //        var exchangeName = exchange.name
 //        if exchange.name == "CoinMarketCap" {
 //            exchangeName = "CCCAGG"
@@ -257,13 +266,16 @@ class CoinWorker
 //        })
     }
     
-    func fetchChart(of pair: Pair, from exchange: Exchange, for duration: ShowCoin.Duration, completion: @escaping ([(Int, Double, Double, Double, Double, Double)]) -> Void) {
+    func fetchChart(of pair: Pair, from exchange: Exchange, for duration: ShowCoin.Duration, completion: @escaping ([(Int, Double, Double, Double, Double, Double)]) -> Void, _ error: @escaping () -> Void) {
         var exchangeName = exchange.name
         if exchange.name == "CoinMarketCap" {
             exchangeName = "CCCAGG"
         }
-
-        bigService.fetchCharts(of: pair.baseSymbol.uppercased(), and: pair.quoteSymbol.uppercased(), from: exchangeName, for: duration, { (json) in
+        var baseSymbol = pair.baseSymbol
+        if pair.baseSymbol == "nano" {
+            baseSymbol = "xrb"
+        }
+        bigService.fetchCharts(of: baseSymbol.uppercased(), and: pair.quoteSymbol.uppercased(), from: exchangeName, for: duration, { (json) in
             
 //            print(json)
             var data: [(Int, Double, Double, Double, Double, Double)] = []
@@ -279,7 +291,7 @@ class CoinWorker
             
             completion(data)
             
-        })
+        }, error)
     }
     
     

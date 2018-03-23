@@ -15,6 +15,8 @@ class LoadingViewController: UIViewController {
     @IBOutlet weak var loadingView: LoadingView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var loadingLabel: UILabel!
+    
+    @IBOutlet weak var progressView: UIProgressView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +24,11 @@ class LoadingViewController: UIViewController {
         self.navigationController?.clearShadow()
 //        self.navigationController?.isNavigationBarHidden = true
         self.navigationController?.heroNavigationAnimationType = .none
+        if self.progressView != nil {
+            self.progressView!.setProgress(0.0, animated: true)
+            self.timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(randomProgress), userInfo: nil, repeats: true)
+        }
+        
         
 //        self.loadingView.pieChart.heroID = "pieChart"
         // Do any additional setup after loading the view.
@@ -29,11 +36,22 @@ class LoadingViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         
         self.navigationController?.heroNavigationAnimationType = .none
+        
     }
-    
+    override func viewDidDisappear(_ animated: Bool) {
+        if self.timer != nil {
+            self.timer.invalidate()
+        }
+        
+        
+    }
     override func viewDidAppear(_ animated: Bool) {
 //        self.loadingView.pieChart.heroID = "pieChart"
 //        self.performSegue(withIdentifier: "Load", sender: self)
+        if self.progressView != nil {
+            self.progressView!.setProgress(0.0, animated: true)
+            self.timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(randomProgress), userInfo: nil, repeats: true)
+        }
         
         if self.navigationController != nil {
             let vc = self.storyboard?.instantiateViewController(withIdentifier: "ShowPortfolio") as! ShowPortfolioViewController
@@ -77,6 +95,16 @@ class LoadingViewController: UIViewController {
         } else {
             self.loadingView.rotatePie(duration: 2.0)
         }
+    }
+    
+    var timer: Timer!
+    func randomProgress() {
+        let rand = Float(arc4random_uniform(5))
+        if self.progressView!.progress + Float(rand / 120) < 1.0 {
+            let a = self.progressView!.progress + Float(rand / 120)
+            self.progressView!.setProgress(a, animated: true)
+        }
+        
     }
 
 

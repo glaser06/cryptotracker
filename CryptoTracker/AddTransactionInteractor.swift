@@ -51,9 +51,14 @@ class AddTransactionInteractor: AddTransactionBusinessLogic, AddTransactionDataS
     
     func saveTransaction(request: AddTransaction.SaveTransaction.Request) {
         
-        portfolioWorker.addTransaction(pair: self.pair!, price: request.price, amount: request.amount, isBuy: request.isBuying, exchange: self.exchange!.name)
+        let result = portfolioWorker.addTransaction(pair: self.pair!, price: request.price, amount: request.amount, isBuy: request.isBuying, exchange: self.exchange!.name)
+        if result {
+            presenter?.presentCompletedTransaction(response: AddTransaction.SaveTransaction.Response())
+        } else {
+            presenter?.presentTransactionError()
+        }
 //        print(portfolioWorker.portfolio.assets.count)
-        presenter?.presentCompletedTransaction(response: AddTransaction.SaveTransaction.Response())
+        
     }
     func loadTransaction(request: AddTransaction.LoadTransaction.Request) {
 //        let pair = self.pair!
@@ -154,7 +159,7 @@ class AddTransactionInteractor: AddTransactionBusinessLogic, AddTransactionDataS
             
             let resp = AddTransaction.LoadTransaction.Response(pair: pair, exchange: self.exchange!, isBuy: buy, currentPrice: price, coin: coin, exchangeName: excName, quoteName: quoteName)
             self.presenter?.presentTransaction(response: resp)
-        })
+        }, {})
 
         
     }

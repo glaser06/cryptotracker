@@ -44,14 +44,21 @@ class MarketWorker
     
     func fetchCoinIDs(completion: (() -> Void)?) {
         let realm = try! Realm()
-        bigService.fetchCoinList { (json) in
+        bigService.fetchCoinList( { (json) in
             let data = json.dictionaryValue["Data"]!.dictionaryValue
             try! realm.write {
                 for each in data {
 //                    print(each.value)
                     var coin = Coin()
                     let coinData = each.value.dictionaryValue
-                    coin.setSymbol(sym: each.value.dictionaryValue["Symbol"]!.stringValue.lowercased())
+
+                    let symbol = each.value.dictionaryValue["Symbol"]!.stringValue.lowercased()
+                    if symbol == "xrb" {
+                        coin.setSymbol(sym: "nano")
+                    } else {
+                        coin.setSymbol(sym: symbol)
+                    }
+                    
                     coin.name = coinData["CoinName"]!.stringValue.lowercased()
                     if let u = realm.object(ofType: Coin.self, forPrimaryKey: coin.symbol) {
                         coin = u
@@ -66,10 +73,10 @@ class MarketWorker
             
             
             
-        }
+        }, {})
     }
     
-    func retrieveCoins(completion: (() -> Void)?) {
+    func retrieveCoins(completion: (() -> Void)?, error: (() -> Void)?) {
         var realm = try! Realm()
         var usd: Coin = Coin()
         
@@ -108,9 +115,13 @@ class MarketWorker
                 for data in json {
                     let name: String = data.1["name"].stringValue.lowercased()
                     var symbol: String = data.1["symbol"].string!.lowercased()
+                    
                     if let s = self.coinMapper[symbol] {
                         symbol = s
                     }
+//                    if symbol == "NANO" {
+//                        symbol = "XRB"
+//                    }
                     let cap: Double = Double(data.1["market_cap_usd"].stringValue)!
                     let price: Double = Double(data.1["price_usd"].string!)!
                     let btcPrice: Double = Double(data.1["price_btc"].string!)!
@@ -188,6 +199,10 @@ class MarketWorker
             
             
             
+        }, {
+            if let err = error {
+                err()
+            }
         })
     }
     
@@ -282,7 +297,7 @@ class MarketWorker
 //                print(realm.objects(Pair.self))
             }
             
-        })
+        }, {})
     }
     public static func pair(base: String, quote: String, exchange: String) -> Pair? {
         if base != "" && quote != "" && exchange != "" {
@@ -494,7 +509,7 @@ class MarketWorker
     
     @objc func updateCoin() {
         print("updating")
-        self.retrieveCoins(completion: nil)
+        self.retrieveCoins(completion: nil, error: nil)
     }
     
     static let sharedInstance: MarketWorker = MarketWorker()
@@ -528,6 +543,9 @@ class MarketWorker
                     })
                 }
                 
+            }, error: {
+                let end = Date()
+                MarketWorker.sharedInstance.lastUpdate = end
             })
             MarketWorker.sharedInstance.fetchCoinIDs(completion: nil)
         }

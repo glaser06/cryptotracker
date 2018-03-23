@@ -16,6 +16,7 @@ protocol AddTransactionPresentationLogic
 {
     
     func presentCompletedTransaction(response: AddTransaction.SaveTransaction.Response)
+    func presentTransactionError()
     func presentTransaction(response: AddTransaction.LoadTransaction.Response)
 }
 
@@ -26,12 +27,25 @@ class AddTransactionPresenter: AddTransactionPresentationLogic
     // MARK: Do something
     
     func presentTransaction(response: AddTransaction.LoadTransaction.Response) {
-        let vm = AddTransaction.LoadTransaction.ViewModel(isBuy: response.isBuy, currentPrice: "\(response.currentPrice)", coinName: response.coin.symbol, exchangeNames: response.coin.exchangeNames(for: response.quoteName), quoteNames: response.coin.quoteSymbols, exchangeName: response.exchangeName, quoteName: response.quoteName)
+        var excNames = response.coin.exchangeNames(for: response.quoteName)
+//        for (index, each) in excNames.enumerated() {
+//            if each == "CCCAGG" {
+//                excNames[index] = "CrytoCompare"
+//            }
+//        }
+        var excName = response.exchangeName
+//        if response.exchangeName == "CCCAGG" {
+//            excName = "CrytoCompare"
+//        }
+        let vm = AddTransaction.LoadTransaction.ViewModel(isBuy: response.isBuy, currentPrice: "\(response.currentPrice)", coinName: response.coin.symbol, exchangeNames: excNames, quoteNames: response.coin.quoteSymbols, exchangeName: response.exchangeName, quoteName: response.quoteName)
 
 
         viewController?.displayTransaction(viewModel: vm)
     }
     func presentCompletedTransaction(response: AddTransaction.SaveTransaction.Response) {
         viewController?.dismissCompletedTransaction(viewModel: AddTransaction.SaveTransaction.ViewModel())
+    }
+    func presentTransactionError() {
+        viewController?.displayTransactionError()
     }
 }

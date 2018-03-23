@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="d10-b7-c3A">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="d10-b7-c3A">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
@@ -1163,10 +1163,7 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="246" horizontalCompressionResistancePriority="749" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="0.0" adjustsFontForContentSizeCategory="YES" minimumFontSize="11" clearButtonMode="always" translatesAutoresizingMaskIntoConstraints="NO" id="FxG-xb-H8j">
-                                                        <rect key="frame" x="20" y="8" width="248" height="123"/>
-                                                        <constraints>
-                                                            <constraint firstAttribute="width" constant="248" id="67O-2K-QCv"/>
-                                                        </constraints>
+                                                        <rect key="frame" x="20" y="8" width="258" height="123"/>
                                                         <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                         <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="90"/>
                                                         <textInputTraits key="textInputTraits" keyboardType="decimalPad"/>
@@ -1182,6 +1179,7 @@
                                                     <constraint firstItem="zOu-K4-jCZ" firstAttribute="baseline" secondItem="FxG-xb-H8j" secondAttribute="baseline" id="XsR-tM-xJx"/>
                                                     <constraint firstItem="FxG-xb-H8j" firstAttribute="leading" secondItem="3Cx-Os-Dtv" secondAttribute="leading" constant="20" id="eLy-Ak-bbz"/>
                                                     <constraint firstItem="FxG-xb-H8j" firstAttribute="top" secondItem="3Cx-Os-Dtv" secondAttribute="top" constant="8" id="z7Z-YK-Wzg"/>
+                                                    <constraint firstItem="zOu-K4-jCZ" firstAttribute="leading" secondItem="FxG-xb-H8j" secondAttribute="trailing" constant="16" id="z8Q-Uh-Fpy"/>
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Cld-5b-Cif">
@@ -2175,7 +2173,7 @@
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </view>
                             </barButtonItem>
-                            <barButtonItem title="Done" id="wf3-00-Q4g">
+                            <barButtonItem title="Snap and share!" id="wf3-00-Q4g">
                                 <connections>
                                     <action selector="shareButtonClicked:" destination="fBb-gZ-fdW" id="WUH-Fa-mAI"/>
                                 </connections>
@@ -2312,7 +2310,7 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This May Take Awhile..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="42m-Sh-MG3">
-                                <rect key="frame" x="99" y="593.5" width="177" height="24"/>
+                                <rect key="frame" x="99" y="593" width="177" height="24"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -2326,23 +2324,33 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SJf-f1-CBH">
+                                <rect key="frame" x="72" y="550" width="230" height="2"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="230" id="i49-jl-1PI"/>
+                                </constraints>
+                                <color key="progressTintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </progressView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Ul7-kQ-9Mu" firstAttribute="top" secondItem="42m-Sh-MG3" secondAttribute="bottom" constant="50" id="44r-gW-V48"/>
                             <constraint firstItem="G7J-lr-CR0" firstAttribute="centerX" secondItem="JFH-Ni-dTE" secondAttribute="centerX" id="Bhq-1C-SSX"/>
                             <constraint firstItem="GVe-N1-VS4" firstAttribute="bottom" secondItem="Ul7-kQ-9Mu" secondAttribute="top" id="Rap-Wh-uwb"/>
+                            <constraint firstItem="42m-Sh-MG3" firstAttribute="top" secondItem="SJf-f1-CBH" secondAttribute="bottom" constant="41" id="UKS-FC-B8d"/>
                             <constraint firstAttribute="trailing" secondItem="GVe-N1-VS4" secondAttribute="trailing" id="aC8-sY-jAX"/>
                             <constraint firstItem="GVe-N1-VS4" firstAttribute="leading" secondItem="JFH-Ni-dTE" secondAttribute="leading" id="bL2-Rm-WRn"/>
                             <constraint firstItem="GVe-N1-VS4" firstAttribute="top" secondItem="JFH-Ni-dTE" secondAttribute="top" constant="64" id="dJ0-qC-c05"/>
                             <constraint firstItem="G7J-lr-CR0" firstAttribute="top" secondItem="GVe-N1-VS4" secondAttribute="top" id="iF2-B0-b7c"/>
                             <constraint firstItem="42m-Sh-MG3" firstAttribute="centerX" secondItem="G7J-lr-CR0" secondAttribute="centerX" id="mJY-H5-rdY"/>
+                            <constraint firstItem="SJf-f1-CBH" firstAttribute="centerX" secondItem="42m-Sh-MG3" secondAttribute="centerX" id="qpQ-XR-fOn"/>
                             <constraint firstItem="G7J-lr-CR0" firstAttribute="leading" secondItem="JFH-Ni-dTE" secondAttribute="leading" constant="20" id="qqR-eB-1Qj"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="loadingLabel" destination="42m-Sh-MG3" id="XX0-Fc-RYX"/>
                         <outlet property="loadingView" destination="GVe-N1-VS4" id="RJV-Eh-9KQ"/>
+                        <outlet property="progressView" destination="SJf-f1-CBH" id="Oa3-eg-dRw"/>
                         <outlet property="titleLabel" destination="G7J-lr-CR0" id="6Pz-VP-olN"/>
                         <segue destination="Sbs-BO-xdn" kind="presentation" identifier="Load" id="qR3-KM-chM"/>
                     </connections>
